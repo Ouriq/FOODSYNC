@@ -104,25 +104,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fungsi Notif Mark Read
   const markAllBtn = document.querySelector('.notif-mark-read');
-  const notifItems = document.querySelectorAll('.notif-item');
-
+  
   if (markAllBtn) {
     markAllBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      notifItems.forEach(item => {
-        const dot = item.querySelector('.notif-unread-dot');
-        if (dot) dot.style.display = 'none';
+      const notifs = JSON.parse(localStorage.getItem('erp_notifications') || '[]');
+      let modified = false;
+      notifs.forEach(n => {
+          if ((n.role === currentUserRole || n.role === 'all') && !n.read) {
+              n.read = true;
+              modified = true;
+          }
       });
+      if (modified) {
+          localStorage.setItem('erp_notifications', JSON.stringify(notifs));
+          if (typeof renderNotifications === 'function') renderNotifications();
+      }
     });
   }
-
-  notifItems.forEach(item => {
-    item.style.cursor = 'pointer';
-    item.addEventListener('click', () => {
-      const dot = item.querySelector('.notif-unread-dot');
-      if (dot) dot.style.display = 'none';
-    });
-  });
 
   // Fungsi Logout dari dropdown baru
   if (popupLogoutBtn) {
@@ -224,6 +223,8 @@ if (originalBtnChat) {
         chatDrawer.classList.add('open');
         renderChatList();
         renderAnnouncements();
+        updateChatBadge();
+        renderNotifications();
     });
 }
 
@@ -249,6 +250,9 @@ function renderChatList() {
     divisions.forEach(div => {
         if (div.id === currentUserRole) return; // Jangan chat diri sendiri (kecuali superadmin)
         
+        const msgs = getMessages();
+        const unreadForThis = msgs.filter(m => m.type === 'dm' && m.from === div.id && m.to === currentUserRole && m.read === false).length;
+        
         const item = document.createElement('div');
         item.className = 'chat-item';
         item.innerHTML = `
@@ -257,7 +261,10 @@ function renderChatList() {
                 <h4 class="chat-name">${div.name}</h4>
                 <p class="chat-time">Click to chat</p>
             </div>
-            <div class="chat-badge">${div.badge}</div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:5px;">
+                <div class="chat-badge">${div.badge}</div>
+                ${unreadForThis > 0 ? '<div style="width:10px;height:10px;background:#EF4444;border-radius:50%;"></div>' : ''}
+            </div>
         `;
         item.addEventListener('click', () => openChatRoom(div));
         list.appendChild(item);
@@ -268,6 +275,22 @@ function renderChatList() {
 function openChatRoom(division) {
     currentActiveChatId = division.id;
     document.getElementById('chatRoomTitle').textContent = division.name;
+    
+    // Mark messages as read
+    const msgs = getMessages();
+    let modified = false;
+    msgs.forEach(m => {
+        if (m.type === 'dm' && m.from === division.id && m.to === currentUserRole && m.read === false) {
+            m.read = true;
+            modified = true;
+        }
+    });
+    if (modified) {
+        saveMessages(msgs);
+        updateChatBadge();
+        renderChatList();
+    }
+    
     chatDrawer.classList.remove('open');
     chatRoom.classList.add('open');
     renderMessages();
@@ -323,7 +346,8 @@ document.getElementById('sendChatMessageBtn').addEventListener('click', () => {
         from: currentUserRole,
         to: currentActiveChatId,
         text: text,
-        time: new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})
+        time: new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}),
+        read: false
     });
     saveMessages(msgs);
     input.value = '';
@@ -390,8 +414,110 @@ window.addEventListener('storage', (e) => {
     if (e.key === 'erp_messages') {
         renderMessages();
         renderAnnouncements();
+        updateChatBadge();
+        renderChatList();
+    }
+    if (e.key === 'erp_notifications') {
+        renderNotifications();
     }
 });
+
+// INITIALIZE BADGES & NOTIFS
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        if (typeof renderNotifications === 'function') renderNotifications();
+        if (typeof updateChatBadge === 'function') updateChatBadge();
+    }, 500);
+});
+
+function updateChatBadge() {
+    const msgs = getMessages();
+    const unreadCount = msgs.filter(m => m.type === 'dm' && m.to === currentUserRole && m.read === false).length;
+    const btn = document.getElementById('btnChatToggle');
+    if (!btn) return;
+    
+    let badge = document.getElementById('chatBadgeIcon');
+    if (!badge) {
+        badge = document.createElement('span');
+        badge.id = 'chatBadgeIcon';
+        badge.style = 'position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; width:16px; height:16px; font-size:9px; display:flex; align-items:center; justify-content:center; font-weight:bold;';
+        btn.style.position = 'relative';
+        btn.appendChild(badge);
+    }
+    
+    if (unreadCount > 0) {
+        badge.style.display = 'flex';
+        badge.textContent = unreadCount;
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+window.sendNotification = function(roleTarget, title, message) {
+    const notifs = JSON.parse(localStorage.getItem('erp_notifications') || '[]');
+    notifs.push({
+        id: Date.now(),
+        role: roleTarget,
+        title: title,
+        message: message,
+        time: new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}),
+        read: false
+    });
+    localStorage.setItem('erp_notifications', JSON.stringify(notifs));
+};
+
+window.renderNotifications = function() {
+    const notifs = JSON.parse(localStorage.getItem('erp_notifications') || '[]');
+    const myNotifs = notifs.filter(n => n.role === currentUserRole || n.role === 'all');
+    const unreadCount = myNotifs.filter(n => !n.read).length;
+    
+    // update btnNotifToggle badge
+    let badge = document.getElementById('notifBadgeIcon');
+    const btnNotif = document.getElementById('btnNotifToggle');
+    if (!badge && btnNotif) {
+        badge = document.createElement('span');
+        badge.id = 'notifBadgeIcon';
+        badge.style = 'position:absolute; top:-2px; right:-2px; background:red; width:10px; height:10px; border-radius:50%;';
+        btnNotif.style.position = 'relative';
+        btnNotif.appendChild(badge);
+    }
+    if (badge) {
+        badge.style.display = unreadCount > 0 ? 'block' : 'none';
+    }
+    
+    const container = document.querySelector('#notifPopup .notif-list');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (myNotifs.length === 0) {
+        container.innerHTML = '<div style="padding:15px; text-align:center; color:#6B7280; font-size:13px;">Tidak ada notifikasi</div>';
+        return;
+    }
+    
+    myNotifs.reverse().forEach(n => {
+        const div = document.createElement('div');
+        div.className = 'notif-item';
+        div.style = 'padding: 12px 16px; border-bottom: 1px solid #F3F4F6; display: flex; gap: 12px; cursor: pointer; align-items:flex-start;';
+        if (!n.read) div.style.background = '#F9FAFB';
+        
+        div.innerHTML = `
+            <div style="flex:1;">
+                <h4 style="margin:0; font-size:13px; color:#111827;">${n.title}</h4>
+                <p style="margin:2px 0 0 0; font-size:12px; color:#6B7280;">${n.message}</p>
+                <span style="font-size:11px; color:#9CA3AF;">${n.time}</span>
+            </div>
+            ${!n.read ? '<div class="notif-unread-dot" style="width:8px; height:8px; background:#EF4444; border-radius:50%; margin-top:4px;"></div>' : ''}
+        `;
+        
+        div.addEventListener('click', () => {
+            n.read = true;
+            localStorage.setItem('erp_notifications', JSON.stringify(notifs));
+            renderNotifications();
+        });
+        
+        container.appendChild(div);
+    });
+}
 
 
   // --- BUDGET ROLLOVER LOGIC (MONTHLY RESET) ---

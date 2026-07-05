@@ -502,15 +502,31 @@
         
         if (btnApprove) {
           const id = btnApprove.getAttribute('data-id');
-          if (confirm('Setujui alokasi dana ini?')) {
-            const idx = allocations.findIndex(a => a.id === id);
-            if(idx !== -1) allocations[idx].status = 'approved';
-            localStorage.setItem('erp_finance_allocations', JSON.stringify(allocations));
-            renderTables();
-            
-            // Dispatch storage event manually for other tabs
-            window.dispatchEvent(new Event('storage'));
-          }
+            if (confirm('Setujui alokasi dana ini?')) {
+              const idx = allocations.findIndex(a => a.id === id);
+              if(idx !== -1) {
+                allocations[idx].status = 'approved';
+                
+                let roleMap = {
+                    'Sales & Marketing': 'sales',
+                    'Purchasing Manager': 'purchasing',
+                    'Purchasing': 'purchasing',
+                    'Production': 'production',
+                    'Production Staff': 'production',
+                    'Inventory Staff': 'inventory',
+                    'HR Manager': 'hr'
+                };
+                let targetRole = roleMap[allocations[idx].divisi] || 'all';
+                if (typeof window.sendNotification === 'function') {
+                    window.sendNotification(targetRole, 'Anggaran Disetujui', 'Anggaran untuk ' + allocations[idx].keperluan + ' telah disetujui oleh Finance.');
+                }
+              }
+              localStorage.setItem('erp_finance_allocations', JSON.stringify(allocations));
+              renderTables();
+              
+              // Dispatch storage event manually for other tabs
+              window.dispatchEvent(new Event('storage'));
+            }
         }
         
         if (btnReject) {

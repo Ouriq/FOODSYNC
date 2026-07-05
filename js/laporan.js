@@ -243,6 +243,10 @@ document.addEventListener("DOMContentLoaded", () => {
         
         localStorage.setItem('erp_finance_income_drafts', JSON.stringify(drafts));
         
+        if (typeof window.sendNotification === 'function') {
+            window.sendNotification('finance', 'Laporan Penjualan', 'Tim Sales & Marketing telah mengirimkan laporan penjualan baru sejumlah Rp ' + total.toLocaleString('id-ID'));
+        }
+        
         showToast('Laporan dikirim ke Finance sebagai Draft!', '#059669');
         btnSendToFinance.style.display = 'none'; // Sembunyikan setelah dikirim agar tidak dobel
       });
