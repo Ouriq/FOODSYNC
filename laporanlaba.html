@@ -501,7 +501,7 @@
                 tbodyRiwayat.innerHTML = '';
                 history.forEach(item => {
                     const tr = document.createElement('tr');
-                    let profitVal = item.keuntungan || 0;
+                    let profitVal = item.keuntungan !== undefined ? item.keuntungan : (item.sumber === 'Sales & Marketing' ? item.nominal * 0.10 : 0);
                     tr.innerHTML = `
                       <td class="clickable-id" data-id="${item.id}" data-source="history"><b>${item.id}</b></td>
                       <td>${item.date}</td>
@@ -527,7 +527,7 @@
                 } else {
                     drafts.forEach(item => {
                         const tr = document.createElement('tr');
-                        let profitVal = item.keuntungan || 0;
+                        let profitVal = item.keuntungan !== undefined ? item.keuntungan : (item.sumber === 'Sales & Marketing' ? item.nominal * 0.10 : 0);
                         tr.innerHTML = `
                           <td class="clickable-id" data-id="${item.id}" data-source="draft"><b>${item.id}</b></td>
                           <td>${item.date}</td>
