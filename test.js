@@ -1,0 +1,602 @@
+
+  (function() {
+    var photo = localStorage.getItem('user_photo');
+    if (photo) {
+      document.write('<style id="anti-flicker-avatar">');
+      document.write('.user-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.user-avatar i { display: none; }');
+      document.write('.pd-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.pd-avatar i { display: none; }');
+      document.write('.big-avatar { background-image: url(' + photo + ') !important; background-size: cover !important; }');
+      document.write('</style>');
+    }
+  })();
+</script>
+<style>
+.sidebar-nav a.nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #4B5563; text-decoration: none; font-weight: 600; font-size: 14px; border-radius: 8px; transition: 0.2s;
+}
+.sidebar-nav a.nav-item:hover, .sidebar-nav a.nav-item.active {
+  background: #F3F4F6; color: #1E3A8A;
+}
+.sidebar-nav a.nav-item i { font-size: 20px; }
+
+/* Specific Page Styling */
+.page-title {
+  font-size: 28px; font-weight: 800; color: #111827; margin-bottom: 8px;
+}
+.page-subtitle {
+  font-size: 15px; color: #4B5563; margin-bottom: 32px;
+}
+
+/* Kanban Board Styling */
+.kanban-board {
+  display: flex; gap: 24px; align-items: flex-start; overflow-x: auto; padding-bottom: 24px; min-height: 500px;
+}
+.kanban-column {
+  background: #F3F4F6; border-radius: 12px; min-width: 340px; width: 340px; padding: 16px; display: flex; flex-direction: column; gap: 16px;
+}
+.kanban-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #E5E7EB;
+}
+.kanban-title {
+  font-size: 13px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.kanban-badge {
+  background: #E5E7EB; color: #374151; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 12px;
+}
+
+/* Card Styling */
+.kanban-card {
+  background: white; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; transition: 0.2s; position: relative;
+}
+.kanban-card.clickable {
+  cursor: pointer;
+}
+.kanban-card.clickable:hover {
+  transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-color: #3B82F6;
+}
+.card-top {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+}
+.po-id {
+  background: #DBEAFE; color: #1D4ED8; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 4px;
+}
+.card-status-active {
+  background: #E0E7FF; color: #1D4ED8; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 12px; display: flex; align-items: center; gap: 4px;
+}
+.card-status-active::before {
+  content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background: #1D4ED8;
+}
+.card-title {
+  font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 8px;
+}
+.card-line {
+  font-size: 12px; color: #6B7280; display: flex; align-items: center; gap: 6px; margin-bottom: 16px;
+}
+.card-progress-header {
+  display: flex; justify-content: space-between; font-size: 11px; color: #6B7280; margin-bottom: 6px; font-weight: 600;
+}
+.progress-bar-bg {
+  height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden; margin-bottom: 6px;
+}
+.progress-bar-fill {
+  height: 100%; background: #1D4ED8; border-radius: 3px;
+}
+.card-target-text {
+  font-size: 10px; color: #9CA3AF; text-align: right;
+}
+.card-footer {
+  display: flex; justify-content: space-between; font-size: 11px; color: #9CA3AF; margin-top: 16px; border-top: 1px dashed #E5E7EB; padding-top: 12px;
+}
+.alert-box {
+  background: #FEF2F2; color: #DC2626; padding: 8px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; border: 1px solid #FCA5A5; display: flex; align-items: center; gap: 6px; margin-bottom: 12px;
+}
+
+/* Form Styles */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+.form-control { width: 100%; padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 13px; color: #111827; box-sizing: border-box; outline: none; transition: border 0.2s; font-family: inherit; }
+.form-control:focus { border-color: #3B82F6; }
+
+/* Modal Styling */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background: white;
+  width: 450px;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+</style>
+</head>
+<body>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="assets/images/logo.png" alt="Logo FoodSync" class="logo-img" />
+      </div>
+
+      <p class="menu-label">MENU</p>
+      <nav class="sidebar-nav">
+        <a href="dashboardprod.html" class="nav-item">
+          <i class='bx bx-grid-alt'></i> Dashboard
+        </a>
+        <a href="rencanaproduksi.html" class="nav-item">
+          <i class='bx bx-calendar-event'></i> Rencana Produksi
+        </a>
+        <a href="monitoringproduksi.html" class="nav-item">
+          <i class='bx bx-desktop'></i> Monitoring Produksi
+        </a>
+        <a href="prosesproduksi.html" class="nav-item active">
+          <i class='bx bx-cog'></i> Proses Produksi
+        </a>
+        <a href="qualitycheck.html" class="nav-item">
+          <i class='bx bx-check-shield'></i> Quality Check
+        </a>
+        <a href="riwayatproduksi.html" class="nav-item">
+          <i class='bx bx-history'></i> Riwayat Produksi
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-right" style="margin-left: auto; display: flex; align-items: center; gap: 24px;">
+          <!-- PROFILE DROPDOWN -->
+          <div class="profile-wrapper" style="position: relative;">
+            <div class="user-profile" id="btnProfileToggle" style="cursor: pointer; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+              <div class="user-info" style="text-align: right;">
+                <span class="user-name" id="userNameDisplay">HOHO</span>
+                <span class="user-role">Production Spv</span>
+              </div>
+              <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;">
+                <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+              </div>
+              <i class='bx bx-chevron-down' style="font-size: 16px; color: #6B7280;"></i>
+            </div>
+            
+            <div class="profile-popup" id="profilePopup" style="display: none; position: absolute; right: 0; top: 55px; background: white; width: 260px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <div style="border-top: 1px solid #F3F4F6; padding: 8px 0;">
+                <button id="popupLogoutBtn" style="width: 100%; text-align: left; display: flex; align-items: center; gap: 12px; padding: 10px 20px; border: none; background: transparent; cursor: pointer; color: #DC2626; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-log-out' style="font-size: 18px;"></i> Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div style="padding: 24px 0;">
+        <h1 class="page-title">Proses Produksi</h1>
+        <p class="page-subtitle">Pelacakan lini real-time produksi aktif</p>
+        
+        <div class="kanban-board">
+          
+          
+          <!-- TO DO COLUMN -->
+          <div class="kanban-column" id="colToDo">
+            <div class="kanban-header">
+              <span class="kanban-title">TO DO</span>
+              <span class="kanban-badge" id="countToDo">0</span>
+            </div>
+            <div id="todoCardsContainer" style="display: flex; flex-direction: column; gap: 16px;"></div>
+          </div>
+
+          <!-- IN PROGRESS COLUMN -->
+          <div class="kanban-column" id="colInProgress">
+            <div class="kanban-header">
+              <span class="kanban-title">SEDANG DIPROSES (ON LINE)</span>
+              <span class="kanban-badge" id="countInProgress" style="background: #1D4ED8; color: white;">0</span>
+            </div>
+            <div id="inProgressCardsContainer" style="display: flex; flex-direction: column; gap: 16px;"></div>
+          </div>
+          
+          <!-- QUALITY CHECK COLUMN -->
+          <div class="kanban-column" id="colQC">
+            <div class="kanban-header">
+              <span class="kanban-title">QUALITY CHECK</span>
+              <span class="kanban-badge" id="countQC" style="background: #EA580C; color: white;">0</span>
+            </div>
+            <div id="qcCardsContainer" style="display: flex; flex-direction: column; gap: 16px;">
+              <!-- Dynamic QC Cards go here -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal Setting Pabrik -->
+  <div id="modalSetting" class="modal-overlay">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-size: 18px; margin: 0; color: #111827;">Mulai Produksi (Assign Line)</h3>
+        <i class='bx bx-x' onclick="closeSettingModal()" style="font-size: 24px; cursor: pointer; color: #6B7280;"></i>
+      </div>
+      
+      <div style="margin-bottom: 16px; background: #F9FAFB; padding: 12px; border-radius: 8px; border: 1px solid #E5E7EB;">
+        <strong id="modalPO" style="display: block; color: #1D4ED8; font-size: 14px; margin-bottom: 4px;"></strong>
+        <span id="modalProduct" style="font-size: 13px; color: #111827; font-weight: 600;"></span><br>
+        <span id="modalTarget" style="font-size: 12px; color: #6B7280;"></span>
+      </div>
+
+      <div class="form-group">
+        <label>Pilih Pabrik / Lini Produksi</label>
+        <select id="selectLini" class="form-control">
+          <option value="Pabrik 1 (Lini A)">Pabrik 1 (Lini A)</option>
+          <option value="Pabrik 2 (Lini B)">Pabrik 2 (Lini B)</option>
+          <option value="Pabrik 3 (Lini C)">Pabrik 3 (Lini C)</option>
+          <option value="Pabrik 4 (Lini D)">Pabrik 4 (Lini D)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Bahan Baku yang Digunakan</label>
+        <div id="bahanList" style="display: flex; flex-direction: column; gap: 8px;">
+          <div class="bahan-row" style="display: flex; gap: 8px;">
+            <input type="text" class="form-control" placeholder="Nama Bahan" style="flex: 2;">
+            <input type="number" class="form-control" placeholder="Qty" style="flex: 1;">
+            <select class="form-control" style="flex: 1;">
+              <option>Kg</option>
+              <option>Liter</option>
+              <option>Pcs</option>
+            </select>
+            <button type="button" onclick="this.parentElement.remove()" style="padding: 0 10px; background: #FEE2E2; color: #DC2626; border: none; border-radius: 8px; cursor: pointer;"><i class='bx bx-trash'></i></button>
+          </div>
+        </div>
+        <button type="button" onclick="addBahanRow()" style="margin-top: 8px; font-size: 12px; color: #1D4ED8; background: none; border: none; cursor: pointer; font-weight: 600;"><i class='bx bx-plus'></i> Tambah Bahan</button>
+      </div>
+
+      <div class="form-group">
+        <label>Jatuh Tempo (Target Selesai)</label>
+        <input type="text" id="inputDueDate" class="form-control" readonly style="background: #F3F4F6; color: #6B7280; font-weight: 600; cursor: not-allowed;">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+        <button type="button" onclick="closeSettingModal()" style="padding: 10px 16px; background: white; border: 1px solid #D1D5DB; border-radius: 8px; font-weight: 600; cursor: pointer;">Batal</button>
+        <button type="button" onclick="startProduction()" style="padding: 10px 16px; background: #1D4ED8; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Mulai Produksi</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/topbar.js?v=4"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const userName = localStorage.getItem('user_name') || 'User';
+      const userNameDisplay = document.getElementById('userNameDisplay');
+      if (userNameDisplay) userNameDisplay.textContent = userName;
+      
+      renderQCList();
+
+    function renderKanban() {
+      const poData = JSON.parse(localStorage.getItem('erp_production_orders') || '[]');
+      
+      const todoContainer = document.getElementById('todoCardsContainer');
+      const inProgressContainer = document.getElementById('inProgressCardsContainer');
+      const countToDo = document.getElementById('countToDo');
+      const countInProgress = document.getElementById('countInProgress');
+      
+      if(!todoContainer || !inProgressContainer) return;
+      
+      todoContainer.innerHTML = '';
+      inProgressContainer.innerHTML = '';
+      
+      const todoItems = poData.filter(po => po.status === 'Menunggu');
+      const inProgressItems = poData.filter(po => po.status === 'Diproses');
+      
+      countToDo.textContent = todoItems.length;
+      countInProgress.textContent = inProgressItems.length;
+      
+      todoItems.forEach(po => {
+        const card = document.createElement('div');
+        card.className = 'kanban-card clickable';
+        card.onclick = () => openSettingModal(po.id, po.product, po.target, po.dueDate);
+        card.innerHTML = `
+          <div class="card-top">
+            <span class="po-id">${po.id}</span>
+            <i class='bx bx-dots-horizontal-rounded' style="color: #9CA3AF;"></i>
+          </div>
+          <h3 class="card-title">${po.product}</h3>
+          <div class="card-line">
+            <i class='bx bx-layer' style="color: #9CA3AF;"></i> -
+          </div>
+          <div class="card-footer">
+            <span>Target: ${po.target}</span>
+            <span>Jatuh Tempo: ${po.dueDate}</span>
+          </div>
+        `;
+        todoContainer.appendChild(card);
+      });
+      
+      inProgressItems.forEach(po => {
+        const card = document.createElement('div');
+        card.className = 'kanban-card';
+        card.innerHTML = `
+          <div class="card-top">
+            <span class="po-id" style="background: #DBEAFE; color: #1D4ED8;">${po.id}</span>
+            <span class="card-status-active">Active</span>
+          </div>
+          <h3 class="card-title">${po.product}</h3>
+          <div class="card-line">
+            <i class='bx bx-layer'></i> ${po.pabrik}
+          </div>
+          <div class="card-progress-header">
+            <span>Progress</span>
+            <span class="progress-pct" style="color: #1D4ED8;">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <div class="card-target-text"><span class="progress-count">0</span> / ${po.target}</div>
+          <div class="card-footer" style="margin-top: 8px; border-top: none; padding-top: 0;">
+            <span style="color: #374151; font-weight: 600;">Est: ${po.dueDate}</span>
+          </div>
+        `;
+        inProgressContainer.appendChild(card);
+        
+        // Start simulation immediately for loaded items
+        startSimulation(card, po.id, po.product, po.target);
+      });
+    }
+
+    renderKanban();
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'erp_production_orders') {
+        renderKanban();
+      }
+    });
+    
+    });
+
+    function getQCList() {
+      const list = localStorage.getItem('qcList');
+      return list ? JSON.parse(list) : [];
+    }
+
+    function renderQCList() {
+      const qcList = getQCList();
+      const container = document.getElementById('qcCardsContainer');
+      const badge = document.getElementById('countQC');
+      container.innerHTML = '';
+      badge.textContent = qcList.length;
+
+      qcList.forEach(item => {
+        const qcCard = document.createElement('div');
+        qcCard.className = 'kanban-card';
+        qcCard.innerHTML = `
+          <div class="card-top">
+            <span class="po-id" style="background: #FFEDD5; color: #C2410C;">${item.poId}</span>
+            <i class='bx bx-check-shield' style="color: #EA580C; font-size: 16px;"></i>
+          </div>
+          <h3 class="card-title">${item.productName}</h3>
+          <div class="card-line">
+            <i class='bx bx-test-tube'></i> Lab QA (Menunggu Antrean)
+          </div>
+          <div class="alert-box">
+            <i class='bx bx-error' ></i> Menunggu QC
+          </div>
+          <div class="card-footer">
+            <span>Total: ${item.targetStr}</span>
+          </div>
+        `;
+        container.appendChild(qcCard);
+      });
+    }
+
+    let currentCardElement = null;
+
+    function addBahanRow() {
+      const row = document.createElement('div');
+      row.className = 'bahan-row';
+      row.style.cssText = 'display: flex; gap: 8px;';
+      row.innerHTML = `
+        <select class="form-control select-bahan" style="flex: 2;">
+          ${getBahanOptionsHTML()}
+        </select>
+        <input type="number" class="form-control input-qty" placeholder="Qty" style="flex: 1;">
+        <button type="button" onclick="this.parentElement.remove()" style="padding: 0 10px; background: #FEE2E2; color: #DC2626; border: none; border-radius: 8px; cursor: pointer;"><i class='bx bx-trash'></i></button>
+      `;
+      document.getElementById('bahanList').appendChild(row);
+    }
+
+    
+    function getBahanOptionsHTML() {
+      const inventory = JSON.parse(localStorage.getItem('erp_inventory_stock') || '[]');
+      const bahanBaku = inventory.filter(i => i.type === 'Bahan Baku' || i.type === 'Kemasan');
+      
+      let optionsHTML = '<option value="" disabled selected>Pilih Bahan...</option>';
+      bahanBaku.forEach(item => {
+        optionsHTML += `<option value="${item.sku}" data-stock="${item.stock}" data-unit="${item.unit}">${item.name} (Stok: ${item.stock.toLocaleString('id-ID')} ${item.unit})</option>`;
+      });
+      return optionsHTML;
+    }
+    
+    function openSettingModal(poId, productName, targetText, dueDate) {
+      // Find the element that was clicked (for moving later)
+      currentCardElement = true; // Fixed buggy event.currentTarget
+      
+      document.getElementById('modalPO').textContent = poId;
+      document.getElementById('modalProduct').textContent = productName;
+      document.getElementById('modalTarget').textContent = "Target: " + targetText;
+      document.getElementById('inputDueDate').value = dueDate;
+      
+      // Reset bahan list
+      document.getElementById('bahanList').innerHTML = `
+          <div class="bahan-row" style="display: flex; gap: 8px;">
+            <select class="form-control select-bahan" style="flex: 2;">
+              ${getBahanOptionsHTML()}
+            </select>
+            <input type="number" class="form-control input-qty" placeholder="Qty" style="flex: 1;">
+            <button type="button" onclick="this.parentElement.remove()" style="padding: 0 10px; background: #FEE2E2; color: #DC2626; border: none; border-radius: 8px; cursor: pointer;"><i class='bx bx-trash'></i></button>
+          </div>
+      `;
+      
+      document.getElementById('modalSetting').style.display = 'flex';
+    }
+
+    function closeSettingModal() {
+      document.getElementById('modalSetting').style.display = 'none';
+      currentCardElement = null;
+    }
+
+    function startProduction() {
+      if(currentCardElement) {
+        // Validation and Stock Deduction Phase
+        const rows = document.querySelectorAll('.bahan-row');
+        let inventory = JSON.parse(localStorage.getItem('erp_inventory_stock') || '[]');
+        let deductions = [];
+        
+        for (let row of rows) {
+          const select = row.querySelector('.select-bahan');
+          const qtyInput = row.querySelector('.input-qty');
+          
+          if (!select || !qtyInput) continue;
+          
+          const sku = select.value;
+          const qty = parseFloat(qtyInput.value);
+          
+          if (!sku) {
+            alert('Mohon pilih bahan baku pada baris yang tersedia, atau hapus baris jika tidak digunakan.');
+            return;
+          }
+          if (!qty || qty <= 0) {
+            alert('Mohon isi kuantitas bahan yang valid (di atas 0).');
+            return;
+          }
+          
+          const option = select.options[select.selectedIndex];
+          const stock = parseFloat(option.getAttribute('data-stock'));
+          const unit = option.getAttribute('data-unit');
+          const name = option.text.split(' (Stok:')[0];
+          
+          if (qty > stock) {
+            alert(`Stok tidak mencukupi untuk bahan: ${name}.
+Stok tersedia: ${stock}
+Dibutuhkan: ${qty}`);
+            return;
+          }
+          deductions.push({ sku, name, qty, unit });
+        }
+        
+        // Deduction & Logging Phase
+        const poId = document.getElementById('modalPO').textContent;
+        const today = new Date();
+        const dateStr = today.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+        const issueNoBase = 'ISS-' + today.getFullYear() + (today.getMonth()+1).toString().padStart(2, '0') + today.getDate().toString().padStart(2, '0');
+        
+        let pengeluaran = JSON.parse(localStorage.getItem('erp_pengeluaran_produksi') || '[]');
+
+        deductions.forEach((ded, idx) => {
+          // Deduct stock
+          let itemIndex = inventory.findIndex(i => i.sku === ded.sku);
+          if (itemIndex > -1) {
+            inventory[itemIndex].stock -= ded.qty;
+          }
+          
+          // Log pengeluaran
+          pengeluaran.unshift({
+            issueNo: issueNoBase + '-' + poId.split(' - ').pop() + '-' + (idx+1),
+            date: dateStr,
+            poId: poId,
+            name: ded.name,
+            qty: ded.qty,
+            unit: ded.unit
+          });
+        });
+        
+        // Save updated inventory and pengeluaran
+        localStorage.setItem('erp_inventory_stock', JSON.stringify(inventory));
+        localStorage.setItem('erp_pengeluaran_produksi', JSON.stringify(pengeluaran));
+        window.dispatchEvent(new StorageEvent('storage', {key: 'erp_inventory_stock'}));
+
+        const lini = document.getElementById('selectLini').value;
+
+        let poData = JSON.parse(localStorage.getItem('erp_production_orders') || '[]');
+        let index = poData.findIndex(po => po.id === poId);
+        if(index > -1) {
+          poData[index].status = 'Diproses';
+          poData[index].pabrik = lini;
+          localStorage.setItem('erp_production_orders', JSON.stringify(poData));
+        }
+
+        closeSettingModal();
+        renderKanban();
+      }
+    }
+
+    function startSimulation(newCard, poId, productName, targetStr) {
+        const targetNum = parseInt(targetStr.replace(/,/g, '').replace(/\D/g, ''), 10) || 1000;
+        let currentCount = 0;
+        const progressFill = newCard.querySelector('.progress-bar-fill');
+        const progressPct = newCard.querySelector('.progress-pct');
+        const progressCount = newCard.querySelector('.progress-count');
+        const statusBadge = newCard.querySelector('.card-status-active');
+
+        // Speed up simulation: 10% per 100ms
+        let step = Math.ceil(targetNum / 10); 
+        const interval = setInterval(() => {
+          currentCount += step;
+          if (currentCount >= targetNum) {
+            currentCount = targetNum;
+            clearInterval(interval);
+            statusBadge.innerHTML = 'Selesai';
+            statusBadge.style.background = '#DCFCE7';
+            statusBadge.style.color = '#166534';
+            
+            if(!newCard.querySelector('.btn-lanjut-qc')) {
+              const btnLanjut = document.createElement('button');
+              btnLanjut.className = 'btn-lanjut-qc';
+              btnLanjut.textContent = 'Lanjut ke QC →';
+              btnLanjut.style.cssText = 'width: 100%; margin-top: 16px; padding: 10px; background: #10B981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s;';
+              btnLanjut.onmouseover = function() { this.style.background = '#059669'; };
+              btnLanjut.onmouseout = function() { this.style.background = '#10B981'; };
+              btnLanjut.onclick = function() {
+                moveToQC(newCard, poId, productName, targetStr);
+              };
+              newCard.appendChild(btnLanjut);
+            }
+          }
+          const percent = Math.floor((currentCount / targetNum) * 100);
+          if(progressFill) progressFill.style.width = percent + '%';
+          if(progressPct) progressPct.textContent = percent + '%';
+          if(progressCount) progressCount.textContent = currentCount.toLocaleString('en-US');
+        }, 100);
+    }
+
+    function moveToQC(cardElement, poId, productName, targetStr) {
+      // Update localstorage erp_production_orders
+      let poData = JSON.parse(localStorage.getItem('erp_production_orders') || '[]');
+      let index = poData.findIndex(po => po.id === poId);
+      if(index > -1) {
+        poData[index].status = 'QC';
+        localStorage.setItem('erp_production_orders', JSON.stringify(poData));
+      }
+
+      // Save to qcList
+      const qcList = getQCList();
+      qcList.push({ poId, productName, targetStr });
+      localStorage.setItem('qcList', JSON.stringify(qcList));
+
+      renderKanban();
+      renderQCList();
+    }
+  
