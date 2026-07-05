@@ -222,11 +222,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         
-        let drafts = JSON.parse(localStorage.getItem('erp_finance_income_drafts') || '[]');
+        let history = JSON.parse(localStorage.getItem('erp_finance_income_history') || '[]');
         const todayStr = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
         
-        drafts.push({
-            id: 'DRAFT-' + Date.now(),
+        history.unshift({
+            id: 'INC-' + Math.floor(Math.random() * 9000 + 1000),
             date: todayStr,
             sumber: 'Sales & Marketing',
             keterangan: 'Laporan Penjualan Otomatis (' + count + ' Transaksi)',
@@ -234,9 +234,9 @@ document.addEventListener("DOMContentLoaded", () => {
             orders: window.currentReportOrders || []
         });
         
-        localStorage.setItem('erp_finance_income_drafts', JSON.stringify(drafts));
+        localStorage.setItem('erp_finance_income_history', JSON.stringify(history));
         
-        showToast('Laporan dikirim ke Finance sebagai Draft!', '#059669');
+        showToast('Laporan Penjualan berhasil dicatat langsung ke Finance!', '#059669');
         btnSendToFinance.style.display = 'none'; // Sembunyikan setelah dikirim agar tidak dobel
       });
     }
