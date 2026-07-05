@@ -800,7 +800,12 @@ document.addEventListener('DOMContentLoaded', () => {
                       <p class="${statusClass}" style="color: ${statusColor}">Tersedia (Stok: ${stock})</p>
                     </div>
                   </div>
-                  <div class="col-harga prod-price">${formatRupiah(price)}</div>
+                  <div class="col-harga prod-price">
+                    <div style="display:flex; align-items:center;">
+                      <span style="margin-right:4px;">Rp</span>
+                      <input type="number" class="input-price" value="${price}" style="width: 80px; padding: 4px; border: 1px solid #d1d5db; border-radius: 4px; font-weight: bold; color: #111827; background: #fff;">
+                    </div>
+                  </div>
                   <div class="col-qty">
                     <div class="qty-stepper">
                       <button class="btn-min"><i class='bx bx-minus'></i></button>
@@ -849,6 +854,25 @@ document.addEventListener('DOMContentLoaded', () => {
                   }
                   if (typeof updateOrderSummary === 'function') updateOrderSummary();
                 });
+                
+                const priceInput = itemDiv.querySelector('.input-price');
+                if (priceInput) {
+                    priceInput.addEventListener('input', function() {
+                        let newPrice = parseInt(this.value) || 0;
+                        itemDiv.setAttribute('data-price', newPrice);
+                        if (typeof updateOrderSummary === 'function') updateOrderSummary();
+                    });
+                    
+                    priceInput.addEventListener('change', function() {
+                        let newPrice = parseInt(this.value) || 0;
+                        let currentStocks = getInventoryStock();
+                        let stockItem = currentStocks.find(s => s.sku === dbItem.sku);
+                        if (stockItem) {
+                            stockItem.price = newPrice;
+                            localStorage.setItem('erp_inventory_stock', JSON.stringify(currentStocks));
+                        }
+                    });
+                }
             });
             
             // Re-apply customer filter logic since elements are new

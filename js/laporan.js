@@ -160,6 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             const tr = document.createElement('tr');
                             
                             let itemTotal = p.subtotal || (p.price * p.quantity) || 0;
+                            let itemProfit = itemTotal * 0.10; // 10% profit
                             totalNilai += itemTotal;
                             
                             let itemId = p.id || so.soNumber || '-';
@@ -173,6 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
                               <td>${itemQty}</td>
                               <td>${itemJenis}</td>
                               <td style="text-align: right;">${formatRupiah(itemTotal)}</td>
+                              <td style="text-align: right; color: #059669; font-weight: bold;">+${formatRupiah(itemProfit)}</td>
                             `;
                             tbody.appendChild(tr);
                         }
@@ -222,11 +224,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         
-        let history = JSON.parse(localStorage.getItem('erp_finance_income_history') || '[]');
+        let drafts = JSON.parse(localStorage.getItem('erp_finance_income_drafts') || '[]');
         const todayStr = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
         
-        history.unshift({
-            id: 'INC-' + Math.floor(Math.random() * 9000 + 1000),
+        drafts.push({
+            id: 'DRAFT-' + Date.now(),
             date: todayStr,
             sumber: 'Sales & Marketing',
             keterangan: 'Laporan Penjualan Otomatis (' + count + ' Transaksi)',
@@ -234,9 +236,9 @@ document.addEventListener("DOMContentLoaded", () => {
             orders: window.currentReportOrders || []
         });
         
-        localStorage.setItem('erp_finance_income_history', JSON.stringify(history));
+        localStorage.setItem('erp_finance_income_drafts', JSON.stringify(drafts));
         
-        showToast('Laporan Penjualan berhasil dicatat langsung ke Finance!', '#059669');
+        showToast('Laporan dikirim ke Finance sebagai Draft!', '#059669');
         btnSendToFinance.style.display = 'none'; // Sembunyikan setelah dikirim agar tidak dobel
       });
     }
@@ -261,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast('Mengunduh Laporan_Penjualan_Apr2026.csv...', '#16a34a');
         
         let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "ID,Nama Item,Quantity,Jenis,Harga (Rp)\n";
+        csvContent += "ID,Nama Item,Quantity,Jenis,Harga (Rp),Keuntungan (10%)\n";
         
         const rows = tbody.querySelectorAll('tr');
         rows.forEach(row => {
