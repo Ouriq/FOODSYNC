@@ -391,6 +391,44 @@
       // DYNAMIC DATA PREP
       let prData = JSON.parse(localStorage.getItem('erp_pr_data')) || [];
       let inventory = JSON.parse(localStorage.getItem('erp_inventory_stock')) || [];
+        
+        let allocData = JSON.parse(localStorage.getItem('erp_finance_allocations')) || [];
+        let formatRp = (num) => 'Rp. <br/>' + (num / 1000000).toLocaleString('id-ID') + 'jt';
+        if(window.innerWidth < 768) {
+             formatRp = (num) => 'Rp ' + (num / 1000000).toLocaleString('id-ID') + 'jt';
+        }
+        
+        let purcBudget = 0;
+        allocData.forEach(a => {
+            if(a.divisi === 'Purchasing' && (a.status === 'approved' || a.status === 'completed')) {
+                purcBudget += parseInt(a.nominal) || 0;
+            }
+        });
+        
+        let purcReal = 0;
+        let purcPending = 0;
+        prData.forEach(pr => {
+            let tot = parseInt(pr.total) || 0;
+            if(pr.status === 'Diterima' || pr.status === 'Sudah Dibayar' || pr.status === 'Selesai') {
+                purcReal += tot;
+            } else if (pr.status === 'Disetujui' || pr.status === 'Menunggu') {
+                purcPending += tot;
+            }
+        });
+        
+        let purcSisa = purcBudget - purcReal;
+        if(purcSisa < 0) purcSisa = 0;
+        
+        const elBudget = document.getElementById('valPurcBudget');
+        const elReal = document.getElementById('valPurcReal');
+        const elSisa = document.getElementById('valPurcSisa');
+        const elPending = document.getElementById('valPurcPending');
+        
+        if(elBudget) elBudget.innerHTML = purcBudget === 0 ? 'Rp. <br/>0' : formatRp(purcBudget);
+        if(elReal) elReal.innerHTML = purcReal === 0 ? 'Rp. <br/>0' : formatRp(purcReal);
+        if(elSisa) elSisa.innerHTML = purcSisa === 0 ? 'Rp. <br/>0' : formatRp(purcSisa);
+        if(elPending) elPending.innerHTML = purcPending === 0 ? 'Rp. <br/>0' : formatRp(purcPending);
+
       
       let totalBahanBaku = 0;
       let totalKemasan = 0;
