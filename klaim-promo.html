@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klaim Promo - FoodSync</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="css/klaim-promo.css">
+  
+  <!-- html2canvas or sweetalert if needed, but let's stick to vanilla -->
+
+<script>
+  (function() {
+    var photo = localStorage.getItem('user_photo');
+    if (photo) {
+      document.write('<style id="anti-flicker-avatar">');
+      document.write('.user-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.user-avatar i { display: none; }');
+      document.write('.pd-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.pd-avatar i { display: none; }');
+      document.write('.big-avatar { background-image: url(' + photo + ') !important; background-size: cover !important; }');
+      document.write('</style>');
+    }
+  })();
+</script>
+</head>
+<body>
+
+  <!-- Decorative Background Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <div class="container">
+    
+    <!-- Navbar / Header -->
+    <header class="header">
+      <div class="logo">
+        <img src="assets/images/logo.png" alt="FoodSync Logo">
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="icon-wrapper">
+            <i class='bx bxs-discount'></i>
+          </div>
+          <h1>Cek & Klaim Promo</h1>
+          <p>Masukkan kode promo Anda untuk mendapatkan diskon spesial pada pembelian produk kami.</p>
+        </div>
+
+        <form id="formKlaimPromo" class="form-klaim">
+          <div class="input-group">
+            <i class='bx bx-barcode'></i>
+            <input type="text" id="inputKode" placeholder="Ketik kode promo di sini..." required autocomplete="off">
+            <button type="submit" id="btnCek" class="btn-primary">Cek Promo</button>
+          </div>
+        </form>
+
+        <div id="loadingState" class="state-container" style="display: none;">
+          <div class="spinner"></div>
+          <p>Memeriksa kode promo...</p>
+        </div>
+
+        <div id="errorState" class="state-container error-state" style="display: none;">
+          <i class='bx bx-error-circle'></i>
+          <p id="errorText">Kode promo tidak ditemukan atau sudah kadaluarsa.</p>
+        </div>
+
+        <div id="successState" class="state-container success-state" style="display: none;">
+          <div class="promo-ticket">
+            <div class="ticket-left">
+              <span class="discount-value" id="resDiskon">50%</span>
+              <span class="discount-label">OFF</span>
+            </div>
+            <div class="ticket-right">
+              <h3 id="resNama">Tahun Baru 50%</h3>
+              <p class="desc" id="resDeskripsi">Berlaku untuk semua produk</p>
+              <div class="ticket-meta">
+                <span><i class='bx bx-time'></i> Berlaku s.d <b id="resAkhir">31 Jan 2026</b></span>
+                <span><i class='bx bx-purchase-tag'></i> <b id="resProduk">Semua Produk</b></span>
+              </div>
+            </div>
+          </div>
+          
+          <button id="btnGunakan" class="btn-success">Gunakan Promo Sekarang</button>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script type="module" src="js/klaim-promo.js"></script>
+<script type="module" src="js/notifications.js"></script>
+  <script src="js/profile.js"></script>
+</body>
+</html>
+

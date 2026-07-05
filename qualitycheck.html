@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quality Check – FoodSync Production</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  
+  <link rel="stylesheet" href="css/dashboard.css?v=7" />
+
+<script>
+  (function() {
+    var photo = localStorage.getItem('user_photo');
+    if (photo) {
+      document.write('<style id="anti-flicker-avatar">');
+      document.write('.user-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.user-avatar i { display: none; }');
+      document.write('.pd-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.pd-avatar i { display: none; }');
+      document.write('.big-avatar { background-image: url(' + photo + ') !important; background-size: cover !important; }');
+      document.write('</style>');
+    }
+  })();
+</script>
+<style>
+.sidebar-nav a.nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #4B5563; text-decoration: none; font-weight: 600; font-size: 14px; border-radius: 8px; transition: 0.2s;
+}
+.sidebar-nav a.nav-item:hover, .sidebar-nav a.nav-item.active {
+  background: #F3F4F6; color: #1E3A8A;
+}
+.sidebar-nav a.nav-item i { font-size: 20px; }
+
+/* Specific Page Styling */
+.page-title {
+  font-size: 28px; font-weight: 800; color: #111827; margin-bottom: 24px;
+}
+
+.qc-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* Left Pane */
+.qc-list-pane {
+  width: 320px;
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  border: 1px solid #F3F4F6;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.qc-card {
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+  background: white;
+}
+.qc-card:hover, .qc-card.active {
+  border-color: #3B82F6;
+  background: #F8FAFC;
+}
+.qc-card-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+}
+.qc-po-id {
+  color: #1D4ED8; font-size: 12px; font-weight: 700;
+}
+.qc-badge {
+  background: #FFEDD5; color: #C2410C; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px;
+}
+.qc-product {
+  font-size: 14px; font-weight: 700; color: #111827; margin: 0 0 4px 0;
+}
+.qc-line {
+  font-size: 12px; color: #6B7280;
+}
+
+/* Right Pane */
+.qc-form-pane {
+  flex: 1;
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  border: 1px solid #F3F4F6;
+}
+.form-header-small {
+  font-size: 11px; color: #6B7280; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; display: block;
+}
+.form-title {
+  font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 24px 0;
+}
+.form-row {
+  display: flex; gap: 24px; margin-bottom: 20px;
+}
+.form-group {
+  flex: 1;
+}
+.form-group label {
+  display: block; font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 8px;
+}
+.input-with-suffix {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-with-suffix input {
+  width: 100%; padding: 12px 16px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; color: #111827; outline: none; transition: 0.2s; background: #F9FAFB;
+}
+.input-with-suffix input:focus { border-color: #3B82F6; background: white; }
+.input-suffix {
+  position: absolute; right: 16px; font-size: 13px; color: #9CA3AF; font-weight: 600;
+}
+textarea.form-control {
+  width: 100%; padding: 12px 16px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; color: #111827; outline: none; transition: 0.2s; background: #F9FAFB; resize: vertical; min-height: 120px; font-family: inherit; box-sizing: border-box;
+}
+textarea.form-control:focus { border-color: #3B82F6; background: white; }
+.btn-selesai {
+  background: #0B3B7B; color: white; border: none; padding: 12px 24px; border-radius: 24px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; margin-left: auto; margin-top: 24px; transition: 0.2s;
+}
+.btn-selesai:hover { background: #1E3A8A; }
+
+.info-alert {
+  background: #EFF6FF; border: 1px solid #DBEAFE; color: #1E3A8A; padding: 16px 20px; border-radius: 12px; display: flex; align-items: flex-start; gap: 12px; font-size: 12px; line-height: 1.5; margin-top: 24px;
+}
+
+.empty-state {
+  text-align: center; padding: 40px 20px; color: #6B7280; font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="assets/images/logo.png" alt="Logo FoodSync" class="logo-img" />
+      </div>
+
+      <p class="menu-label">MENU</p>
+      <nav class="sidebar-nav">
+        <a href="dashboardprod.html" class="nav-item">
+          <i class='bx bx-grid-alt'></i> Dashboard
+        </a>
+        <a href="rencanaproduksi.html" class="nav-item">
+          <i class='bx bx-calendar-event'></i> Rencana Produksi
+        </a>
+        <a href="monitoringproduksi.html" class="nav-item">
+          <i class='bx bx-desktop'></i> Monitoring Produksi
+        </a>
+        <a href="prosesproduksi.html" class="nav-item">
+          <i class='bx bx-cog'></i> Proses Produksi
+        </a>
+        <a href="qualitycheck.html" class="nav-item active">
+          <i class='bx bx-check-shield'></i> Quality Check
+        </a>
+        <a href="riwayatproduksi.html" class="nav-item">
+          <i class='bx bx-history'></i> Riwayat Produksi
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-right" style="margin-left: auto; display: flex; align-items: center; gap: 24px;">
+          <!-- PROFILE DROPDOWN -->
+          <div class="profile-wrapper" style="position: relative;">
+            <div class="user-profile" id="btnProfileToggle" style="cursor: pointer; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+              <div class="user-info" style="text-align: right;">
+                <span class="user-name" id="userNameDisplay">HOHO</span>
+                <span class="user-role">Production Spv</span>
+              </div>
+              <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;">
+                <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+              </div>
+              <i class='bx bx-chevron-down' style="font-size: 16px; color: #6B7280;"></i>
+            </div>
+            
+            <div class="profile-popup" id="profilePopup" style="display: none; position: absolute; right: 0; top: 55px; background: white; width: 260px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <div style="border-top: 1px solid #F3F4F6; padding: 8px 0;">
+                <button id="popupLogoutBtn" style="width: 100%; text-align: left; display: flex; align-items: center; gap: 12px; padding: 10px 20px; border: none; background: transparent; cursor: pointer; color: #DC2626; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-log-out' style="font-size: 18px;"></i> Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div style="padding: 24px 0;">
+        <h1 class="page-title">Quality Check</h1>
+        
+        <div class="qc-layout">
+          <!-- Left Pane -->
+          <div class="qc-list-pane" id="qcListContainer">
+            <!-- Cards will be injected here -->
+          </div>
+
+          <!-- Right Pane -->
+          <div style="flex: 1; display: flex; flex-direction: column;">
+            <div class="qc-form-pane" id="qcFormPane" style="display: none;">
+              <span class="form-header-small" id="formHeaderTotal">Total Target: -</span>
+              <h2 class="form-title" id="formTitle">Input Hasil Produksi - </h2>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Jumlah Produk Baik (Actual Good)</label>
+                  <div class="input-with-suffix">
+                    <input type="text" id="inputGood" placeholder="0" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <span class="input-suffix">Karton</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Jumlah Produk Cacat (Defect)</label>
+                  <div class="input-with-suffix">
+                    <input type="text" id="inputDefect" placeholder="0" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <span class="input-suffix">Karton</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Catatan Khusus (Quality Issues/Downtime)</label>
+                <textarea class="form-control" id="inputNote" placeholder="Masukkan catatan operasional atau temuan kualitas..."></textarea>
+              </div>
+
+              <button class="btn-selesai" onclick="selesaikanProduksi()">
+                <i class='bx bx-check-circle' style="font-size: 18px;"></i> Selesaikan Produksi
+              </button>
+            </div>
+            
+            <div id="emptyFormPane" class="qc-form-pane empty-state" style="display: block;">
+              Pilih pesanan dari daftar di sebelah kiri untuk mengisi hasil Quality Check.
+            </div>
+
+            <div class="info-alert">
+              <i class='bx bx-info-circle' style="font-size: 18px; margin-top: 2px;"></i>
+              <p style="margin: 0;">Pastikan jumlah fisik sesuai dengan data sistem sebelum melakukan penyelesaian produksi. Data yang di-submit akan langsung memotong alokasi material.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Success Toast -->
+  <div id="toastSuccess" style="display: none; position: fixed; bottom: 32px; right: 32px; background: #10B981; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); align-items: center; gap: 12px; z-index: 9999;">
+    <i class='bx bx-check-circle' style="font-size: 24px;"></i>
+    <div>
+      <h4 style="margin: 0 0 4px 0; font-size: 14px;">Berhasil</h4>
+      <p style="margin: 0; font-size: 12px;">Produksi telah selesai dan lolos QC.</p>
+    </div>
+  </div>
+
+  <script src="js/topbar.js?v=4"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const userName = localStorage.getItem('user_name') || 'User';
+      const userNameDisplay = document.getElementById('userNameDisplay');
+      if (userNameDisplay) userNameDisplay.textContent = userName;
+      
+      renderList();
+    });
+
+    let activePoId = null;
+    let activeTarget = null;
+
+    function getQCList() {
+      const list = localStorage.getItem('qcList');
+      return list ? JSON.parse(list) : [];
+    }
+
+    function renderList() {
+      const qcList = getQCList();
+      const container = document.getElementById('qcListContainer');
+      container.innerHTML = '';
+
+      if (qcList.length === 0) {
+        container.innerHTML = '<div class="empty-state">Tidak ada antrean Quality Check.</div>';
+        hideForm();
+        return;
+      }
+
+      qcList.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'qc-card' + (activePoId === item.poId ? ' active' : '');
+        card.onclick = () => selectCard(item.poId, item.productName, item.targetStr);
+        card.innerHTML = `
+          <div class="qc-card-header">
+            <span class="qc-po-id">${item.poId}</span>
+            <span class="qc-badge">Quality Check</span>
+          </div>
+          <h3 class="qc-product">${item.productName}</h3>
+          <div class="qc-line">Shift Reguler</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function selectCard(poId, productName, targetStr) {
+      activePoId = poId;
+      activeTarget = targetStr;
+      renderList(); // to update active class
+
+      document.getElementById('emptyFormPane').style.display = 'none';
+      document.getElementById('qcFormPane').style.display = 'block';
+
+      document.getElementById('formHeaderTotal').textContent = 'Target: ' + targetStr;
+      document.getElementById('formTitle').textContent = 'Input Hasil Produksi - ' + poId;
+      
+      // Clear inputs
+      document.getElementById('inputGood').value = '';
+      document.getElementById('inputDefect').value = '';
+      document.getElementById('inputNote').value = '';
+    }
+
+    function hideForm() {
+      activePoId = null;
+      document.getElementById('emptyFormPane').style.display = 'block';
+      document.getElementById('qcFormPane').style.display = 'none';
+    }
+
+    function selesaikanProduksi() {
+      if (!activePoId) return;
+
+      // Get values from form
+      const qtyGood = document.getElementById('inputGood').value || '0';
+      const qtyDefect = document.getElementById('inputDefect').value || '0';
+      
+      // Validation: Total Good + Defect MUST equal Target
+      const totalInput = parseInt(qtyGood) + parseInt(qtyDefect);
+      const targetNum = parseInt(activeTarget.replace(/,/g, '').replace(/\D/g, ''), 10);
+      
+      if (totalInput !== targetNum) {
+        alert('Gagal disimpan! Total produk baik (' + qtyGood + ') dan cacat (' + qtyDefect + ') adalah ' + totalInput + '. Jumlah ini tidak sesuai dengan target produksi yaitu ' + targetNum + '.');
+        return;
+      }
+
+      const notes = document.getElementById('inputNote').value || 'Tidak ada catatan';
+
+      // Formatting today's date
+      const today = new Date();
+      const options = { day: '2-digit', month: 'short', year: 'numeric' };
+      const dateStr = today.toLocaleDateString('id-ID', options).replace('.', ''); 
+      // Output example: 05 Nov 2023
+
+      let qcList = getQCList();
+      const itemToMove = qcList.find(item => item.poId === activePoId);
+      
+      if (itemToMove) {
+        // Save to historyList
+        let historyList = localStorage.getItem('historyList');
+        historyList = historyList ? JSON.parse(historyList) : [];
+        historyList.unshift({ // Add to top
+          poId: itemToMove.poId,
+          productName: itemToMove.productName,
+          date: dateStr,
+          quantity: qtyGood + ' Dus',
+          defect: qtyDefect,
+          note: notes
+        });
+        localStorage.setItem('historyList', JSON.stringify(historyList));
+        window.dispatchEvent(new StorageEvent('storage', {key: 'historyList'}));
+        
+        
+        // --- ADDED: UPDATE erp_production_orders TO 'Selesai' ---
+        let poData = JSON.parse(localStorage.getItem('erp_production_orders') || '[]');
+        let poIndex = poData.findIndex(po => po.id === activePoId);
+        if(poIndex > -1) {
+          poData[poIndex].status = 'Selesai';
+          localStorage.setItem('erp_production_orders', JSON.stringify(poData));
+          window.dispatchEvent(new StorageEvent('storage', {key: 'erp_production_orders'}));
+        }
+
+        // --- ADDED: UPDATE INVENTORY BARANG JADI ---
+        let inventory = JSON.parse(localStorage.getItem('erp_inventory_stock') || '[]');
+        let fgIndex = inventory.findIndex(i => i.type === 'Barang Jadi' && (i.name === itemToMove.productName || i.name.toLowerCase().includes(itemToMove.productName.toLowerCase()) || itemToMove.productName.toLowerCase().includes(i.name.toLowerCase())));
+        if (fgIndex > -1) {
+          inventory[fgIndex].stock += parseInt(qtyGood);
+        } else {
+          const fgCount = inventory.filter(i => i.type === 'Barang Jadi').length + 1;
+          const newSku = 'FG-' + fgCount.toString().padStart(3, '0');
+          inventory.push({
+            id: newSku,
+            sku: newSku,
+            name: itemToMove.productName,
+            category: 'Makanan',
+            type: 'Barang Jadi',
+            stock: parseInt(qtyGood),
+            unit: 'Dus',
+            status: 'Tersedia',
+            statusClass: 'pill-green'
+          });
+        }
+        localStorage.setItem('erp_inventory_stock', JSON.stringify(inventory));
+        window.dispatchEvent(new StorageEvent('storage', {key: 'erp_inventory_stock'}));
+
+      }
+
+      // Remove from qcList
+      qcList = qcList.filter(item => item.poId !== activePoId);
+      localStorage.setItem('qcList', JSON.stringify(qcList));
+
+      // Show toast
+      const toast = document.getElementById('toastSuccess');
+      toast.style.display = 'flex';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
+
+      // Re-render
+      hideForm();
+      renderList();
+    }
+  </script>
+</body>
+</html>

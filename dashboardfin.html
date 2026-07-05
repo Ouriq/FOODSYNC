@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – FoodSync Finance</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  
+  <style>
+    /* CSS Variables & Global */
+    :root {
+      --primary-color: #0b2e59;     /* Deep Blue */
+      --secondary-color: #10b981;   /* Emerald Green (Finance Vibe) */
+      --accent-color: #f59e0b;      /* Orange for highlights */
+      --background-color: #f9fafb;
+      --sidebar-width: 260px;
+      --topbar-height: 70px;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --border-color: #e5e7eb;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background-color: var(--background-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+    /* LAYOUT: Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: #ffffff;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    
+    .logo-area {
+      height: var(--topbar-height);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .logo-area img { width: 150px; height: auto; }
+
+    .nav-menu { flex: 1; padding: 24px 16px; overflow-y: auto; }
+    .nav-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; padding-left: 12px; }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .nav-item i { font-size: 20px; color: var(--text-muted); transition: color 0.2s ease; }
+    .nav-item:hover { background-color: #f3f4f6; }
+    
+    .nav-item.active { background-color: #ecfdf5; color: var(--secondary-color); }
+    .nav-item.active i { color: var(--secondary-color); }
+
+    .sidebar-footer { padding: 16px; border-top: 1px solid var(--border-color); }
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      width: 100%;
+      background: none;
+      border: none;
+      border-radius: 8px;
+      color: #ef4444;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-logout:hover { background-color: #fef2f2; }
+
+    /* LAYOUT: Main Content & Topbar */
+    .main-wrapper { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    
+    .topbar {
+      height: var(--topbar-height);
+      background-color: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-left: auto;
+    }
+    
+    .user-profile { display: flex; align-items: center; gap: 12px; cursor: pointer; text-decoration: none; color: inherit; }
+    .user-info { text-align: right; }
+    .user-name { display: block; font-size: 14px; font-weight: 600; color: var(--text-main); }
+    .user-role { display: block; font-size: 12px; color: var(--text-muted); }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; }
+
+    /* Dashboard Content */
+    .content-area {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+      background-color: var(--background-color);
+    }
+
+    .page-header { margin-bottom: 32px; }
+    .page-title { font-size: 24px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+    .page-subtitle { font-size: 14px; color: var(--text-muted); }
+
+    /* Summary Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .summary-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      position: relative;
+      overflow: hidden;
+    }
+    .summary-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; bottom: 0; width: 4px;
+    }
+    .summary-card.revenue::before { background-color: var(--secondary-color); }
+    .summary-card.expense::before { background-color: #ef4444; }
+    .summary-card.profit::before { background-color: #3b82f6; }
+
+    .summary-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .summary-card.revenue .summary-icon { background: #ecfdf5; color: var(--secondary-color); }
+    .summary-card.expense .summary-icon { background: #fef2f2; color: #ef4444; }
+    .summary-card.profit .summary-icon { background: #eff6ff; color: #3b82f6; }
+    
+    .summary-info { flex: 1; }
+    .summary-label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .summary-value { font-size: 24px; font-weight: 700; color: var(--text-main); }
+    
+    /* Transaction List */
+    .transaction-section {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .section-title { font-size: 16px; font-weight: 600; color: var(--text-main); }
+    .view-all { color: var(--secondary-color); font-size: 14px; text-decoration: none; font-weight: 500; }
+    
+    .transaction-list {
+      list-style: none;
+    }
+    .transaction-item {
+      display: flex;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .transaction-item:last-child { border-bottom: none; }
+    
+    .tx-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-right: 16px; font-size: 20px;
+    }
+    .tx-in { background: #ecfdf5; color: var(--secondary-color); }
+    .tx-out { background: #fef2f2; color: #ef4444; }
+    
+    .tx-details { flex: 1; }
+    .tx-title { font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 4px; }
+    .tx-date { font-size: 12px; color: var(--text-muted); }
+    
+    .tx-amount { font-size: 15px; font-weight: 700; }
+    .tx-amount.positive { color: var(--secondary-color); }
+    .tx-amount.negative { color: #ef4444; }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo-area">
+      <img src="assets/images/logo.png" alt="FoodSync Logo" style="max-height: 40px;" />
+    </div>
+    
+    <nav class="nav-menu">
+      <div class="nav-label">Finance Menu</div>
+      <a href="dashboardfin.html" class="nav-item active">
+        <i class='bx bx-grid-alt'></i> Dashboard
+      </a>
+      <a href="budgeting.html" class="nav-item">
+        <i class='bx bx-wallet'></i> Alokasi Anggaran
+      </a>
+      <a href="laporanlaba.html" class="nav-item">
+        <i class='bx bx-line-chart'></i> Laporan Laba
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-wrapper">
+    <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="topbar-right" style="margin-left: auto; display: flex; align-items: center; gap: 24px;">
+          
+          <!-- CHAT MODULE -->
+          <div class="chat-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnChatToggle" style="background:none; border:none; cursor:pointer;">
+              <i class='bx bx-message-rounded-dots' style="font-size: 20px; color: #374151;"></i>
+            </button>
+            <div class="chat-popup" id="chatPopup" style="display: none; position: absolute; right: 0; top: 40px; background: white; width: 300px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; padding: 16px;">
+              <h3 style="font-size: 16px; margin-bottom: 8px; color: #111827;">Pesan Internal</h3>
+              <p style="font-size: 13px; color: #6B7280;">Modul komunikasi antar departemen akan hadir di sini.</p>
+            </div>
+          </div>
+
+          <!-- WRAPPER NOTIFIKASI -->
+          <div class="notification-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnNotifToggle" style="background:none; border:none; cursor:pointer;">
+              <i class='bx bx-bell' style="font-size: 20px; color: #374151;"></i>
+            </button>
+
+            <!-- KOTAK POPUP NOTIFIKASI -->
+            <div class="notif-popup" id="notifPopup" style="display: none; position: absolute; right: 0; top: 40px; background: white; width: 320px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <div style="padding: 16px; border-bottom: 1px solid #F3F4F6; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin:0; font-size: 16px; color: #111827;">Notifikasi</h3>
+                <a href="#" class="notif-mark-read" style="font-size: 12px; color: #3B82F6; text-decoration: none;">Mark all as read</a>
+              </div>
+              <div style="max-height: 300px; overflow-y: auto;">
+                <div class="notif-item" style="padding: 16px; border-bottom: 1px solid #F3F4F6; display: flex; gap: 12px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='white'">
+                  <div style="width: 40px; height: 40px; border-radius: 50%; background: #E0E7FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class='bx bx-info-circle'></i>
+                  </div>
+                  <div>
+                    <h4 style="margin: 0 0 4px 0; font-size: 14px; color: #111827;">Pembaruan Sistem</h4>
+                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #6B7280;">Sistem ERP telah diperbarui ke versi terbaru.</p>
+                    <span style="font-size: 11px; color: #9CA3AF;">Baru saja</span>
+                  </div>
+                </div>
+              </div>
+              <div style="padding: 12px; text-align: center; border-top: 1px solid #F3F4F6;">
+                <a href="#" style="font-size: 13px; color: #3B82F6; text-decoration: none; font-weight: 500;">Lihat semua notifikasi</a>
+              </div>
+            </div>
+          </div>
+          <!-- END WRAPPER NOTIFIKASI -->
+
+          <!-- PROFILE DROPDOWN -->
+          <div class="profile-wrapper" style="position: relative;">
+            <div class="user-profile" id="btnProfileToggle" style="cursor: pointer; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+              <div class="user-info" style="text-align: right;">
+                <span class="user-name" id="userNameDisplay">Loading...</span>
+                <span class="user-role" id="topbarUserRole">Loading...</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+                </div>
+                <i class='bx bx-chevron-down' style="color: #6B7280; font-size: 16px;"></i>
+              </div>
+            </div>
+
+            <!-- KOTAK POPUP PROFILE -->
+            <div class="profile-popup" id="profilePopup" style="display: none; position: absolute; right: 0; top: 55px; background: white; width: 260px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <!-- Header Info -->
+              <div style="padding: 20px; border-bottom: 1px solid #F3F4F6; display: flex; gap: 16px; align-items: center;">
+                <div id="popupAvatarBg" style="width: 48px; height: 48px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+                </div>
+                <div>
+                  <h4 style="font-size: 14px; font-weight: 700; color: #111827; margin: 0 0 2px 0;" id="popupUserName">User</h4>
+                  <p style="font-size: 12px; color: #6B7280; margin: 0 0 8px 0;" id="popupUserEmail">user@foodsync.com</p>
+                  <span id="popupUserBadge" style="background: #DBEAFE; color: #1D4ED8; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">ROLE</span>
+                </div>
+              </div>
+              
+              <!-- Menu Links -->
+              <div style="padding: 8px 0;">
+                <a href="profil.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-user' style="font-size: 18px; color: #9CA3AF;"></i> My Profile
+                </a>
+                <a href="keamanan.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-cog' style="font-size: 18px; color: #9CA3AF;"></i> Account Settings
+                </a>
+              </div>
+
+              <!-- Logout -->
+              <div style="border-top: 1px solid #F3F4F6; padding: 8px 0;">
+                <button id="popupLogoutBtn" style="width: 100%; text-align: left; display: flex; align-items: center; gap: 12px; padding: 10px 20px; border: none; background: transparent; cursor: pointer; color: #DC2626; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-log-out' style="font-size: 18px;"></i> Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+    <!-- CONTENT -->
+    <main class="content-area">
+      <div class="page-header">
+        <h1 class="page-title">Dashboard Keuangan</h1>
+        <p class="page-subtitle">Ringkasan performa keuangan dan arus kas terkini</p>
+      </div>
+
+      <!-- CARDS -->
+      <div class="summary-grid">
+        <div class="summary-card revenue">
+          <div class="summary-icon"><i class='bx bx-trending-up'></i></div>
+          <div class="summary-info">
+            <div class="summary-label">Total Pendapatan (Bulan Ini)</div>
+            <div class="summary-value" id="valPendapatan">Rp 125.400.000</div>
+          </div>
+        </div>
+        
+        <div class="summary-card expense">
+          <div class="summary-icon"><i class='bx bx-trending-down'></i></div>
+          <div class="summary-info">
+            <div class="summary-label">Total Pengeluaran (Bulan Ini)</div>
+            <div class="summary-value" id="valPengeluaran">Rp 48.200.000</div>
+          </div>
+        </div>
+        
+        <div class="summary-card profit">
+          <div class="summary-icon"><i class='bx bx-wallet-alt'></i></div>
+          <div class="summary-info">
+            <div class="summary-label">Laba Bersih (Bulan Ini)</div>
+            <div class="summary-value" id="valLabaBersih">Rp 77.200.000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSACTIONS -->
+      <div class="transaction-section">
+        <div class="section-header">
+          <h2 class="section-title">Perbandingan Pendapatan & Pengeluaran</h2>
+          <a href="laporanlaba.html" class="view-all">Lihat Laporan Lengkap</a>
+        </div>
+        <div style="height: 350px; width: 100%; position: relative; margin-top: 20px;">
+          <canvas id="financeChart"></canvas>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="js/topbar.js?v=4"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js?v=5"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Fetch data
+        const incomeHistory = JSON.parse(localStorage.getItem('erp_finance_income_history') || '[]');
+        const prData = JSON.parse(localStorage.getItem('erp_pr_data') || '[]');
+        
+        const today = new Date();
+        const currentMonth = today.getMonth(); // 0-11
+        const currentYear = today.getFullYear();
+        
+        let totalPendapatanBulanIni = 0;
+        let totalPengeluaranBulanIni = 0;
+        
+        // Month array for chart labels (last 6 months)
+        let labels = [];
+        let dataPendapatan = [0, 0, 0, 0, 0, 0];
+        let dataPengeluaran = [0, 0, 0, 0, 0, 0];
+        
+        for (let i = 5; i >= 0; i--) {
+            let d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+            labels.push(d.toLocaleDateString('id-ID', { month: 'short' }));
+        }
+        
+        const monthsIndo = { 'Jan':0, 'Feb':1, 'Mar':2, 'Apr':3, 'Mei':4, 'Jun':5, 'Jul':6, 'Agu':7, 'Sep':8, 'Okt':9, 'Nov':10, 'Des':11, 'Januari':0, 'Februari':1, 'Maret':2, 'April':3, 'Juni':5, 'Juli':6, 'Agustus':7, 'September':8, 'Oktober':9, 'November':10, 'Desember':11 };
+
+        // Process Income
+        incomeHistory.forEach(inc => {
+            let parts = (inc.date || '').split(' ');
+            if (parts.length >= 3) {
+                let mIdx = monthsIndo[parts[1]];
+                let y = parseInt(parts[2]);
+                
+                // For current month sum
+                if (mIdx === currentMonth && y === currentYear) {
+                    totalPendapatanBulanIni += parseInt(inc.nominal) || 0;
+                }
+                
+                // For chart
+                let monthDiff = (currentYear - y) * 12 + (currentMonth - mIdx);
+                if (monthDiff >= 0 && monthDiff < 6) {
+                    dataPendapatan[5 - monthDiff] += parseInt(inc.nominal) || 0;
+                }
+            }
+        });
+        
+        // Process Expenses (from PR Data)
+        prData.forEach(pr => {
+            // Assume "Disetujui" or "Diterima" means the money is allocated/spent
+            if (pr.status === 'Disetujui' || pr.status === 'Diterima') {
+                let parts = (pr.date || '').split(' ');
+                if (parts.length >= 3) {
+                    let mIdx = monthsIndo[parts[1]];
+                    let y = parseInt(parts[2]);
+                    
+                    if (mIdx === currentMonth && y === currentYear) {
+                        totalPengeluaranBulanIni += parseInt(pr.total) || 0;
+                    }
+                    
+                    let monthDiff = (currentYear - y) * 12 + (currentMonth - mIdx);
+                    if (monthDiff >= 0 && monthDiff < 6) {
+                        dataPengeluaran[5 - monthDiff] += parseInt(pr.total) || 0;
+                    }
+                }
+            }
+        });
+        
+        let labaBersih = totalPendapatanBulanIni - totalPengeluaranBulanIni;
+        
+        // Format to Rp
+        const formatRp = (num) => 'Rp ' + num.toLocaleString('id-ID');
+        
+        // Update DOM
+        const elPendapatan = document.getElementById('valPendapatan');
+        const elPengeluaran = document.getElementById('valPengeluaran');
+        const elLabaBersih = document.getElementById('valLabaBersih');
+        
+        if (elPendapatan) elPendapatan.textContent = formatRp(totalPendapatanBulanIni);
+        if (elPengeluaran) elPengeluaran.textContent = formatRp(totalPengeluaranBulanIni);
+        if (elLabaBersih) elLabaBersih.textContent = formatRp(labaBersih);
+        
+        // Change color for Laba Bersih if negative
+        if (elLabaBersih && labaBersih < 0) {
+            elLabaBersih.style.color = '#EF4444'; // red
+        } else if (elLabaBersih) {
+            elLabaBersih.style.color = '#111827'; // default dark
+        }
+        
+        // Render Chart
+        const ctx = document.getElementById('financeChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Pendapatan',
+                        data: dataPendapatan,
+                        backgroundColor: '#10B981', // green
+                        borderRadius: 6,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    },
+                    {
+                        label: 'Pengeluaran',
+                        data: dataPengeluaran,
+                        backgroundColor: '#EF4444', // red
+                        borderRadius: 6,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: { family: "'DM Sans', sans-serif", size: 12, weight: '600' }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#F3F4F6' },
+                        ticks: {
+                            callback: function(value) {
+                                if (value === 0) return '0';
+                                return (value / 1000000) + 'jt';
+                            },
+                            font: { family: "'DM Sans', sans-serif", weight: '600', size: 11 },
+                            color: '#9CA3AF'
+                        },
+                        border: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { family: "'DM Sans', sans-serif", weight: '700', size: 12 },
+                            color: '#111827'
+                        },
+                        border: { display: false }
+                    }
+                }
+            }
+        });
+    });
+  </script>
+</body>
+</html>

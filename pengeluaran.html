@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pengeluaran Bahan Baku ke Produksi – FoodSync</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="css/dashboard.css">
+  
+  <style>
+    :root {
+      --bg-main: #F4F7FB;
+      --text-dark: #111827;
+      --text-muted: #6B7280;
+      --primary-blue: #2563EB;
+      --active-bg: #DBEAFE;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-dark); min-width: 1366px; overflow-x: auto; }
+    
+    .layout { display: flex; height: 100vh; overflow: hidden; }
+    
+    /* SIDEBAR */
+    .sidebar {
+      width: 280px;
+      background: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      padding: 32px 24px;
+      border-top-right-radius: 24px;
+      border-bottom-right-radius: 24px;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.03);
+      z-index: 10;
+    }
+    .sidebar-logo { text-align: center; margin-bottom: 32px; }
+    .sidebar-logo img { max-width: 160px; height: auto; }
+    
+    .menu-label { font-size: 12px; font-weight: 700; color: #9CA3AF; margin-bottom: 16px; letter-spacing: 0.5px; padding-left: 12px; }
+    .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; text-decoration: none;
+      color: #374151; font-size: 14px; font-weight: 700;
+      border-radius: 12px; transition: 0.2s;
+    }
+    .nav-item i { font-size: 22px; color: #6B7280; }
+    .nav-item:hover { background: #F3F4F6; }
+    .nav-item.active { background: #DBEAFE; color: #1E3A8A; }
+    .nav-item.active i { color: #1E3A8A; }
+    
+    .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
+    .sidebar-footer hr { border: none; border-top: 1px solid #E5E7EB; margin-bottom: 8px; }
+    
+    .btn-logout {
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 14px; background: #B91C1C; color: white; border: none;
+      border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer;
+    }
+    .btn-logout:hover { background: #991B1B; }
+
+    /* MAIN CONTENT */
+    .main-content { flex: 1; overflow-y: auto; padding: 32px 40px; }
+    
+    /* TOPBAR */
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+    .search-box {
+      display: flex; align-items: center; gap: 10px;
+      background: #E5E7EB; padding: 12px 20px; border-radius: 24px; width: 400px;
+    }
+    .search-box i { font-size: 20px; color: #111827; font-weight: 700; }
+    .search-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; font-weight: 600; color: #4B5563; }
+    .search-box input::placeholder { color: #9CA3AF; font-weight: 600; }
+    
+    .topbar-right { display: flex; align-items: center; gap: 24px; margin-left: auto; }
+    .icon-btn { background: transparent; border: none; font-size: 24px; cursor: pointer; color: #111827; }
+    
+    .user-profile { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; cursor: pointer; }
+    .user-info { text-align: right; }
+    .user-name { display: block; font-weight: 800; font-size: 15px; color: #111827; }
+    .user-role { display: block; font-size: 12px; font-weight: 600; color: #4B5563; }
+    .user-avatar { width: 44px; height: 44px; border-radius: 50%; background-color: #E5E7EB; border: 2px solid #111827; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .user-avatar i { font-size: 28px; color: #111827; }
+
+    /* PAGE HEADER */
+    .page-title { font-size: 32px; font-weight: 800; color: #111827; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .page-subtitle { font-size: 14px; font-weight: 500; color: #6B7280; margin-bottom: 32px; }
+    
+    /* FILTERS BAR */
+    .filters-bar { display: flex; gap: 16px; margin-bottom: 24px; align-items: center; }
+    
+    .filter-btn-dark {
+      background: #003F8A; color: white; border: none; padding: 10px 16px; border-radius: 20px;
+      font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s;
+    }
+    .filter-btn-dark:hover { background: #002D62; }
+    .filter-btn-dark .icon-circle {
+      background: white; color: #003F8A; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
+
+    /* FILTER POPUP */
+    .filter-popup {
+      display: none;
+      position: absolute; top: 50px; left: 0; background: #F8F9FE; width: 320px; border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 24px; z-index: 100;
+    }
+    .filter-popup h3 { font-size: 20px; font-weight: 800; color: #111827; margin-bottom: 20px; letter-spacing: -0.5px; }
+    .filter-popup-search {
+      background: white; border-radius: 20px; padding: 10px 16px; display: flex; align-items: center; gap: 8px; margin-bottom: 20px;
+    }
+    .filter-popup-search i { color: #6B7280; font-size: 18px; }
+    .filter-popup-search input { border: none; outline: none; background: transparent; font-size: 13px; font-weight: 500; width: 100%; color: #111827; }
+    .filter-popup-search input::placeholder { color: #9CA3AF; }
+    
+    .filter-section { border-top: 2px solid #E5E7EB; padding-top: 20px; margin-bottom: 20px; }
+    .filter-section-title { font-size: 16px; font-weight: 800; color: #111827; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    
+    .checkbox-group { display: flex; flex-direction: column; gap: 12px; }
+    .custom-checkbox { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 15px; font-weight: 500; color: #111827; }
+    .check-box { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .check-active { background: #2563EB; color: white; border-radius: 50%; }
+    .check-inactive { background: #E5E7EB; color: #111827; }
+    
+    .dropdown-group { display: flex; flex-direction: column; gap: 12px; }
+    .filter-dd { background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; color: #6B7280; cursor: pointer; }
+    
+    .filter-actions { display: flex; gap: 12px; margin-top: 30px; }
+    .btn-apply { flex: 1; background: #003F8A; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-clear { flex: 1; background: white; color: #003F8A; border: 2px solid #003F8A; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    
+    .filter-search { 
+      flex: 1; padding: 12px 16px; background: white; border-radius: 12px; 
+      display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
+    }
+    .filter-search input { border: none; outline: none; width: 100%; font-size: 13px; font-weight: 500; color: #111827; }
+    .filter-search input::placeholder { color: #9CA3AF; }
+    .filter-search i { color: #9CA3AF; font-size: 18px; }
+    
+    .btn-icon-only { 
+      padding: 12px; background: white; border-radius: 12px; display: flex; 
+      align-items: center; justify-content: center; cursor: pointer; font-size: 18px; 
+      color: #374151; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: none;
+    }
+
+    /* DATA TABLE */
+    .table-card { background: white; border-radius: 24px; padding: 32px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    .table-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .table-title { font-size: 20px; font-weight: 800; color: #111827; }
+
+    .data-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    
+    .data-table thead tr {
+      background-color: #003F8A;
+      color: white;
+    }
+    .data-table th { 
+      text-align: left; padding: 16px 20px; font-size: 13px; font-weight: 700; color: white; border-bottom: none;
+    }
+    .data-table th:first-child { border-top-left-radius: 20px; border-bottom-left-radius: 20px; }
+    .data-table th:last-child { border-top-right-radius: 20px; border-bottom-right-radius: 20px; text-align: center; }
+    
+    .data-table td { padding: 20px 20px; font-size: 14px; font-weight: 600; color: #111827; border-bottom: 1px solid #F3F4F6; }
+    .data-table td:last-child { text-align: center; }
+    .data-table tr:last-child td { border-bottom: none; }
+
+  </style>
+</head>
+<body>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="assets/images/logo.png" alt="FoodSync Logo">
+      </div>
+      <p class="menu-label">MENU</p>
+      <nav class="sidebar-nav">
+        <a href="dashboardivn.html" class="nav-item">
+          <i class='bx bx-grid-alt'></i> Dashboard
+        </a>
+        <a href="datastok.html" class="nav-item">
+          <i class='bx bx-data'></i> Data Stok & Monitoring
+        </a>
+        <a href="reqpembelian.html" class="nav-item">
+          <i class='bx bx-cart'></i> Request Pembelian Bahan Baku
+        </a>
+        <a href="penerimaan.html" class="nav-item">
+          <i class='bx bx-download'></i> Penerimaan Bahan Baku
+        </a>
+        <a href="pengeluaran.html" class="nav-item active">
+          <i class='bx bx-box'></i> Pengeluaran Produksi
+        </a>
+        <a href="barangjadi.html" class="nav-item">
+          <i class='bx bx-package'></i> Barang Jadi (FG)
+        </a>
+        <a href="mutasilaporan.html" class="nav-item">
+          <i class='bx bx-clipboard'></i> Mutasi & Laporan
+        </a>
+      </nav>
+
+
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-right" style="margin-left: auto; display: flex; align-items: center; gap: 24px;">
+          <!-- CHAT MODULE -->
+          <div class="chat-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnChatToggle">
+              <i class='bx bx-message-rounded-dots'></i>
+            </button>
+            <div class="chat-popup" id="chatPopup" style="display: none; position: absolute; right: 0; top: 50px; background: white; width: 300px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; padding: 16px;">
+              <h3 style="font-size: 16px; margin-bottom: 8px;">Pesan Internal</h3>
+              <p style="font-size: 13px; color: #6B7280;">Modul komunikasi antar departemen akan hadir di sini.</p>
+            </div>
+          </div>
+
+          <!-- WRAPPER NOTIFIKASI -->
+          <div class="notification-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnNotifToggle">
+              <i class='bx bx-bell'></i>
+            </button>
+            <div class="notif-popup" id="notifPopup" style="display: none; position: absolute; right: 0; top: 50px; background: white; width: 320px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; padding: 16px;">
+              <h3 style="font-size: 16px; margin-bottom: 8px;">Notifikasi</h3>
+              <p style="font-size: 13px; color: #6B7280;">Belum ada notifikasi baru.</p>
+            </div>
+          </div>
+
+          <!-- PROFILE DROPDOWN -->
+          <div class="profile-wrapper" style="position: relative;">
+            <div class="user-profile" id="btnProfileToggle" style="cursor: pointer; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+              <div class="user-info" style="text-align: right;">
+                <span class="user-name" id="userNameDisplay" style="display: block; font-weight: 800; font-size: 15px; color: #111827;">Super Admin</span>
+                <span class="user-role" id="topbarUserRole" style="display: block; font-size: 11px; font-weight: 700; color: #4B5563; text-transform: uppercase;">SUPERADMIN</span>
+              </div>
+              <div class="user-avatar" id="avatarDisplay" style="width: 44px; height: 44px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid #F3F4F6;">
+                <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+              </div>
+              <i class='bx bx-chevron-down' style="font-size: 18px; color: #6B7280;"></i>
+            </div>
+
+            <!-- KOTAK POPUP PROFILE -->
+            <div class="profile-popup" id="profilePopup" style="display: none; position: absolute; right: 0; top: 55px; background: white; width: 260px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <!-- Header Info -->
+              <div style="padding: 20px; border-bottom: 1px solid #F3F4F6; display: flex; gap: 16px; align-items: center;">
+                <div id="popupAvatarBg" style="width: 48px; height: 48px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+                </div>
+                <div>
+                  <h4 style="font-size: 14px; font-weight: 700; color: #111827; margin: 0 0 2px 0;" id="popupUserName">Super Admin</h4>
+                  <p style="font-size: 12px; color: #6B7280; margin: 0 0 8px 0;" id="popupUserEmail">admin@foodsync.com</p>
+                  <span id="popupUserBadge" style="background: #DBEAFE; color: #1D4ED8; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">SUPERADMIN</span>
+                </div>
+              </div>
+              
+              <!-- Menu Links -->
+              <div style="padding: 8px 0;">
+                <a href="profil.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-user' style="font-size: 18px; color: #9CA3AF;"></i> My Profile
+                </a>
+                <a href="keamanan.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-cog' style="font-size: 18px; color: #9CA3AF;"></i> Account Settings
+                </a>
+              </div>
+
+              <!-- Logout -->
+              <div style="border-top: 1px solid #F3F4F6; padding: 8px 0;">
+                <button id="popupLogoutBtn" style="width: 100%; text-align: left; display: flex; align-items: center; gap: 12px; padding: 10px 20px; border: none; background: transparent; cursor: pointer; color: #DC2626; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-log-out' style="font-size: 18px;"></i> Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div>
+        <h1 class="page-title">Pengeluaran Bahan Baku ke Produksi</h1>
+        <p class="page-subtitle">Kelola pengeluaran bahan baku dari gudang ke proses produksi</p>
+      </div>
+
+      <div class="filters-bar" style="justify-content: space-between; position: relative;">
+        <button class="filter-btn-dark" id="btnFilterTrigger">
+          Filter <div class="icon-circle"><i class='bx bx-chevron-down'></i></div>
+        </button>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span id="lastUpdated" style="font-size: 13px; color: #6B7280; font-weight: 600;"></span>
+          <button class="btn-icon-only" id="btnRefresh" style="cursor: pointer;">
+            <i class='bx bx-refresh'></i>
+          </button>
+        </div>
+
+        <!-- FILTER POPUP -->
+        <div class="filter-popup" id="filterPopup">
+          <h3>Atur Filter</h3>
+
+          <div class="filter-section" style="border-top: none; padding-top: 0;">
+            <div class="filter-section-title">
+              Tanggal Issue <i class='bx bx-chevron-up'></i>
+            </div>
+            <div class="dropdown-group">
+              <input type="date" id="filterStartDate" class="filter-dd" style="border: 1px solid #E5E7EB; border-radius: 8px; padding: 8px 12px; width: 100%; box-sizing: border-box; font-family: inherit; color: #374151; font-size: 13px;" title="Dari Tanggal">
+              <input type="date" id="filterEndDate" class="filter-dd" style="border: 1px solid #E5E7EB; border-radius: 8px; padding: 8px 12px; width: 100%; box-sizing: border-box; font-family: inherit; color: #374151; font-size: 13px;" title="Sampai Tanggal">
+            </div>
+          </div>
+
+          <div class="filter-actions">
+            <button class="btn-apply" id="btnApplyFilter">Terapkan Filter</button>
+            <button class="btn-clear" id="btnClearFilter">Hapus semua filter</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header-row">
+          <h2 class="table-title">Daftar Pengeluaran Produksi</h2>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No Issue</th>
+              <th>Tanggal</th>
+              <th>No. PO</th>
+              <th>Nama Bahan</th>
+              <th>Jumlah</th>
+              <th>Satuan</th>
+            </tr>
+          </thead>
+          <tbody id="pengeluaranTableBody">
+            <!-- Dynamic data goes here -->
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="js/topbar.js?v=4"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const isLoggedIn = !!(
+        localStorage.getItem('auth_token') ||
+        sessionStorage.getItem('auth_token') ||
+        localStorage.getItem('user_name') ||
+        sessionStorage.getItem('user_name')
+      );
+      if (!isLoggedIn) {
+        window.location.href = 'signin.html';
+        return;
+      }
+
+      function renderPengeluaran() {
+        const tbody = document.getElementById('pengeluaranTableBody');
+        tbody.innerHTML = '';
+        
+        let pengeluaran = JSON.parse(localStorage.getItem('erp_pengeluaran_produksi') || '[]');
+        
+        if(pengeluaran.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #6B7280;">Belum ada riwayat pengeluaran bahan baku produksi</td></tr>';
+          return;
+        }
+
+        pengeluaran.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${item.issueNo}</td>
+            <td>${item.date}</td>
+            <td style="font-weight: 700;">${item.poId}</td>
+            <td>${item.name}</td>
+            <td>${item.qty.toLocaleString('id-ID')}</td>
+            <td>${item.unit || '-'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      renderPengeluaran();
+      
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'erp_pengeluaran_produksi') {
+          renderPengeluaran();
+        }
+      });
+
+      
+      // Filter Popup Toggle Logic
+      const filterBtn = document.getElementById('btnFilterTrigger');
+      const filterPopup = document.getElementById('filterPopup');
+      
+      filterBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (filterPopup.style.display === 'none' || filterPopup.style.display === '') {
+          filterPopup.style.display = 'block';
+        } else {
+          filterPopup.style.display = 'none';
+        }
+      });
+      
+      // Close popup when clicking outside
+      document.addEventListener('click', (e) => {
+        if (filterPopup.style.display === 'block' && !filterPopup.contains(e.target)) {
+          filterPopup.style.display = 'none';
+        }
+      });
+
+      // Date Parsing
+      function parseIndonesianDate(dateStr) {
+        const months = {
+          'januari': 0, 'februari': 1, 'maret': 2, 'april': 3, 'mei': 4, 'juni': 5,
+          'juli': 6, 'agustus': 7, 'september': 8, 'oktober': 9, 'november': 10, 'desember': 11
+        };
+        const parts = dateStr.trim().toLowerCase().split(' ');
+        if(parts.length === 3) {
+          const d = parseInt(parts[0], 10);
+          const m = months[parts[1]];
+          const y = parseInt(parts[2], 10);
+          if (!isNaN(d) && m !== undefined && !isNaN(y)) {
+            return new Date(y, m, d);
+          }
+        }
+        return null;
+      }
+
+      // Filter Table Logic
+      const btnApplyFilter = document.getElementById('btnApplyFilter');
+      const btnClearFilter = document.getElementById('btnClearFilter');
+      const filterStartDate = document.getElementById('filterStartDate');
+      const filterEndDate = document.getElementById('filterEndDate');
+
+      function applyFilter() {
+          const startVal = filterStartDate.value ? new Date(filterStartDate.value) : null;
+          let endVal = filterEndDate.value ? new Date(filterEndDate.value) : null;
+          if (startVal) startVal.setHours(0, 0, 0, 0);
+          if (endVal) endVal.setHours(23, 59, 59, 999);
+
+          const tableRows = document.querySelectorAll('.data-table tbody tr');
+          
+          tableRows.forEach(row => {
+              const dateStr = row.cells[1]?.textContent || '';
+              const rowDate = parseIndonesianDate(dateStr);
+              
+              let matchDate = true;
+              if (rowDate) {
+                  if (startVal && rowDate < startVal) matchDate = false;
+                  if (endVal && rowDate > endVal) matchDate = false;
+              }
+              
+              if (matchDate) {
+                  row.style.display = '';
+              } else {
+                  row.style.display = 'none';
+              }
+          });
+          filterPopup.style.display='none';
+      }
+      
+      if(btnApplyFilter) btnApplyFilter.addEventListener('click', applyFilter);
+      
+      if(btnClearFilter) btnClearFilter.addEventListener('click', () => {
+          if(filterStartDate) filterStartDate.value = '';
+          if(filterEndDate) filterEndDate.value = '';
+          applyFilter();
+      });
+
+      // Refresh Logic
+      const btnRefresh = document.getElementById('btnRefresh');
+      if(btnRefresh) {
+          btnRefresh.addEventListener('click', () => {
+              const now = new Date();
+              const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+              const dateStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+              const lastUpd = document.getElementById('lastUpdated');
+              if(lastUpd) lastUpd.textContent = `Terakhir diperbarui: ${dateStr} ${timeStr}`;
+              
+              const icon = btnRefresh.querySelector('i');
+              if (icon) {
+                icon.style.transition = 'transform 0.5s ease';
+                icon.style.transform = 'rotate(360deg)';
+                setTimeout(() => {
+                  icon.style.transition = 'none';
+                  icon.style.transform = 'rotate(0deg)';
+                }, 500);
+              }
+          });
+      }
+    });
+
+    function clearAuth() {
+      ['auth_token', 'user_name', 'user_email', 'user_role', 'user_photo', 'isLoggedIn'].forEach(k => {
+        localStorage.removeItem(k);
+        sessionStorage.removeItem(k);
+      });
+    }
+  </script>
+</body>
+</html>

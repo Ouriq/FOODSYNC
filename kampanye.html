@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tracking Kampanye Marketing – FoodSync</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+  <link rel="stylesheet" href="css/kampanye.css?v=7" />
+
+<script>
+  (function() {
+    var photo = localStorage.getItem('user_photo');
+    if (photo) {
+      document.write('<style id="anti-flicker-avatar">');
+      document.write('.user-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.user-avatar i { display: none; }');
+      document.write('.pd-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.pd-avatar i { display: none; }');
+      document.write('.big-avatar { background-image: url(' + photo + ') !important; background-size: cover !important; }');
+      document.write('</style>');
+    }
+  })();
+</script>
+</head>
+
+<body>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="assets/images/logo.png" alt="Logo FoodSync" class="logo-img" />
+      </div>
+
+      <p class="menu-label">MENU</p>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">
+          <img src="assets/images/dasboardicon.png" alt="Dashboard" class="nav-icon"> Dashboard
+        </a>
+        <a href="pelanggan.html" class="nav-item">
+          <img src="assets/images/dataicon.png" alt="Pelanggan" class="nav-icon"> Manajemen Data Pelanggan
+        </a>
+        <a href="sales.html" class="nav-item">
+          <img src="assets/images/soicon.png" alt="Sales" class="nav-icon"> Sales Order
+        </a>
+        <a href="kampanye.html" class="nav-item active">
+          <img src="assets/images/speaker.png" alt="Kampanye" class="nav-icon"> Kampanye Marketing
+        </a>
+        <a href="market.html" class="nav-item">
+          <img src="assets/images/marketicon.png" alt="Market" class="nav-icon"> Market Intelligence
+        </a>
+        <a href="laporan.html" class="nav-item">
+          <img src="assets/images/laporanicon.png" alt="Laporan" class="nav-icon"> Laporan Penjualan
+        </a>
+      </nav>
+
+      
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <!-- Search box dihilangkan -->
+        <div class="topbar-right" style="margin-left: auto;">
+          <!-- CHAT MODULE -->
+          <div class="chat-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnChatToggle">
+              <i class='bx bx-message-rounded-dots'></i>
+            </button>
+            <div class="chat-popup" id="chatPopup" style="display: none; position: absolute; right: 0; top: 50px; background: white; width: 300px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; padding: 16px;">
+              <h3 style="font-size: 16px; margin-bottom: 8px;">Pesan Internal</h3>
+              <p style="font-size: 13px; color: #6B7280;">Modul komunikasi antar departemen akan hadir di sini.</p>
+            </div>
+          </div>
+
+                    <!-- WRAPPER NOTIFIKASI -->
+          <div class="notification-wrapper">
+            <button class="icon-btn" id="btnNotifToggle">
+              <i class='bx bx-bell'></i>
+            </button>
+
+            <!-- KOTAK POPUP NOTIFIKASI -->
+            <div class="notif-popup" id="notifPopup">
+              <div class="notif-header">
+                <h3>Notifikasi</h3>
+                <a href="#" class="notif-mark-read">Mark all as read</a>
+              </div>
+              <div class="notif-list">
+                <div class="notif-item">
+                  <div class="notif-icon" style="background-color: #E0E7FF; color: #4F46E5;">
+                    <i class='bx bx-shopping-bag'></i>
+                  </div>
+                  <div class="notif-content">
+                    <h4>Pesanan baru #SO-250524</h4>
+                    <p>Dari Toko Maju Jaya</p>
+                    <span class="notif-time">5 menit yang lalu</span>
+                  </div>
+                  <div class="notif-unread-dot"></div>
+                </div>
+                <div class="notif-item">
+                  <div class="notif-icon" style="background-color: #DCFCE7; color: #16A34A;">
+                    <i class='bx bx-line-chart'></i>
+                  </div>
+                  <div class="notif-content">
+                    <h4>Laporan penjualan harian</h4>
+                    <p>Sudah tersedia untuk dilihat</p>
+                    <span class="notif-time">30 menit yang lalu</span>
+                  </div>
+                  <div class="notif-unread-dot"></div>
+                </div>
+                <div class="notif-item">
+                  <div class="notif-icon" style="background-color: #F3E8FF; color: #9333EA;">
+                    <i class='bx bx-volume-full'></i>
+                  </div>
+                  <div class="notif-content">
+                    <h4>Promo baru "Ramadan Ceria"</h4>
+                    <p>Telah aktif di 12 kota</p>
+                    <span class="notif-time">1 jam yang lalu</span>
+                  </div>
+                  <div class="notif-unread-dot"></div>
+                </div>
+                <div class="notif-item">
+                  <div class="notif-icon" style="background-color: #FFEDD5; color: #EA580C;">
+                    <i class='bx bx-error'></i>
+                  </div>
+                  <div class="notif-content">
+                    <h4>Stok varian Mie Goreng</h4>
+                    <p>Tersisa di bawah 20%</p>
+                    <span class="notif-time">2 jam yang lalu</span>
+                  </div>
+                  <div class="notif-unread-dot"></div>
+                </div>
+              </div>
+              <div class="notif-footer">
+                <a href="#" class="notif-view-all">Lihat semua notifikasi</a>
+                <i class='bx bx-chevron-right'></i>
+              </div>
+            </div>
+          </div>
+          <!-- END WRAPPER NOTIFIKASI -->
+          <!-- PROFILE DROPDOWN -->
+          <div class="profile-wrapper" style="position: relative;">
+            <div class="user-profile" id="btnProfileToggle" style="cursor: pointer; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+              <div class="user-info" style="text-align: right;">
+                <span class="user-name" id="userNameDisplay">HOHO</span>
+                <span class="user-role" id="topbarUserRole">Sales & Marketing Manager</span>
+              </div>
+              <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;">
+                <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+              </div>
+              <i class='bx bx-chevron-down' style="font-size: 16px; color: #6B7280;"></i>
+            </div>
+
+            <!-- KOTAK POPUP PROFILE (Seperti referensi gambar) -->
+            <div class="profile-popup" id="profilePopup" style="display: none; position: absolute; right: 0; top: 55px; background: white; width: 260px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <!-- Header Info -->
+              <div style="padding: 20px; border-bottom: 1px solid #F3F4F6; display: flex; gap: 16px; align-items: center;">
+                <div id="popupAvatarBg" style="width: 48px; height: 48px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+                </div>
+                <div>
+                  <h4 style="font-size: 14px; font-weight: 700; color: #111827; margin: 0 0 2px 0;" id="popupUserName">Production Staff</h4>
+                  <p style="font-size: 12px; color: #6B7280; margin: 0 0 8px 0;" id="popupUserEmail">production@mayora.id</p>
+                  <span id="popupUserBadge" style="background: #DBEAFE; color: #1D4ED8; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">PRODUCTION</span>
+                </div>
+              </div>
+              
+              <!-- Menu Links -->
+              <div style="padding: 8px 0;">
+                <a href="profil.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-user' style="font-size: 18px; color: #9CA3AF;"></i> My Profile
+                </a>
+                <a href="keamanan.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-cog' style="font-size: 18px; color: #9CA3AF;"></i> Account Settings
+                </a>
+              </div>
+
+              <!-- Logout -->
+              <div style="border-top: 1px solid #F3F4F6; padding: 8px 0;">
+                <button id="popupLogoutBtn" style="width: 100%; text-align: left; display: flex; align-items: center; gap: 12px; padding: 10px 20px; border: none; background: transparent; cursor: pointer; color: #DC2626; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-log-out' style="font-size: 18px;"></i> Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="page-header">
+        <h1>Tracking Kampanye Marketing</h1>
+      </div>
+
+      <div class="card budget-card">
+        <div class="budget-icon">
+          <img src="assets/images/dompeticon.png" alt="Wallet" class="custom-stat-img">
+        </div>
+        <div class="budget-info">
+          <p class="budget-label">Total Budget Terpakai</p>
+          <div class="budget-amounts">
+            <h2 id="usedBudgetDisplay">Rp 0</h2>
+            <span class="budget-total" id="maxBudgetDisplay">/ Rp 0</span>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="budgetProgressBar" style="width: 0%;"></div>
+            </div>
+            <div class="progress-labels">
+              <span id="budgetProgressPercent">0%</span>
+              <span class="text-muted" id="budgetRemainingDisplay">Sisa Rp 0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTION BAR & FILTER POPUP -->
+      <div class="action-bar">
+        <button class="btn-add-kampanye" id="btnTambahKampanye">
+          Tambah Kampanye Baru <i class='bx bx-plus'></i>
+        </button>
+
+        <div class="filter-wrapper">
+          <button class="btn-filter" id="btnFilterToggle">
+            Filter <i class='bx bx-filter'></i>
+          </button>
+
+          <!-- KOTAK POPUP FILTER KAMPANYE -->
+          <div class="filter-popup" id="filterPopup">
+            <h3 class="filter-title">Atur Filter</h3>
+
+            <div class="filter-search-box">
+              <i class='bx bx-search'></i>
+              <input type="text" placeholder="Cari Filter">
+            </div>
+
+            <hr class="f-divider">
+
+            <!-- Media Kampanye -->
+            <div class="f-section">
+              <div class="f-header">
+                <h4>Media Kampanye</h4>
+                <i class='bx bx-chevron-up'></i>
+              </div>
+              <div class="f-body">
+                <label class="custom-cb">
+                  <input type="checkbox" class="filter-media" value="TV">
+                  <span class="cb-mark blue-mark"></span> TV
+                </label>
+                <label class="custom-cb">
+                  <input type="checkbox" class="filter-media" value="Tiktok">
+                  <span class="cb-mark gray-mark"></span> Tiktok
+                </label>
+                <label class="custom-cb">
+                  <input type="checkbox" class="filter-media" value="Instagram Reels">
+                  <span class="cb-mark gray-mark"></span> Instagram Reels
+                </label>
+                <label class="custom-cb">
+                  <input type="checkbox" class="filter-media" value="YouTube Ads">
+                  <span class="cb-mark gray-mark"></span> YouTube Ads
+                </label>
+                <label class="custom-cb">
+                  <input type="checkbox" class="filter-media" value="Billboard">
+                  <span class="cb-mark gray-mark"></span> Billboard
+                </label>
+              </div>
+            </div>
+
+            <hr class="f-divider">
+
+            <!-- Status Kampanye (Radio Buttons) -->
+            <div class="f-section">
+              <div class="f-header">
+                <h4>Status Kampanye</h4>
+                <i class='bx bx-chevron-up'></i>
+              </div>
+              <div class="f-body radio-group-horizontal">
+                <label class="custom-radio">
+                  <input type="radio" name="statusFilter" value="Semua" checked>
+                  <span class="radio-mark"></span> Semua
+                </label>
+                <label class="custom-radio">
+                  <input type="radio" name="statusFilter" value="Aktif">
+                  <span class="radio-mark"></span> Aktif
+                </label>
+                <label class="custom-radio">
+                  <input type="radio" name="statusFilter" value="Draft">
+                  <span class="radio-mark"></span> Draft
+                </label>
+                <label class="custom-radio">
+                  <input type="radio" name="statusFilter" value="Selesai">
+                  <span class="radio-mark"></span> Selesai
+                </label>
+              </div>
+            </div>
+
+            <hr class="f-divider">
+
+            <!-- Rentang Anggaran (Slider) -->
+            <div class="f-section">
+              <div class="f-header">
+                <h4>Rentang anggaran</h4>
+                <i class='bx bx-chevron-up'></i>
+              </div>
+              <div class="f-body">
+                <div class="f-slider-container">
+                  <div class="f-slider-track">
+                    <div class="f-slider-progress" style="width: 65%;"></div>
+                    <div class="f-slider-thumb" style="left: 65%;"></div>
+                  </div>
+                  <div class="f-slider-labels">
+                    <span>Rp0</span>
+                    <span>Rp1M+</span>
+                  </div>
+                </div>
+
+                <div class="f-body-mt">
+                  <label class="custom-cb">
+                    <input type="checkbox" checked>
+                    <span class="cb-mark blue-mark"></span> Anggaran Besar (>Rp 500jt)
+                  </label>
+                  <label class="custom-cb">
+                    <input type="checkbox">
+                    <span class="cb-mark gray-mark"></span> Menengah (Rp 100jt - Rp 500jt)
+                  </label>
+                  <label class="custom-cb">
+                    <input type="checkbox">
+                    <span class="cb-mark gray-mark"></span> Kecil (Rp 100jt)
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <hr class="f-divider">
+
+            <!-- Penggunaan Kuota -->
+            <div class="f-section">
+              <div class="f-header">
+                <h4>Penggunaan Kuota</h4>
+                <i class='bx bx-chevron-up'></i>
+              </div>
+              <div class="f-body">
+                <label class="custom-cb">
+                  <input type="checkbox">
+                  <span class="cb-mark gray-mark"></span> Belum Digunakan
+                </label>
+                <label class="custom-cb">
+                  <input type="checkbox" checked>
+                  <span class="cb-mark blue-mark"></span> Hampir Habis (>80%)
+                </label>
+                <label class="custom-cb">
+                  <input type="checkbox">
+                  <span class="cb-mark gray-mark"></span> Tersedia
+                </label>
+              </div>
+            </div>
+
+            <hr class="f-divider">
+
+            <!-- Tombol Footer -->
+            <div class="filter-footer-btns">
+              <button class="btn-terapkan-filter">Terapkan Filter</button>
+              <button class="btn-hapus-filter">Hapus semua filter</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KARTU STATISTIK -->
+      <div class="stats-grid">
+        <div class="card stat-card">
+          <div class="stat-icon icon-blue">
+            <img src="assets/images/aktificon.png" alt="Aktif" class="custom-stat-img">
+          </div>
+          <div class="stat-text">
+            <p class="stat-title">Kampanye Aktif</p>
+            <h3>1</h3>
+            <span class="stat-desc text-blue">Sedang berjalan</span>
+          </div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon icon-yellow">
+            <img src="assets/images/drafticon.png" alt="Draft" class="custom-stat-img">
+          </div>
+          <div class="stat-text">
+            <p class="stat-title">Draft</p>
+            <h3>1</h3>
+            <span class="stat-desc text-yellow">Belum dipublikasi</span>
+          </div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon icon-green">
+            <img src="assets/images/selesaiicon.png" alt="Selesai" class="custom-stat-img">
+          </div>
+          <div class="stat-text">
+            <p class="stat-title">Selesai</p>
+            <h3>0</h3>
+            <span class="stat-desc text-green">Selesai dijalankan</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABEL KAMPANYE -->
+      <div class="card table-card">
+        <div class="table-responsive">
+          <table class="kampanye-table">
+            <thead>
+              <tr>
+                <th>Nama Kampanye</th>
+                <th>Media</th>
+                <th>Anggaran</th>
+                <th>Status</th>
+                <th>Progress Hari</th>
+              </tr>
+            </thead>
+            <tbody id="kampanyeTableBody">
+              <tr>
+                <td>
+                  <div class="kampanye-name-cell">
+                    <div class="media-icon bg-gray"><i class='bx bx-tv'></i></div>
+                    <div>
+                      <p class="k-title">Iklan Indomie Ramadhan</p>
+                      <p class="k-subtitle">Campaign TV - Ramadhan</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="font-bold">TV</td>
+                <td class="font-bold">Rp. 500.000.000</td>
+                <td><span class="status-pill aktif">Aktif</span></td>
+                <td>
+                  <div class="mini-progress">
+                    <span class="font-bold">45 hari</span>
+                    <div class="mini-bar-bg">
+                      <div class="mini-bar-fill bg-green" style="width: 70%;"></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="kampanye-name-cell">
+                    <div class="media-icon bg-dark"><i class='bx bxl-tiktok'></i></div>
+                    <div>
+                      <p class="k-title">Tiktok Challenge #IndomieSeru</p>
+                      <p class="k-subtitle">Campaign Tiktok</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="font-bold">Tiktok</td>
+                <td class="font-bold">Rp. 800.000.000</td>
+                <td><span class="status-pill draft">Draft</span></td>
+                <td>
+                  <div class="mini-progress">
+                    <span class="font-bold">0 hari</span>
+                    <div class="mini-bar-bg">
+                      <div class="mini-bar-fill bg-gray" style="width: 0%;"></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  
+  
+  <!-- MODAL DETAIL KAMPANYE -->
+  <div class="modal-overlay" id="modalDetailKampanye">
+    <div class="modal-box modal-large">
+      <div class="modal-header-blue">
+        <h2>Detail Kampanye Marketing</h2>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nama Kampanye</label>
+          <input type="text" id="detailNamaInput" readonly style="background-color: #F4F5F7; cursor: not-allowed;">
+        </div>
+        <div class="form-group">
+          <label>Sub-Nama Kampanye</label>
+          <input type="text" id="detailSubNamaInput" readonly style="background-color: #F4F5F7; cursor: not-allowed;">
+        </div>
+
+        <div class="form-group">
+          <label>Media Kampanye</label>
+          <input type="text" id="detailMediaInput" readonly style="background-color: #F4F5F7; cursor: not-allowed;">
+        </div>
+        <div class="form-group">
+          <label>Anggaran</label>
+          <input type="text" id="detailAnggaranInput" readonly style="background-color: #F4F5F7; cursor: not-allowed;">
+        </div>
+
+        <div class="form-group full-width">
+          <label>Deskripsi/Syarat & Ketentuan</label>
+          <textarea id="detailDeskripsiInput" rows="4" readonly style="background-color: #F4F5F7; cursor: not-allowed;"></textarea>
+        </div>
+      </div>
+
+      <div class="section-periode">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="margin-bottom: 0;">Periode</h3>
+            <span id="detailSisaHariBadge" style="background-color: #FEF3C7; color: #D97706; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;">Sisa Hari: -</span>
+        </div>
+        <div class="date-grid">
+          <div class="form-group">
+            <label>Tanggal Mulai</label>
+            <input type="text" id="detailMulaiInput" readonly style="background-color: #F4F5F7; cursor: not-allowed;">
+          </div>
+          <div class="form-group">
+            <label>Tanggal Berakhir</label>
+            <input type="text" id="detailAkhirInput" readonly style="background-color: #F4F5F7; cursor: not-allowed;">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between; margin-top: 32px;">
+        <button type="button" class="btn-draft-modal" id="btnHapusKampanye" style="background-color: #EF4444; color: white; border: none;">Hapus Kampanye</button>
+        <button type="button" class="btn-simpan-modal" id="btnTutupDetail">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FORM TAMBAH KAMPANYE -->
+  <div class="modal-overlay" id="modalKampanye">
+    <div class="modal-box modal-large">
+      <div class="modal-header-blue">
+        <h2>Form Tambah Kampanye Marketing</h2>
+      </div>
+
+      <form id="formKampanye">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nama Kampanye</label>
+            <input type="text" id="inputNama" placeholder="Ketik Nama Kampanye" required>
+          </div>
+          <div class="form-group">
+            <label>Sub-Nama Kampanye</label>
+            <input type="text" id="inputSubNama" placeholder="Ketik Sub-Nama Kampanye" required>
+          </div>
+
+          <div class="form-group">
+            <label>Media Kampanye</label>
+            <select id="inputMedia" required>
+              <option value="" disabled selected>Pilih Kategori</option>
+              <option value="Tiktok">TikTok</option>
+              <option value="Instagram Reels">Instagram Reels</option>
+              <option value="TV">Televisi (TV)</option>
+              <option value="YouTube Ads">YouTube Ads</option>
+              <option value="Billboard">Billboard</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Anggaran</label>
+            <input type="text" id="inputAnggaran" placeholder="Ketik nominal anggaran" required>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Deskripsi/Syarat & Ketentuan</label>
+            <textarea id="inputDeskripsi" placeholder="Berikan Detail, Deskripsi atau Syarat & Ketentuan"
+              rows="4"></textarea>
+          </div>
+        </div>
+
+        <div class="section-periode">
+          <h3>Periode</h3>
+          <div class="date-grid">
+            <div class="form-group">
+              <label>Tanggal Mulai</label>
+              <input type="date" id="inputMulai" required>
+            </div>
+            <div class="form-group">
+              <label>Tanggal Berakhir</label>
+              <input type="date" id="inputAkhir" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-draft-modal" id="btnDraft">Draft</button>
+          <button type="submit" class="btn-simpan-modal">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/kampanye.js?v=5"></script>
+  <script src="js/topbar.js?v=4"></script>
+</body>
+
+</html>

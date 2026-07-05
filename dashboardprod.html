@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – FoodSync Production</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  
+  <link rel="stylesheet" href="css/dashboard.css?v=7" />
+
+<script>
+  (function() {
+    var photo = localStorage.getItem('user_photo');
+    if (photo) {
+      document.write('<style id="anti-flicker-avatar">');
+      document.write('.user-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.user-avatar i { display: none; }');
+      document.write('.pd-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.pd-avatar i { display: none; }');
+      document.write('.big-avatar { background-image: url(' + photo + ') !important; background-size: cover !important; }');
+      document.write('</style>');
+    }
+  })();
+</script>
+<style>
+/* Adjust grid for production */
+.prod-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 24px;
+}
+.prod-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  border: 1px solid #F3F4F6;
+}
+.prod-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.prod-card-value {
+  font-size: 32px;
+  font-weight: 800;
+}
+.val-blue { color: #1E3A8A; }
+.val-red { color: #DC2626; }
+.val-green { color: #16A34A; }
+.val-orange { color: #B45309; }
+
+.chart-card {
+  grid-column: span 4;
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  border: 1px solid #F3F4F6;
+  margin-top: 24px;
+}
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.chart-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+.chart-legends {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 12px;
+  color: #6B7280;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.dot-actual { background: #3B82F6; }
+.dot-target { background: #D1D5DB; }
+
+/* Menghindari conflict dari sidebar.css yang me-reset gaya tertentu */
+.sidebar-nav a.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: #4B5563;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+.sidebar-nav a.nav-item:hover, .sidebar-nav a.nav-item.active {
+  background: #F3F4F6;
+  color: #1E3A8A;
+}
+.sidebar-nav a.nav-item i {
+  font-size: 20px;
+}
+</style>
+</head>
+<body>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="assets/images/logo.png" alt="Logo FoodSync" class="logo-img" />
+      </div>
+
+      <p class="menu-label">MENU</p>
+      <nav class="sidebar-nav">
+        <a href="dashboardprod.html" class="nav-item active">
+          <i class='bx bx-grid-alt'></i> Dashboard
+        </a>
+        <a href="rencanaproduksi.html" class="nav-item">
+          <i class='bx bx-calendar-event'></i> Rencana Produksi
+        </a>
+        <a href="monitoringproduksi.html" class="nav-item">
+          <i class='bx bx-desktop'></i> Monitoring Produksi
+        </a>
+        <a href="prosesproduksi.html" class="nav-item">
+          <i class='bx bx-cog'></i> Proses Produksi
+        </a>
+        <a href="qualitycheck.html" class="nav-item">
+          <i class='bx bx-check-shield'></i> Quality Check
+        </a>
+        <a href="riwayatproduksi.html" class="nav-item">
+          <i class='bx bx-history'></i> Riwayat Produksi
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-right" style="margin-left: auto; display: flex; align-items: center; gap: 24px;">
+          <!-- CHAT MODULE -->
+          <div class="chat-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnChatToggle">
+              <i class='bx bx-message-rounded-dots'></i>
+            </button>
+            <div class="chat-popup" id="chatPopup" style="display: none; position: absolute; right: 0; top: 50px; background: white; width: 300px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; padding: 16px;">
+              <h3 style="font-size: 16px; margin-bottom: 8px;">Pesan Internal</h3>
+              <p style="font-size: 13px; color: #6B7280;">Modul komunikasi antar departemen akan hadir di sini.</p>
+            </div>
+          </div>
+
+          <!-- WRAPPER NOTIFIKASI -->
+          <div class="notification-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnNotifToggle">
+              <i class='bx bx-bell'></i>
+            </button>
+            <!-- KOTAK POPUP NOTIFIKASI -->
+            <div class="notif-popup" id="notifPopup" style="display: none; position: absolute; right: 0; top: 50px; background: white; width: 320px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000;">
+              <div style="padding: 16px; border-bottom: 1px solid #F3F4F6;">
+                <h3 style="font-size: 16px; margin: 0;">Notifikasi</h3>
+              </div>
+              <div style="padding: 16px;">
+                <p style="font-size: 13px; color: #6B7280; margin: 0;">Belum ada notifikasi baru.</p>
+              </div>
+            </div>
+          </div>
+          <!-- END WRAPPER NOTIFIKASI -->
+
+          <!-- PROFILE DROPDOWN -->
+          <div class="profile-wrapper" style="position: relative;">
+            <div class="user-profile" id="btnProfileToggle" style="cursor: pointer; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+              <div class="user-info" style="text-align: right;">
+                <span class="user-name" id="userNameDisplay">HOHO</span>
+                <span class="user-role" id="topbarUserRole">Production Spv</span>
+              </div>
+              <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;">
+                <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+              </div>
+              <i class='bx bx-chevron-down' style="font-size: 16px; color: #6B7280;"></i>
+            </div>
+
+            <!-- KOTAK POPUP PROFILE -->
+            <div class="profile-popup" id="profilePopup" style="display: none; position: absolute; right: 0; top: 55px; background: white; width: 260px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <!-- Header Info -->
+              <div style="padding: 20px; border-bottom: 1px solid #F3F4F6; display: flex; gap: 16px; align-items: center;">
+                <div id="popupAvatarBg" style="width: 48px; height: 48px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+                </div>
+                <div>
+                  <h4 style="font-size: 14px; font-weight: 700; color: #111827; margin: 0 0 2px 0;" id="popupUserName">Production Spv</h4>
+                  <p style="font-size: 12px; color: #6B7280; margin: 0 0 8px 0;" id="popupUserEmail">production@foodsync.com</p>
+                  <span id="popupUserBadge" style="background: #DBEAFE; color: #1D4ED8; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">PRODUCTION</span>
+                </div>
+              </div>
+              
+              <!-- Menu Links -->
+              <div style="padding: 8px 0;">
+                <a href="profil.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-user' style="font-size: 18px; color: #9CA3AF;"></i> My Profile
+                </a>
+                <a href="keamanan.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-cog' style="font-size: 18px; color: #9CA3AF;"></i> Account Settings
+                </a>
+              </div>
+
+              <!-- Logout -->
+              <div style="border-top: 1px solid #F3F4F6; padding: 8px 0;">
+                <button id="popupLogoutBtn" style="width: 100%; text-align: left; display: flex; align-items: center; gap: 12px; padding: 10px 20px; border: none; background: transparent; cursor: pointer; color: #DC2626; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-log-out' style="font-size: 18px;"></i> Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="page-header" style="margin-bottom: 0;">
+        <h1 id="greetingText">Selamat Datang, User</h1>
+        <p class="date-text"><span id="currentDate">Senin, 24 Mei 2026</span> &nbsp;|&nbsp; Production System Dashboard</p>
+      </div>
+
+      <div class="prod-dashboard-grid">
+        
+        <div class="prod-card" style="grid-column: span 1;">
+          <p class="prod-card-title">TOTAL PRODUKSI BULAN INI <i class='bx bx-box' style="font-size: 16px; color: #9CA3AF;"></i></p>
+          <h2 class="prod-card-value val-blue" id="valTotalProduksi">2.148.900</h2>
+        </div>
+
+        <div class="prod-card" style="grid-column: span 1;">
+          <p class="prod-card-title">TINGKAT DEFECT (AVG) <i class='bx bx-error-circle' style="font-size: 16px; color: #DC2626;"></i></p>
+          <h2 class="prod-card-value val-red" id="valDefect">0,024%</h2>
+        </div>
+
+        <div class="prod-card" style="grid-column: span 2;">
+          <p class="prod-card-title">EFESIENSI MESIN <i class='bx bx-line-chart' style="font-size: 16px; color: #16A34A;"></i></p>
+          <h2 class="prod-card-value val-green" id="valEfisiensi">98,4%</h2>
+        </div>
+
+        <div class="prod-card" style="grid-column: span 2;">
+          <p class="prod-card-title">SEDANG PRODUKSI</p>
+          <h2 class="prod-card-value val-orange" id="valSedangProduksi">8</h2>
+        </div>
+
+        <div class="prod-card" style="grid-column: span 2;">
+          <p class="prod-card-title">SELESAI HARI INI</p>
+          <h2 class="prod-card-value val-red" id="valSelesaiHariIni">45</h2>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Output Produksi vs Target</h3>
+          <div class="chart-legends">
+            <div class="legend-item"><span class="dot dot-actual"></span> Actual Output</div>
+            <div class="legend-item"><span class="dot dot-target"></span> Target</div>
+            <select style="border: none; background: #F3F4F6; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; color: #374151; outline: none; margin-left: 8px;">
+              <option>This Year</option>
+              <option>Last Year</option>
+            </select>
+          </div>
+        </div>
+        <div style="height: 300px; width: 100%;">
+          <canvas id="prodChart"></canvas>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js?v=5"></script>
+  <script src="js/topbar.js?v=4"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Set Date
+      const dateEl = document.getElementById('currentDate');
+      if (dateEl) {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateEl.textContent = new Date().toLocaleDateString('id-ID', options);
+      }
+
+      // GREETINGS LOGIC
+      const userName = localStorage.getItem('user_name') || 'User';
+      const greetingEl = document.getElementById('greetingText');
+      if (greetingEl) {
+        greetingEl.textContent = `Selamat Datang, ${userName}`;
+      }
+
+      // --- DYNAMIC DATA CALCULATION ---
+      function calculateProdStats() {
+          const poData = JSON.parse(localStorage.getItem('erp_production_orders') || '[]');
+          const historyList = JSON.parse(localStorage.getItem('historyList') || '[]');
+          
+          let sedangProduksiCount = poData.filter(po => po.status === 'Diproses' || po.status === 'QC').length;
+          
+          let totalProduksiBulanIni = 0;
+          let selesaiHariIni = 0;
+          let totalDefect = 0;
+          
+          const today = new Date();
+          const currentMonth = today.getMonth();
+          const currentYear = today.getFullYear();
+          const monthsIndo = { 'Jan':0, 'Feb':1, 'Mar':2, 'Apr':3, 'Mei':4, 'Jun':5, 'Jul':6, 'Agu':7, 'Sep':8, 'Okt':9, 'Nov':10, 'Des':11, 'Januari':0, 'Februari':1, 'Maret':2, 'April':3, 'Juni':5, 'Juli':6, 'Agustus':7, 'September':8, 'Oktober':9, 'November':10, 'Desember':11 };
+          
+          const todayStr = today.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
+
+          historyList.forEach(h => {
+              let qty = parseInt((h.quantity || '0').toString().replace(/,/g, '').replace(/\D/g, '')) || 0;
+              let defect = parseInt(h.defect) || 0;
+              let parts = (h.date || '').split(' ');
+              
+              if (parts.length >= 3) {
+                  let mIdx = monthsIndo[parts[1]];
+                  let y = parseInt(parts[2]);
+                  
+                  if (mIdx === currentMonth && y === currentYear) {
+                      totalProduksiBulanIni += qty;
+                      totalDefect += defect;
+                  }
+              }
+              
+              if (h.date && h.date.includes(todayStr) || h.date === today.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })) {
+                  selesaiHariIni += 1;
+              }
+          });
+          
+          if (document.getElementById('valSedangProduksi')) {
+              document.getElementById('valSedangProduksi').textContent = sedangProduksiCount;
+          }
+          
+          if (document.getElementById('valTotalProduksi')) {
+              if (totalProduksiBulanIni > 0) {
+                  document.getElementById('valTotalProduksi').textContent = totalProduksiBulanIni.toLocaleString('id-ID');
+              }
+          }
+          
+          if (document.getElementById('valSelesaiHariIni')) {
+              if (selesaiHariIni > 0) {
+                  document.getElementById('valSelesaiHariIni').textContent = selesaiHariIni;
+              } else {
+                  document.getElementById('valSelesaiHariIni').textContent = '0';
+              }
+          }
+          
+          if (document.getElementById('valDefect') && totalProduksiBulanIni > 0) {
+              let defectRate = (totalDefect / totalProduksiBulanIni) * 100;
+              document.getElementById('valDefect').textContent = defectRate.toFixed(3).replace('.', ',') + '%';
+          }
+      }
+      
+      calculateProdStats();
+      // --- END DYNAMIC DATA ---
+
+
+      // Chart.js
+      const ctx = document.getElementById('prodChart').getContext('2d');
+      
+      const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+      gradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
+      gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+          datasets: [
+            {
+              label: 'Actual Output',
+              data: [65000, 72000, 68000, 85000, 82000, 50000, 45000, 60000, 75000, 80000, 88000, 92000],
+              borderColor: '#3B82F6',
+              backgroundColor: gradient,
+              borderWidth: 3,
+              pointBackgroundColor: '#fff',
+              pointBorderColor: '#3B82F6',
+              pointBorderWidth: 2,
+              pointRadius: 4,
+              fill: true,
+              tension: 0.4
+            },
+            {
+              label: 'Target',
+              data: [60000, 70000, 70000, 80000, 80000, 60000, 50000, 55000, 70000, 75000, 85000, 90000],
+              borderColor: '#D1D5DB',
+              borderWidth: 2,
+              borderDash: [5, 5],
+              pointRadius: 0,
+              fill: false,
+              tension: 0.4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100000,
+              ticks: {
+                callback: function(value) {
+                  return value / 1000 + 'k';
+                },
+                color: '#9CA3AF',
+                font: {
+                  size: 11
+                }
+              },
+              grid: {
+                color: '#F3F4F6'
+              },
+              border: {
+                display: false
+              }
+            },
+            x: {
+              ticks: {
+                color: '#9CA3AF',
+                font: {
+                  size: 11
+                }
+              },
+              grid: {
+                display: false
+              },
+              border: {
+                display: false
+              }
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index',
+          },
+        }
+      });
+    });
+  </script>
+</body>
+</html>

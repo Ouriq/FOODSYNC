@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Purchasing System – FoodSync</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  
+  <link rel="stylesheet" href="css/dashboard.css?v=9" />
+
+<script>
+  (function() {
+    var photo = localStorage.getItem('user_photo');
+    if (photo) {
+      document.write('<style id="anti-flicker-avatar">');
+      document.write('.user-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.user-avatar i { display: none; }');
+      document.write('</style>');
+    }
+  })();
+</script>
+<style>
+/* Purchasing Specific Styles */
+.sidebar-nav a.nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #4B5563; text-decoration: none; font-weight: 600; font-size: 14px; border-radius: 8px; transition: 0.2s;
+}
+.sidebar-nav a.nav-item:hover, .sidebar-nav a.nav-item.active {
+  background: #E0E7FF; color: #1E3A8A;
+}
+.sidebar-nav a.nav-item i { font-size: 20px; }
+
+.page-title {
+  font-size: 36px; font-weight: 800; color: #000; margin: 0 0 8px 0; letter-spacing: -0.5px;
+}
+.page-subtitle {
+  font-size: 16px; color: #111827; font-weight: 700; margin: 0 0 24px 0;
+}
+
+/* 4 Summary Cards */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.summary-card {
+  background: #0066CC;
+  border-radius: 12px;
+  padding: 20px;
+  color: white;
+}
+.summary-card:first-child { background: #0066CC; }
+.summary-card:nth-child(2) { background: #0066CC; }
+.summary-card:nth-child(3) { background: #0066CC; }
+.summary-card:nth-child(4) { background: #0066CC; }
+
+.summary-title {
+  font-size: 13px; font-weight: 600; margin-bottom: 8px;
+}
+.summary-value {
+  font-size: 18px; font-weight: 800; display: flex; align-items: baseline; gap: 4px;
+}
+
+/* Main Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+/* Box Styling */
+.box-panel {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  border: 1px solid #F3F4F6;
+  margin-bottom: 24px;
+}
+.box-title {
+  font-size: 20px; font-weight: 800; color: #111827; margin: 0;
+}
+.box-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+}
+.filter-text {
+  font-size: 12px; color: #6B7280; font-weight: 700;
+}
+
+/* Chart Legends */
+.chart-legend {
+  display: flex; gap: 16px; font-size: 12px; font-weight: 700; color: #111827; align-items: center; margin-bottom: 24px;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-color { width: 14px; height: 14px; border-radius: 2px; }
+.legend-green { background: #16A34A; }
+.legend-red { background: #EF4444; }
+.legend-color-round { border-radius: 50%; width: 16px; height: 16px; }
+
+/* Activity List */
+.activity-list {
+  display: flex; flex-direction: column;
+}
+.activity-item {
+  display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #F3F4F6;
+}
+.activity-item:last-child { border-bottom: none; padding-bottom: 0; }
+.activity-left {
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.activity-dot {
+  width: 8px; height: 8px; background: #1D4ED8; border-radius: 50%; margin-top: 6px;
+}
+.activity-info h4 {
+  margin: 0 0 4px 0; font-size: 14px; font-weight: 700; color: #111827;
+}
+.activity-info p {
+  margin: 0; font-size: 13px; color: #111827; font-weight: 500;
+}
+.activity-right {
+  text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+}
+.status-pill {
+  padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; border: 1px solid transparent;
+}
+.pill-tertunda { color: #EA580C; background: #FFF7ED; border-color: #FFEDD5; }
+.pill-berhasil { color: #16A34A; background: #F0FDF4; border-color: #DCFCE7; }
+.activity-time { font-size: 12px; color: #111827; font-weight: 700; }
+
+.donut-legend-container {
+  display: flex; flex-direction: column; gap: 16px; margin-top: 40px; font-size: 14px; font-weight: 700; color: #111827; padding-left: 16px;
+}
+
+</style>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
+<body>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="assets/images/logo.png" alt="Logo FoodSync" class="logo-img" />
+      </div>
+
+      <p class="menu-label">MENU</p>
+      <nav class="sidebar-nav">
+        <a href="dashboardpurc.html" class="nav-item active">
+          <i class='bx bx-grid-alt'></i> Dashboard
+        </a>
+        <a href="permintaanpembelian.html" class="nav-item">
+          <i class='bx bx-file-blank'></i> Permintaan Pembelian
+        </a>
+        <a href="pesananpembelian.html" class="nav-item">
+          <i class='bx bx-cart'></i> Pesanan Pembelian
+        </a>
+        <a href="fakturpembelian.html" class="nav-item">
+          <i class='bx bx-receipt'></i> Faktur Pembelian
+        </a>
+        <a href="threeway.html" class="nav-item">
+          <i class='bx bx-check-double'></i> Three-Way Matching
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-right" style="margin-left: auto; display: flex; align-items: center; gap: 24px;">
+          
+          <!-- CHAT MODULE -->
+          <div class="chat-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnChatToggle" style="background:none; border:none; cursor:pointer;">
+              <i class='bx bx-message-rounded-dots' style="font-size: 20px; color: #374151;"></i>
+            </button>
+            <div class="chat-popup" id="chatPopup" style="display: none; position: absolute; right: 0; top: 40px; background: white; width: 300px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; padding: 16px;">
+              <h3 style="font-size: 16px; margin-bottom: 8px; color: #111827;">Pesan Internal</h3>
+              <p style="font-size: 13px; color: #6B7280;">Modul komunikasi antar departemen akan hadir di sini.</p>
+            </div>
+          </div>
+
+          <!-- WRAPPER NOTIFIKASI -->
+          <div class="notification-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnNotifToggle" style="background:none; border:none; cursor:pointer;">
+              <i class='bx bx-bell' style="font-size: 20px; color: #374151;"></i>
+            </button>
+
+            <!-- KOTAK POPUP NOTIFIKASI -->
+            <div class="notif-popup" id="notifPopup" style="display: none; position: absolute; right: 0; top: 40px; background: white; width: 320px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <div style="padding: 16px; border-bottom: 1px solid #F3F4F6; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin:0; font-size: 16px; color: #111827;">Notifikasi</h3>
+                <a href="#" class="notif-mark-read" style="font-size: 12px; color: #3B82F6; text-decoration: none;">Mark all as read</a>
+              </div>
+              <div style="max-height: 300px; overflow-y: auto;">
+                <div class="notif-item" style="padding: 16px; border-bottom: 1px solid #F3F4F6; display: flex; gap: 12px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='white'">
+                  <div style="width: 40px; height: 40px; border-radius: 50%; background: #E0E7FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class='bx bx-info-circle'></i>
+                  </div>
+                  <div>
+                    <h4 style="margin: 0 0 4px 0; font-size: 14px; color: #111827;">Pembaruan Sistem</h4>
+                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #6B7280;">Sistem ERP telah diperbarui ke versi terbaru.</p>
+                    <span style="font-size: 11px; color: #9CA3AF;">Baru saja</span>
+                  </div>
+                </div>
+              </div>
+              <div style="padding: 12px; text-align: center; border-top: 1px solid #F3F4F6;">
+                <a href="#" style="font-size: 13px; color: #3B82F6; text-decoration: none; font-weight: 500;">Lihat semua notifikasi</a>
+              </div>
+            </div>
+          </div>
+          <!-- END WRAPPER NOTIFIKASI -->
+
+          <!-- PROFILE DROPDOWN -->
+          <div class="profile-wrapper" style="position: relative;">
+            <div class="user-profile" id="btnProfileToggle" style="cursor: pointer; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+              <div class="user-info" style="text-align: right;">
+                <span class="user-name" id="userNameDisplay">Loading...</span>
+                <span class="user-role" id="topbarUserRole">Loading...</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+                </div>
+                <i class='bx bx-chevron-down' style="color: #6B7280; font-size: 16px;"></i>
+              </div>
+            </div>
+
+            <!-- KOTAK POPUP PROFILE -->
+            <div class="profile-popup" id="profilePopup" style="display: none; position: absolute; right: 0; top: 55px; background: white; width: 260px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <!-- Header Info -->
+              <div style="padding: 20px; border-bottom: 1px solid #F3F4F6; display: flex; gap: 16px; align-items: center;">
+                <div id="popupAvatarBg" style="width: 48px; height: 48px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+                </div>
+                <div>
+                  <h4 style="font-size: 14px; font-weight: 700; color: #111827; margin: 0 0 2px 0;" id="popupUserName">User</h4>
+                  <p style="font-size: 12px; color: #6B7280; margin: 0 0 8px 0;" id="popupUserEmail">user@foodsync.com</p>
+                  <span id="popupUserBadge" style="background: #DBEAFE; color: #1D4ED8; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">ROLE</span>
+                </div>
+              </div>
+              
+              <!-- Menu Links -->
+              <div style="padding: 8px 0;">
+                <a href="profil.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-user' style="font-size: 18px; color: #9CA3AF;"></i> My Profile
+                </a>
+                <a href="keamanan.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-cog' style="font-size: 18px; color: #9CA3AF;"></i> Account Settings
+                </a>
+              </div>
+
+              <!-- Logout -->
+              <div style="border-top: 1px solid #F3F4F6; padding: 8px 0;">
+                <button id="popupLogoutBtn" style="width: 100%; text-align: left; display: flex; align-items: center; gap: 12px; padding: 10px 20px; border: none; background: transparent; cursor: pointer; color: #DC2626; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-log-out' style="font-size: 18px;"></i> Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div style="padding: 24px 0;">
+        <h1 class="page-title">Purchasing System</h1>
+        <p class="page-subtitle">Welcome back! Here's what's happening today...</p>
+        
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="summary-title">Total Budget Pembelian</div>
+            <div class="summary-value" id="valPurcBudget">Rp. <br/>0</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-title">Realisasi Pengeluaran</div>
+            <div class="summary-value" id="valPurcReal">Rp. <br/>0</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-title">Sisa Budget</div>
+            <div class="summary-value" id="valPurcSisa">Rp. <br/>0</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-title">Tagihan Belum Dibayar</div>
+            <div class="summary-value" id="valPurcPending">Rp. <br/>0</div>
+          </div>
+        </div>
+
+        <!-- Main Dashboard Content -->
+        <div class="dashboard-grid">
+          <!-- Left Column -->
+          <div>
+            <!-- Bar Chart Box -->
+            <div class="box-panel">
+              <div class="box-header">
+                <h2 class="box-title">Pengeluaran Pembelian Perbulan</h2>
+                <span class="filter-text">This Year</span>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-color legend-green"></div> Bahan Baku</div>
+                <div class="legend-item"><div class="legend-color legend-red"></div> Kemasan</div>
+              </div>
+              <div style="height: 250px; position: relative;">
+                <canvas id="barChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Recent Activities Box -->
+            <div class="box-panel">
+              <h2 class="box-title" style="margin-bottom: 24px;">Aktivitas Terbaru</h2>
+              <div class="activity-list" id="purcActivityList">
+                
+                <div class="activity-item">
+                  <div class="activity-left">
+                    <div class="activity-dot"></div>
+                    <div class="activity-info">
+                      <h4>PR Baru Dibuat</h4>
+                      <p>Sarah Chen</p>
+                    </div>
+                  </div>
+                  <div class="activity-right">
+                    <span class="status-pill pill-tertunda">Tertunda</span>
+                    <span class="activity-time">5 menit yang lalu</span>
+                  </div>
+                </div>
+
+                <div class="activity-item">
+                  <div class="activity-left">
+                    <div class="activity-dot"></div>
+                    <div class="activity-info">
+                      <h4>PO Disetujui</h4>
+                      <p>Michael Wang</p>
+                    </div>
+                  </div>
+                  <div class="activity-right">
+                    <span class="status-pill pill-berhasil">Berhasil</span>
+                    <span class="activity-time">1 jam yang lalu</span>
+                  </div>
+                </div>
+
+                <div class="activity-item">
+                  <div class="activity-left">
+                    <div class="activity-dot"></div>
+                    <div class="activity-info">
+                      <h4>PR Baru di Buat</h4>
+                      <p>Emily Rodriguez</p>
+                    </div>
+                  </div>
+                  <div class="activity-right">
+                    <span class="status-pill pill-tertunda">Tertunda</span>
+                    <span class="activity-time">5 menit yang lalu</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div>
+            <!-- Donut Chart Box -->
+            <div class="box-panel">
+              <h2 class="box-title">Kategori Pembelian</h2>
+              <span class="filter-text" style="display: block; margin-top: 4px; margin-bottom: 40px; font-weight: 500;">Berdasarkan Nilai</span>
+              
+              <div style="height: 260px; position: relative;">
+                <canvas id="donutChart"></canvas>
+              </div>
+
+              <div class="donut-legend-container">
+                <div class="legend-item"><div class="legend-color legend-color-round legend-green"></div> Bahan Baku</div>
+                <div class="legend-item"><div class="legend-color legend-color-round legend-red"></div> Kemasan</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <script src="js/topbar.js?v=3?v=3"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const userName = localStorage.getItem('user_name') || 'User';
+      const userNameDisplay = document.getElementById('userNameDisplay');
+      if (userNameDisplay) userNameDisplay.textContent = userName;
+      
+      // DYNAMIC DATA PREP
+      let prData = JSON.parse(localStorage.getItem('erp_pr_data')) || [];
+      let inventory = JSON.parse(localStorage.getItem('erp_inventory_stock')) || [];
+      
+      let totalBahanBaku = 0;
+      let totalKemasan = 0;
+      
+      // Let's assume current month is May based on the mockup chart labels, or just put the data in the latest month.
+      // For simplicity and mockup styling, we will aggregate all PRs.
+      prData.forEach(pr => {
+          let type = 'Bahan Baku';
+          let invItem = inventory.find(i => i.name === pr.name);
+          if (invItem && invItem.type === 'Kemasan') {
+              type = 'Kemasan';
+          }
+          if (pr.name) {
+              const nameLower = pr.name.toLowerCase();
+              if (nameLower.includes('plastik') || nameLower.includes('kemasan') || nameLower.includes('kardus') || nameLower.includes('sterofoam')) {
+                  type = 'Kemasan';
+              }
+          }
+          
+          let total = parseInt(pr.total) || 0;
+          if (type === 'Bahan Baku') totalBahanBaku += total;
+          if (type === 'Kemasan') totalKemasan += total;
+      });
+
+      // Chart.js Configuration
+      Chart.register(ChartDataLabels);
+
+      // BAR CHART
+      // We will keep dummy history and put the current data at the end (May)
+      const ctxBar = document.getElementById('barChart').getContext('2d');
+      const barChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+          datasets: [
+            {
+              label: 'Bahan Baku',
+              data: [75000000, 65000000, 60000000, 72000000, totalBahanBaku > 0 ? totalBahanBaku : 68000000],
+              backgroundColor: '#16A34A', // Green
+              borderRadius: 12,
+              borderSkipped: false,
+              barPercentage: 0.6,
+              categoryPercentage: 0.8
+            },
+            {
+              label: 'Kemasan',
+              data: [60000000, 85000000, 70000000, 80000000, totalKemasan > 0 ? totalKemasan : 75000000],
+              backgroundColor: '#EF4444', // Red
+              borderRadius: 12,
+              borderSkipped: false,
+              barPercentage: 0.6,
+              categoryPercentage: 0.8
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: { display: false } // Hide labels on bar chart
+          },
+          scales: {
+            x: {
+              grid: { display: false, drawBorder: false },
+              ticks: { font: { family: 'DM Sans', weight: 'bold', size: 12 }, color: '#111827' }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  if (value === 0) return '0';
+                  return (value / 1000000) + 'jt';
+                },
+                font: { family: 'DM Sans', weight: 'bold', size: 12 },
+                color: '#111827'
+              },
+              grid: {
+                color: '#F3F4F6',
+                drawBorder: false
+              }
+            }
+          }
+        }
+      });
+
+      // DONUT CHART
+      let pbTotal = totalBahanBaku + totalKemasan;
+      let pctBahanBaku = pbTotal > 0 ? Math.round((totalBahanBaku / pbTotal) * 100) : 35;
+      let pctKemasan = pbTotal > 0 ? Math.round((totalKemasan / pbTotal) * 100) : 30;
+      
+      const ctxDonut = document.getElementById('donutChart').getContext('2d');
+      const donutChart = new Chart(ctxDonut, {
+        type: 'doughnut',
+        data: {
+          labels: ['Bahan Baku', 'Kemasan'],
+          datasets: [{
+            data: [pctBahanBaku, pctKemasan],
+            backgroundColor: ['#16A34A', '#FF3B00'],
+            borderWidth: 0,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '50%',
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              color: 'white',
+              font: { family: 'DM Sans', weight: 'bold', size: 18 },
+              formatter: (value, ctx) => {
+                let sum = 0;
+                let dataArr = ctx.chart.data.datasets[0].data;
+                dataArr.map(data => { sum += data; });
+                let percentage = (value * 100 / sum).toFixed(0) + "%";
+                return percentage;
+              },
+              anchor: 'center',
+              align: 'center'
+            }
+          }
+        }
+      });
+      
+      // RENDER AKTIVITAS TERBARU
+      const activityContainer = document.getElementById('purcActivityList');
+      if (activityContainer && prData.length > 0) {
+          activityContainer.innerHTML = '';
+          // ambil 3 data terakhir
+          const recentPR = prData.slice(0, 3);
+          
+          recentPR.forEach(pr => {
+              let title = pr.status === 'Disetujui' ? 'PO Disetujui' : (pr.status === 'Diterima' ? 'Barang Diterima' : 'PR Baru Dibuat');
+              let pillClass = 'pill-tertunda';
+              if(pr.status === 'Disetujui' || pr.status === 'Diterima') pillClass = 'pill-berhasil';
+              if(pr.status === 'Ditolak') pillClass = 'pill-gagal';
+              
+              let timeStr = pr.date || 'Baru Saja';
+              
+              const item = document.createElement('div');
+              item.className = 'activity-item';
+              item.innerHTML = `
+                  <div class="activity-left">
+                    <div class="activity-dot"></div>
+                    <div class="activity-info">
+                      <h4>${title}</h4>
+                      <p>${pr.name} - ${pr.qty} ${pr.unit || 'unit'}</p>
+                    </div>
+                  </div>
+                  <div class="activity-right">
+                    <span class="status-pill ${pillClass}">${pr.status || 'Tertunda'}</span>
+                    <span class="activity-time">${timeStr}</span>
+                  </div>
+              `;
+              activityContainer.appendChild(item);
+          });
+      }
+    });
+  </script>
+</body>
+</html>

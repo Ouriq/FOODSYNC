@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rencana Produksi – FoodSync Production</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  
+  <link rel="stylesheet" href="css/dashboard.css?v=7" />
+
+<script>
+  (function() {
+    var photo = localStorage.getItem('user_photo');
+    if (photo) {
+      document.write('<style id="anti-flicker-avatar">');
+      document.write('.user-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.user-avatar i { display: none; }');
+      document.write('.pd-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.pd-avatar i { display: none; }');
+      document.write('.big-avatar { background-image: url(' + photo + ') !important; background-size: cover !important; }');
+      document.write('</style>');
+    }
+  })();
+</script>
+<style>
+/* Menghindari conflict dari sidebar.css yang me-reset gaya tertentu */
+.sidebar-nav a.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: #4B5563;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+.sidebar-nav a.nav-item:hover, .sidebar-nav a.nav-item.active {
+  background: #F3F4F6;
+  color: #1E3A8A;
+}
+.sidebar-nav a.nav-item i {
+  font-size: 20px;
+}
+
+/* Specific Page Styling */
+.page-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 24px;
+}
+.btn-buat {
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  margin-bottom: 24px;
+}
+
+.table-container {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  border: 1px solid #F3F4F6;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.data-table th {
+  background-color: #0B3B7B;
+  color: white;
+  padding: 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+}
+.data-table th:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+.data-table th:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+.data-table td {
+  padding: 20px 16px;
+  font-size: 13px;
+  color: #111827;
+  font-weight: 700;
+  border-bottom: 1px solid #F3F4F6;
+}
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.data-table td.order-id {
+  color: #1D4ED8;
+}
+.btn-verifikasi {
+  background: #DBEAFE;
+  color: #1D4ED8;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-verifikasi:hover {
+  background: #BFDBFE;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  font-weight: 700;
+  font-size: 16px;
+}
+.page-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #111827;
+}
+.page-btn.active {
+  background: #D1D5DB;
+}
+</style>
+</head>
+<body>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="assets/images/logo.png" alt="Logo FoodSync" class="logo-img" />
+      </div>
+
+      <p class="menu-label">MENU</p>
+      <nav class="sidebar-nav">
+        <a href="dashboardprod.html" class="nav-item">
+          <i class='bx bx-grid-alt'></i> Dashboard
+        </a>
+        <a href="rencanaproduksi.html" class="nav-item active">
+          <i class='bx bx-calendar-event'></i> Rencana Produksi
+        </a>
+        <a href="monitoringproduksi.html" class="nav-item">
+          <i class='bx bx-desktop'></i> Monitoring Produksi
+        </a>
+        <a href="prosesproduksi.html" class="nav-item">
+          <i class='bx bx-cog'></i> Proses Produksi
+        </a>
+        <a href="qualitycheck.html" class="nav-item">
+          <i class='bx bx-check-shield'></i> Quality Check
+        </a>
+        <a href="riwayatproduksi.html" class="nav-item">
+          <i class='bx bx-history'></i> Riwayat Produksi
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-right" style="margin-left: auto; display: flex; align-items: center; gap: 24px;">
+          <!-- CHAT MODULE -->
+          <div class="chat-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnChatToggle">
+              <i class='bx bx-message-rounded-dots'></i>
+            </button>
+            <div class="chat-popup" id="chatPopup" style="display: none; position: absolute; right: 0; top: 50px; background: white; width: 300px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; padding: 16px;">
+              <h3 style="font-size: 16px; margin-bottom: 8px;">Pesan Internal</h3>
+              <p style="font-size: 13px; color: #6B7280;">Modul komunikasi antar departemen akan hadir di sini.</p>
+            </div>
+          </div>
+
+          <!-- WRAPPER NOTIFIKASI -->
+          <div class="notification-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnNotifToggle">
+              <i class='bx bx-bell'></i>
+            </button>
+            <div class="notif-popup" id="notifPopup" style="display: none; position: absolute; right: 0; top: 50px; background: white; width: 320px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000;">
+              <div style="padding: 16px; border-bottom: 1px solid #F3F4F6;">
+                <h3 style="font-size: 16px; margin: 0;">Notifikasi</h3>
+              </div>
+              <div style="padding: 16px;">
+                <p style="font-size: 13px; color: #6B7280; margin: 0;">Belum ada notifikasi baru.</p>
+              </div>
+            </div>
+          </div>
+          <!-- END WRAPPER NOTIFIKASI -->
+
+          <!-- PROFILE DROPDOWN -->
+          <div class="profile-wrapper" style="position: relative;">
+            <div class="user-profile" id="btnProfileToggle" style="cursor: pointer; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+              <div class="user-info" style="text-align: right;">
+                <span class="user-name" id="userNameDisplay">HOHO</span>
+                <span class="user-role" id="topbarUserRole">Production Spv</span>
+              </div>
+              <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;">
+                <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+              </div>
+              <i class='bx bx-chevron-down' style="font-size: 16px; color: #6B7280;"></i>
+            </div>
+
+            <!-- KOTAK POPUP PROFILE -->
+            <div class="profile-popup" id="profilePopup" style="display: none; position: absolute; right: 0; top: 55px; background: white; width: 260px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <div style="padding: 20px; border-bottom: 1px solid #F3F4F6; display: flex; gap: 16px; align-items: center;">
+                <div id="popupAvatarBg" style="width: 48px; height: 48px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+                </div>
+                <div>
+                  <h4 style="font-size: 14px; font-weight: 700; color: #111827; margin: 0 0 2px 0;" id="popupUserName">Production Spv</h4>
+                  <p style="font-size: 12px; color: #6B7280; margin: 0 0 8px 0;" id="popupUserEmail">production@foodsync.com</p>
+                  <span id="popupUserBadge" style="background: #DBEAFE; color: #1D4ED8; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">PRODUCTION</span>
+                </div>
+              </div>
+              
+              <div style="padding: 8px 0;">
+                <a href="profil.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-user' style="font-size: 18px; color: #9CA3AF;"></i> My Profile
+                </a>
+                <a href="keamanan.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-cog' style="font-size: 18px; color: #9CA3AF;"></i> Account Settings
+                </a>
+              </div>
+
+              <div style="border-top: 1px solid #F3F4F6; padding: 8px 0;">
+                <button id="popupLogoutBtn" style="width: 100%; text-align: left; display: flex; align-items: center; gap: 12px; padding: 10px 20px; border: none; background: transparent; cursor: pointer; color: #DC2626; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-log-out' style="font-size: 18px;"></i> Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div style="padding: 24px 0;">
+        <h1 class="page-title">Antrean Verifikasi Permintaan Produksi</h1>
+        
+        <button class="btn-buat" onclick="document.getElementById('modalTambahPO').style.display='flex'">Buat PO Baru +</button>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ORDER ID</th>
+                <th>Produk</th>
+                <th>Target</th>
+                <th>Jatuh Tempo</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="poTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="paginationContainer">
+          <!-- Dynamic pagination buttons will be rendered here -->
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  
+  <!-- Modal Tambah PO -->
+  <div id="modalTambahPO" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+    <div style="background: white; width: 400px; border-radius: 12px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-size: 18px; margin: 0; color: #111827;">Buat Rencana Produksi</h3>
+        <i class='bx bx-x' onclick="document.getElementById('modalTambahPO').style.display='none'" style="font-size: 24px; cursor: pointer; color: #6B7280;"></i>
+      </div>
+      
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px;">Produk</label>
+        <select id="inputProduk" style="width: 100%; padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 8px; box-sizing: border-box;">
+          <option value="" disabled selected>Pilih Produk...</option>
+          <option value="Indomie Goreng 75g">Indomie Goreng 75g</option>
+          <option value="Indomie Kuah Soto">Indomie Kuah Soto</option>
+          <option value="Indomie Kari Spesial">Indomie Kari Spesial</option>
+        </select>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px;">Target (Hanya Angka)</label>
+        <input type="number" id="inputTarget" placeholder="Misal: 150000" style="width: 100%; padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 8px; box-sizing: border-box;">
+      </div>
+      <div style="margin-bottom: 24px;">
+        <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px;">Jatuh Tempo</label>
+        <input type="date" id="inputJatuhTempo" style="width: 100%; padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 8px; box-sizing: border-box;">
+      </div>
+      
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button onclick="document.getElementById('modalTambahPO').style.display='none'" style="padding: 10px 16px; background: white; border: 1px solid #D1D5DB; border-radius: 8px; font-weight: 600; cursor: pointer;">Batal</button>
+        <button onclick="simpanPO()" style="padding: 10px 16px; background: #1D4ED8; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/topbar.js?v=4"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const userName = localStorage.getItem('user_name') || 'User';
+      const userNameDisplay = document.getElementById('userNameDisplay');
+      if (userNameDisplay) userNameDisplay.textContent = userName;
+    });
+  
+    let poData = JSON.parse(localStorage.getItem('erp_production_orders') || '[]');
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    function renderTable() {
+      const tbody = document.getElementById('poTableBody');
+      const paginationContainer = document.getElementById('paginationContainer');
+      tbody.innerHTML = '';
+      
+      const filterData = poData.filter(po => po.status === 'Rencana');
+      
+      if(filterData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #6B7280;">Tidak ada PO dalam antrean verifikasi</td></tr>';
+        if (paginationContainer) paginationContainer.innerHTML = '';
+        return;
+      }
+
+      // Pagination logic
+      const totalPages = Math.ceil(filterData.length / itemsPerPage);
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const paginatedData = filterData.slice(startIndex, startIndex + itemsPerPage);
+
+      paginatedData.forEach(po => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="order-id">${po.id}</td>
+          <td>${po.product}</td>
+          <td>${po.target}</td>
+          <td>${po.dueDate}</td>
+          <td style="display: flex; gap: 8px;">
+            <button class="btn-verifikasi" onclick="verifikasiPO('${po.id}')">Verifikasi</button>
+            <button onclick="deletePO('${po.id}')" style="background: #FEE2E2; color: #DC2626; border: none; border-radius: 20px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer;"><i class='bx bx-trash'></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Render Pagination Buttons
+      if (paginationContainer) {
+          paginationContainer.innerHTML = '';
+          for (let i = 1; i <= totalPages; i++) {
+              const btn = document.createElement('div');
+              btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
+              btn.textContent = i;
+              btn.onclick = () => {
+                  currentPage = i;
+                  renderTable();
+              };
+              paginationContainer.appendChild(btn);
+          }
+      }
+    }
+
+    function simpanPO() {
+      const product = document.getElementById('inputProduk').value;
+      let target = document.getElementById('inputTarget').value;
+      if(target) target = parseInt(target).toLocaleString('en-US') + ' Dus';
+      const dateVal = document.getElementById('inputJatuhTempo').value;
+      
+      if(!product || !target || !dateVal) {
+        alert('Mohon lengkapi data!');
+        return;
+      }
+      
+      // format date
+      const dateObj = new Date(dateVal);
+      const options = { day: '2-digit', month: 'short', year: 'numeric' };
+      const dateStr = dateObj.toLocaleDateString('id-ID', options).replace('.', '');
+
+      // generate ID (PO - YYYY - XXX)
+      const year = dateObj.getFullYear();
+      const count = poData.filter(p => p.id.includes(year)).length + 1;
+      const id = `PO - ${year} - ${String(count).padStart(3, '0')}`;
+
+      poData.push({
+        id: id,
+        product: product,
+        target: target,
+        dueDate: dateStr,
+        status: 'Rencana',
+        pabrik: '-'
+      });
+      
+      localStorage.setItem('erp_production_orders', JSON.stringify(poData));
+      
+      document.getElementById('inputProduk').value = '';
+      document.getElementById('inputTarget').value = '';
+      document.getElementById('inputJatuhTempo').value = '';
+      document.getElementById('modalTambahPO').style.display = 'none';
+      
+      renderTable();
+    }
+
+    function verifikasiPO(id) {
+      if(confirm('Verifikasi PO ini dan masukkan ke daftar Monitoring?')) {
+        const index = poData.findIndex(po => po.id === id);
+        if(index > -1) {
+          poData[index].status = 'Menunggu';
+          poData[index].dateCreated = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'}).replace('.','');
+          localStorage.setItem('erp_production_orders', JSON.stringify(poData));
+          renderTable();
+        }
+      }
+    }
+
+    function deletePO(id) {
+      if(confirm('Hapus rencana produksi ini?')) {
+        poData = poData.filter(po => po.id !== id);
+        localStorage.setItem('erp_production_orders', JSON.stringify(poData));
+        renderTable();
+      }
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>

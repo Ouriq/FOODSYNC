@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modules - FoodSync</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body,
+    html {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background-color: #0b2e59;
+    }
+
+    .bg-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('gedung3.png');
+      background-size: cover;
+      background-position: center;
+      z-index: -1;
+      filter: blur(8px) brightness(0.7);
+      transform: scale(1.05);
+      /* prevent white edges */
+    }
+
+    .bg-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(30, 136, 229, 0.5) 0%, rgba(13, 71, 161, 0.85) 100%);
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 25px;
+      padding: 35px 30px;
+      color: #fff;
+      text-decoration: none;
+      transition: transform 0.3s, background 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .icon-wrapper {
+      width: 65px;
+      height: 65px;
+      background: #ffffff;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 25px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .icon-wrapper img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .card-title {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+<script>
+  (function() {
+    var photo = localStorage.getItem('user_photo');
+    if (photo) {
+      document.write('<style id="anti-flicker-avatar">');
+      document.write('.user-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.user-avatar i { display: none; }');
+      document.write('.pd-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.pd-avatar i { display: none; }');
+      document.write('.big-avatar { background-image: url(' + photo + ') !important; background-size: cover !important; }');
+      document.write('</style>');
+    }
+  })();
+</script>
+</head>
+
+<body>
+
+  <div class="bg-image"></div>
+  <div class="bg-overlay"></div>
+
+  <div class="container">
+    <div class="grid">
+
+      <!-- Card 1 -->
+      <a href="#" onclick="checkAccess(event, 'sales', 'dashboard.html')" class="card">
+        <div class="icon-wrapper">
+          <!-- Masukkan link/path icon Anda di atribut src di bawah ini -->
+          <img src="iconsales.png" alt="Sales Icon">
+        </div>
+        <h2 class="card-title">Sales and<br>Marketing</h2>
+        <p class="card-desc">lorem ipsum sir amet wat gatau aaashdjkheufhefsdbhbfegyggfry</p>
+      </a>
+
+      <!-- Card 2 -->
+      <a href="#" onclick="checkAccess(event, 'finance', 'dashboardfin.html')" class="card">
+        <div class="icon-wrapper">
+          <!-- Masukkan link/path icon Anda di atribut src di bawah ini -->
+          <img src="iconfinance.png" alt="Finance Icon">
+        </div>
+        <h2 class="card-title">Finance</h2>
+        <p class="card-desc">Pusat pengaturan anggaran, transaksi, dan pelaporan keuangan.</p>
+      </a>
+
+      <!-- Card 3 -->
+      <a href="#" onclick="checkAccess(event, 'production', 'dashboardprod.html')" class="card">
+        <div class="icon-wrapper">
+          <!-- Masukkan link/path icon Anda di atribut src di bawah ini -->
+          <img src="iconproduction.png" alt="Production Icon">
+        </div>
+        <h2 class="card-title">Production</h2>
+        <p class="card-desc">lorem ipsum sir amet wat gatau aaashdjkheufhefsdbhbfegyggfry</p>
+      </a>
+
+      <!-- Card 4 -->
+      <a href="#" onclick="checkAccess(event, 'hr', '#')" class="card">
+        <div class="icon-wrapper">
+          <!-- Masukkan link/path icon Anda di atribut src di bawah ini -->
+          <img src="iconhr.png" alt="HR Icon">
+        </div>
+        <h2 class="card-title">HR</h2>
+        <p class="card-desc">lorem ipsum sir amet wat gatau aaashdjkheufhefsdbhbfegyggfry</p>
+      </a>
+
+      <!-- Card 5 -->
+      <a href="#" onclick="checkAccess(event, 'inventory', 'dashboardivn.html')" class="card">
+        <div class="icon-wrapper">
+          <!-- Masukkan link/path icon Anda di atribut src di bawah ini -->
+          <img src="iconinven.png" alt="Inventory Icon">
+        </div>
+        <h2 class="card-title">Inventory<br>Management</h2>
+        <p class="card-desc">lorem ipsum sir amet wat gatau aaashdjkheufhefsdbhbfegyggfry</p>
+      </a>
+
+      <!-- Card 6 -->
+      <a href="#" onclick="checkAccess(event, 'purchasing', 'dashboardpurc.html')" class="card">
+        <div class="icon-wrapper">
+          <!-- Masukkan link/path icon Anda di atribut src di bawah ini -->
+          <img src="iconpurchase.png" alt="Purchasing Icon">
+        </div>
+        <h2 class="card-title">Purchasing</h2>
+        <p class="card-desc">lorem ipsum sir amet wat gatau aaashdjkheufhefsdbhbfegyggfry</p>
+      </a>
+
+    </div>
+  </div>
+
+<script type="module" src="js/notifications.js"></script>
+<script>
+  function checkAccess(event, requiredRole, targetUrl) {
+    event.preventDefault();
+    
+    // Ambil role dari localStorage
+    const userRole = localStorage.getItem('user_role');
+    
+    if (!userRole) {
+      alert("Anda belum login! Silakan login terlebih dahulu.");
+      window.location.href = 'signin.html';
+      return;
+    }
+
+    // Superadmin bebas akses ke mana saja
+    if (userRole === 'superadmin' || userRole === requiredRole) {
+      if (targetUrl === '#') {
+        alert("Modul ini sedang dalam tahap pengembangan (Belum ada halaman).");
+      } else {
+        window.location.href = targetUrl;
+      }
+    } else {
+      alert("Akses Ditolak: Anda tidak memiliki izin untuk masuk ke modul ini.");
+    }
+  }
+</script>
+</body>
+
+</html>

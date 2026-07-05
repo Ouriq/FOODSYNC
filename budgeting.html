@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alokasi Anggaran – FoodSync Finance</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  
+  <style>
+    :root {
+      --primary-color: #0b2e59;
+      --secondary-color: #10b981;
+      --background-color: #f9fafb;
+      --sidebar-width: 260px;
+      --topbar-height: 70px;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --border-color: #e5e7eb;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background-color: var(--background-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+    /* LAYOUT: Sidebar */
+    .sidebar { width: var(--sidebar-width); background-color: #ffffff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100%; flex-shrink: 0; z-index: 10; }
+    .logo-area { height: var(--topbar-height); display: flex; align-items: center; padding: 0 24px; border-bottom: 1px solid var(--border-color); }
+    .logo-area img { width: 150px; height: auto; }
+    .nav-menu { flex: 1; padding: 24px 16px; overflow-y: auto; }
+    .nav-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; padding-left: 12px; }
+    
+    .nav-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px;
+      color: var(--text-main); text-decoration: none; font-size: 14px; font-weight: 500; margin-bottom: 4px; transition: all 0.2s ease;
+    }
+    .nav-item i { font-size: 20px; color: var(--text-muted); }
+    .nav-item:hover { background-color: #f3f4f6; }
+    .nav-item.active { background-color: #ecfdf5; color: var(--secondary-color); }
+    .nav-item.active i { color: var(--secondary-color); }
+
+    .sidebar-footer { padding: 16px; border-top: 1px solid var(--border-color); }
+    .btn-logout {
+      display: flex; align-items: center; gap: 8px; padding: 12px; width: 100%; background: none; border: none; border-radius: 8px;
+      color: #ef4444; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-logout:hover { background-color: #fef2f2; }
+
+    /* LAYOUT: Main Content & Topbar */
+    .main-wrapper { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .topbar {
+      height: var(--topbar-height); background-color: #ffffff; border-bottom: 1px solid var(--border-color);
+      display: flex; align-items: center; padding: 0 32px; justify-content: space-between; flex-shrink: 0;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 24px; margin-left: auto; }
+    
+    .user-profile { display: flex; align-items: center; gap: 12px; cursor: pointer; text-decoration: none; color: inherit; }
+    .user-info { text-align: right; }
+    .user-name { display: block; font-size: 14px; font-weight: 600; color: var(--text-main); }
+    .user-role { display: block; font-size: 12px; color: var(--text-muted); }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; }
+
+    /* Dashboard Content */
+    .content-area { flex: 1; padding: 32px; overflow-y: auto; background-color: var(--background-color); }
+    .page-header { margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .page-title { font-size: 24px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+    .page-subtitle { font-size: 14px; color: var(--text-muted); }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: #fff; border: none; border-radius: 8px; padding: 10px 16px; font-size: 14px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+
+    /* Table Wrapper */
+    .table-wrapper {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    .table-header-box { padding: 20px 24px; border-bottom: 1px solid var(--border-color); }
+    .table-header-box h3 { font-size: 16px; color: var(--text-main); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      background-color: #f9fafb; padding: 12px 24px; text-align: left;
+      font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;
+      border-bottom: 1px solid var(--border-color);
+    }
+    td {
+      padding: 16px 24px; border-bottom: 1px solid var(--border-color);
+      font-size: 14px; color: var(--text-main); vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    
+    .status-badge {
+      display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    }
+    .status-pending { background-color: #fef3c7; color: #d97706; }
+    .status-approved { background-color: #ecfdf5; color: #059669; }
+    
+    .action-btns { display: flex; gap: 8px; }
+    .btn-action {
+      background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px;
+      cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px;
+    }
+    .btn-action.approve:hover { background-color: #ecfdf5; color: #059669; border-color: #059669; }
+    .btn-action.reject:hover { background-color: #fef2f2; color: #ef4444; border-color: #ef4444; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 32px; border-bottom: 1px solid var(--border-color); padding: 0 24px; background: #fff; }
+    .tab {
+      padding: 16px 0; color: var(--text-muted); font-weight: 500; font-size: 14px;
+      cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s;
+    }
+    .tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 600; }
+  
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .modal-content {
+      background: white; border-radius: 12px; padding: 24px; width: 450px; max-width: 90%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+    }
+    .modal-title { font-size: 18px; font-weight: 700; color: var(--text-main); }
+    .close-modal { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; }
+    .form-select { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; background: white; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+    .btn-secondary { background: white; border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+</style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo-area">
+      <img src="assets/images/logo.png" alt="FoodSync Logo" style="max-height: 40px;" />
+    </div>
+    <nav class="nav-menu">
+      <div class="nav-label">Finance Menu</div>
+      <a href="dashboardfin.html" class="nav-item">
+        <i class='bx bx-grid-alt'></i> Dashboard
+      </a>
+      <a href="budgeting.html" class="nav-item active">
+        <i class='bx bx-wallet'></i> Alokasi Anggaran
+      </a>
+      <a href="laporanlaba.html" class="nav-item">
+        <i class='bx bx-line-chart'></i> Laporan Laba
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar-right" style="margin-left: auto; display: flex; align-items: center; gap: 24px;">
+          
+          <!-- CHAT MODULE -->
+          <div class="chat-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnChatToggle" style="background:none; border:none; cursor:pointer;">
+              <i class='bx bx-message-rounded-dots' style="font-size: 20px; color: #374151;"></i>
+            </button>
+            <div class="chat-popup" id="chatPopup" style="display: none; position: absolute; right: 0; top: 40px; background: white; width: 300px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; padding: 16px;">
+              <h3 style="font-size: 16px; margin-bottom: 8px; color: #111827;">Pesan Internal</h3>
+              <p style="font-size: 13px; color: #6B7280;">Modul komunikasi antar departemen akan hadir di sini.</p>
+            </div>
+          </div>
+
+          <!-- WRAPPER NOTIFIKASI -->
+          <div class="notification-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnNotifToggle" style="background:none; border:none; cursor:pointer;">
+              <i class='bx bx-bell' style="font-size: 20px; color: #374151;"></i>
+            </button>
+
+            <!-- KOTAK POPUP NOTIFIKASI -->
+            <div class="notif-popup" id="notifPopup" style="display: none; position: absolute; right: 0; top: 40px; background: white; width: 320px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <div style="padding: 16px; border-bottom: 1px solid #F3F4F6; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin:0; font-size: 16px; color: #111827;">Notifikasi</h3>
+                <a href="#" class="notif-mark-read" style="font-size: 12px; color: #3B82F6; text-decoration: none;">Mark all as read</a>
+              </div>
+              <div style="max-height: 300px; overflow-y: auto;">
+                <div class="notif-item" style="padding: 16px; border-bottom: 1px solid #F3F4F6; display: flex; gap: 12px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='white'">
+                  <div style="width: 40px; height: 40px; border-radius: 50%; background: #E0E7FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class='bx bx-info-circle'></i>
+                  </div>
+                  <div>
+                    <h4 style="margin: 0 0 4px 0; font-size: 14px; color: #111827;">Pembaruan Sistem</h4>
+                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #6B7280;">Sistem ERP telah diperbarui ke versi terbaru.</p>
+                    <span style="font-size: 11px; color: #9CA3AF;">Baru saja</span>
+                  </div>
+                </div>
+              </div>
+              <div style="padding: 12px; text-align: center; border-top: 1px solid #F3F4F6;">
+                <a href="#" style="font-size: 13px; color: #3B82F6; text-decoration: none; font-weight: 500;">Lihat semua notifikasi</a>
+              </div>
+            </div>
+          </div>
+          <!-- END WRAPPER NOTIFIKASI -->
+
+          <!-- PROFILE DROPDOWN -->
+          <div class="profile-wrapper" style="position: relative;">
+            <div class="user-profile" id="btnProfileToggle" style="cursor: pointer; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+              <div class="user-info" style="text-align: right;">
+                <span class="user-name" id="userNameDisplay">Loading...</span>
+                <span class="user-role" id="topbarUserRole">Loading...</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+                </div>
+                <i class='bx bx-chevron-down' style="color: #6B7280; font-size: 16px;"></i>
+              </div>
+            </div>
+
+            <!-- KOTAK POPUP PROFILE -->
+            <div class="profile-popup" id="profilePopup" style="display: none; position: absolute; right: 0; top: 55px; background: white; width: 260px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <!-- Header Info -->
+              <div style="padding: 20px; border-bottom: 1px solid #F3F4F6; display: flex; gap: 16px; align-items: center;">
+                <div id="popupAvatarBg" style="width: 48px; height: 48px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+                </div>
+                <div>
+                  <h4 style="font-size: 14px; font-weight: 700; color: #111827; margin: 0 0 2px 0;" id="popupUserName">User</h4>
+                  <p style="font-size: 12px; color: #6B7280; margin: 0 0 8px 0;" id="popupUserEmail">user@foodsync.com</p>
+                  <span id="popupUserBadge" style="background: #DBEAFE; color: #1D4ED8; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">ROLE</span>
+                </div>
+              </div>
+              
+              <!-- Menu Links -->
+              <div style="padding: 8px 0;">
+                <a href="profil.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-user' style="font-size: 18px; color: #9CA3AF;"></i> My Profile
+                </a>
+                <a href="keamanan.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-cog' style="font-size: 18px; color: #9CA3AF;"></i> Account Settings
+                </a>
+              </div>
+
+              <!-- Logout -->
+              <div style="border-top: 1px solid #F3F4F6; padding: 8px 0;">
+                <button id="popupLogoutBtn" style="width: 100%; text-align: left; display: flex; align-items: center; gap: 12px; padding: 10px 20px; border: none; background: transparent; cursor: pointer; color: #DC2626; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-log-out' style="font-size: 18px;"></i> Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+    <main class="content-area">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Alokasi Anggaran</h1>
+          <p class="page-subtitle">Kelola dan setujui permintaan dana dari divisi lain</p>
+        </div>
+        <button class="btn-primary">
+          <i class='bx bx-plus'></i> Buat Alokasi Baru
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        
+        <div class="tabs">
+          <div class="tab active" id="tab-pending">Permintaan Masuk (Pending)</div>
+          <div class="tab" id="tab-riwayat">Riwayat Alokasi</div>
+          <div class="tab" id="tab-refund">Sisa Dana (Refund)</div>
+        </div>
+
+        
+        <table id="table-pending">
+          <thead>
+            <tr>
+              <th>ID Request</th>
+              <th>Tanggal</th>
+              <th>Divisi</th>
+              <th>Keperluan</th>
+              <th>Nominal (Rp)</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-pending"></tbody>
+        </table>
+
+        <table id="table-riwayat" style="display: none;">
+          <thead>
+            <tr>
+              <th>ID Request</th>
+              <th>Tanggal</th>
+              <th>Divisi</th>
+              <th>Keperluan</th>
+              <th>Nominal (Rp)</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-riwayat"></tbody>
+        </table>
+        <table id="table-refund" style="display: none;">
+          <thead>
+            <tr>
+              <th>Bulan/Tahun</th>
+              <th>Tanggal Refund</th>
+              <th>Divisi Asal</th>
+              <th>Nominal Dikembalikan (Rp)</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-refund"></tbody>
+        </table>
+
+
+      </div>
+
+    
+  <div id="modal-alokasi" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Buat Alokasi Baru</h2>
+        <button class="close-modal">&times;</button>
+      </div>
+      <form id="form-alokasi">
+        <div class="form-group">
+          <label class="form-label">Divisi Tujuan</label>
+          <select class="form-select" id="input-divisi" required>
+            <option value="Purchasing">Purchasing</option>
+            <option value="Sales & Marketing">Sales & Marketing</option>
+            <option value="Production">Production</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Keperluan</label>
+          <input type="text" class="form-input" id="input-keperluan" placeholder="Contoh: Pembelian operasional" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nominal (Rp)</label>
+          <input type="number" class="form-input" id="input-nominal" placeholder="Contoh: 5000000" required />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary close-modal">Batal</button>
+          <button type="submit" class="btn-primary">Simpan Alokasi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    </main>
+  </div>
+
+  <script src="js/topbar.js?v=4"></script>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // TAB LOGIC
+    
+    const tabPending = document.getElementById('tab-pending');
+    const tabRiwayat = document.getElementById('tab-riwayat');
+    const tabRefund = document.getElementById('tab-refund');
+    const tablePending = document.getElementById('table-pending');
+    const tableRiwayat = document.getElementById('table-riwayat');
+    const tableRefund = document.getElementById('table-refund');
+
+    if(tabPending && tabRiwayat && tabRefund) {
+      function resetTabs() {
+        tabPending.classList.remove('active');
+        tabRiwayat.classList.remove('active');
+        tabRefund.classList.remove('active');
+        tablePending.style.display = 'none';
+        tableRiwayat.style.display = 'none';
+        tableRefund.style.display = 'none';
+      }
+
+      tabPending.addEventListener('click', () => {
+        resetTabs();
+        tabPending.classList.add('active');
+        tablePending.style.display = 'table';
+      });
+      tabRiwayat.addEventListener('click', () => {
+        resetTabs();
+        tabRiwayat.classList.add('active');
+        tableRiwayat.style.display = 'table';
+      });
+      tabRefund.addEventListener('click', () => {
+        resetTabs();
+        tabRefund.classList.add('active');
+        tableRefund.style.display = 'table';
+      });
+    }
+
+    // MODAL LOGIC
+    const modal = document.getElementById('modal-alokasi');
+    const btnAlokasi = document.querySelector('.btn-primary'); 
+    const closeBtns = document.querySelectorAll('.close-modal');
+
+    if (btnAlokasi && modal) {
+      btnAlokasi.addEventListener('click', () => {
+        modal.style.display = 'flex';
+      });
+    }
+    closeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+    });
+
+    // DATA STORAGE & RENDERING
+    let allocations = JSON.parse(localStorage.getItem('erp_finance_allocations')) || [];
+
+    const tbodyPending = document.getElementById('tbody-pending');
+    const tbodyRiwayat = document.getElementById('tbody-riwayat');
+
+    function formatRupiah(num) {
+      return num.toLocaleString('id-ID');
+    }
+
+    function renderTables() {
+      if (!tbodyPending || !tbodyRiwayat) return;
+      tbodyPending.innerHTML = '';
+      tbodyRiwayat.innerHTML = '';
+
+      allocations.forEach(item => {
+        const tr = document.createElement('tr');
+        if (item.status === 'pending') {
+          tr.innerHTML = `
+            <td><b>${item.id}</b></td>
+            <td>${item.date}</td>
+            <td>${item.divisi}</td>
+            <td>${item.keperluan}</td>
+            <td>Rp ${formatRupiah(item.nominal)}</td>
+            <td><span class="status-badge status-pending" style="background:#FFF7ED; color:#EA580C; border-color:#FFEDD5;">Menunggu Dana</span></td>
+            <td>
+              <div class="action-btns">
+                <button class="btn-action approve" data-id="${item.id}" title="Setujui"><i class='bx bx-check'></i></button>
+                <button class="btn-action reject" data-id="${item.id}" title="Tolak"><i class='bx bx-x'></i></button>
+              </div>
+            </td>
+          `;
+          tbodyPending.appendChild(tr);
+        } else {
+          let badge = '';
+          if (item.status === 'approved') {
+             badge = '<span class="status-badge status-approved" style="background:#ecfdf5; color:#059669;">Disetujui</span>';
+          } else {
+             badge = '<span class="status-badge status-rejected" style="background:#fef2f2; color:#dc2626;">Ditolak</span>';
+          }
+          tr.innerHTML = `
+            <td><b>${item.id}</b></td>
+            <td>${item.date}</td>
+            <td>${item.divisi}</td>
+            <td>${item.keperluan}</td>
+            <td>Rp ${formatRupiah(item.nominal)}</td>
+            <td>${badge}</td>
+          `;
+          tbodyRiwayat.appendChild(tr);
+        }
+      });
+    }
+
+    renderTables();
+
+    const tbodyRefund = document.getElementById('tbody-refund');
+    let returns = JSON.parse(localStorage.getItem('erp_finance_returns')) || [];
+
+    function renderRefundTable() {
+      if (!tbodyRefund) return;
+      tbodyRefund.innerHTML = '';
+      
+      returns.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><b>${item.month}</b></td>
+          <td>${item.date}</td>
+          <td>${item.divisi}</td>
+          <td style="color: #059669; font-weight: bold;">+ Rp ${formatRupiah(item.nominal)}</td>
+          <td><span class="status-badge status-approved" style="background:#ecfdf5; color:#059669;">Diterima Kas</span></td>
+        `;
+        tbodyRefund.appendChild(tr);
+      });
+    }
+
+    renderRefundTable();
+
+
+    // APPROVE & REJECT ACTIONS
+    if (tbodyPending) {
+      tbodyPending.addEventListener('click', (e) => {
+        const btnApprove = e.target.closest('.approve');
+        const btnReject = e.target.closest('.reject');
+        
+        if (btnApprove) {
+          const id = btnApprove.getAttribute('data-id');
+          if (confirm('Setujui alokasi dana ini?')) {
+            const idx = allocations.findIndex(a => a.id === id);
+            if(idx !== -1) allocations[idx].status = 'approved';
+            localStorage.setItem('erp_finance_allocations', JSON.stringify(allocations));
+            renderTables();
+            
+            // Dispatch storage event manually for other tabs
+            window.dispatchEvent(new Event('storage'));
+          }
+        }
+        
+        if (btnReject) {
+          const id = btnReject.getAttribute('data-id');
+          if (confirm('Tolak alokasi dana ini?')) {
+            const idx = allocations.findIndex(a => a.id === id);
+            if(idx !== -1) allocations[idx].status = 'rejected';
+            localStorage.setItem('erp_finance_allocations', JSON.stringify(allocations));
+            renderTables();
+          }
+        }
+      });
+    }
+
+    // FORM SUBMIT
+    const formAlokasi = document.getElementById('form-alokasi');
+    if (formAlokasi) {
+      formAlokasi.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const divisi = document.getElementById('input-divisi').value;
+        const keperluan = document.getElementById('input-keperluan').value;
+        const nominal = parseInt(document.getElementById('input-nominal').value);
+        
+        const today = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
+        const newId = 'REQ-' + Math.floor(Math.random() * 900 + 100);
+
+        allocations.push({
+          id: newId,
+          date: today,
+          divisi: divisi,
+          keperluan: keperluan,
+          nominal: nominal,
+          status: 'pending'
+        });
+
+        localStorage.setItem('erp_finance_allocations', JSON.stringify(allocations));
+        renderTables();
+        formAlokasi.reset();
+        modal.style.display = 'none';
+        
+        // Simulasikan notifikasi sukses
+        if(typeof showToast === 'function') {
+          showToast('Alokasi berhasil ditambahkan (Pending)');
+        } else {
+          alert('Alokasi berhasil ditambahkan dan berstatus Pending.');
+        }
+      });
+    }
+  });
+</script>
+
+
+
+</body>
+</html>

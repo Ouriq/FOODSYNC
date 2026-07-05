@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Faktur Pembelian – FoodSync Purchasing</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  
+  <link rel="stylesheet" href="css/dashboard.css?v=12" />
+
+<script>
+  (function() {
+    var photo = localStorage.getItem('user_photo');
+    if (photo) {
+      document.write('<style id="anti-flicker-avatar">');
+      document.write('.user-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.user-avatar i { display: none; }');
+      document.write('</style>');
+    }
+  })();
+</script>
+<style>
+/* Purchasing Specific Styles */
+.sidebar-nav a.nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #4B5563; text-decoration: none; font-weight: 600; font-size: 14px; border-radius: 8px; transition: 0.2s;
+}
+.sidebar-nav a.nav-item:hover, .sidebar-nav a.nav-item.active {
+  background: #E0E7FF; color: #1E3A8A;
+}
+.sidebar-nav a.nav-item i { font-size: 20px; }
+
+.page-title {
+  font-size: 36px; font-weight: 800; color: #000; margin: 0 0 8px 0; letter-spacing: -0.5px;
+}
+.page-subtitle {
+  font-size: 16px; color: #111827; font-weight: 700; margin: 0 0 32px 0;
+}
+
+/* 3 Summary Cards */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.summary-card {
+  border-radius: 12px;
+  padding: 24px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.card-blue { background: #1D4ED8; }
+.card-orange { background: #F59E0B; }
+.card-green { background: #10B981; }
+
+.summary-title {
+  font-size: 14px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.summary-value {
+  font-size: 32px; font-weight: 800;
+}
+.summary-desc {
+  font-size: 13px; font-weight: 500; margin-top: 8px; opacity: 0.9;
+}
+
+/* Table Wrapper */
+.table-wrapper {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  border: 1px solid #E5E7EB;
+}
+
+/* Search Bar */
+.search-container {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 24px;
+}
+.search-container i {
+  color: #6B7280;
+  font-size: 18px;
+  margin-right: 12px;
+}
+.search-container input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6B7280;
+  font-family: inherit;
+}
+.search-container input::placeholder { color: #9CA3AF; }
+
+/* Data Table */
+.data-table {
+  width: 100%; border-collapse: collapse; text-align: center;
+}
+.data-table th {
+  background: #0B3B7B;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 16px;
+}
+.data-table th:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
+.data-table th:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
+
+.data-table td {
+  padding: 24px 16px;
+  border-bottom: 1px solid #F3F4F6;
+  font-size: 14px;
+  color: #111827;
+  font-weight: 700;
+}
+.data-table tr:last-child td { border-bottom: none; }
+
+.ref-link {
+  color: #2563EB;
+  text-decoration: none;
+  cursor: pointer;
+}
+.ref-link:hover { text-decoration: underline; }
+
+/* Status Pills */
+.status-pill {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+}
+.pill-lunas { background: #10B981; }
+.pill-belum { background: #F59E0B; }
+.pill-jatuhtempo { background: #DC2626; }
+
+</style>
+</head>
+<body>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="assets/images/logo.png" alt="Logo FoodSync" class="logo-img" />
+      </div>
+
+      <p class="menu-label">MENU</p>
+      <nav class="sidebar-nav">
+        <a href="dashboardpurc.html" class="nav-item">
+          <i class='bx bx-grid-alt'></i> Dashboard
+        </a>
+        <a href="permintaanpembelian.html" class="nav-item">
+          <i class='bx bx-file-blank'></i> Permintaan Pembelian
+        </a>
+        <a href="pesananpembelian.html" class="nav-item">
+          <i class='bx bx-cart'></i> Pesanan Pembelian
+        </a>
+        <a href="fakturpembelian.html" class="nav-item active">
+          <i class='bx bx-receipt'></i> Faktur Pembelian
+        </a>
+        <a href="threeway.html" class="nav-item">
+          <i class='bx bx-check-double'></i> Three-Way Matching
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-right" style="margin-left: auto; display: flex; align-items: center; gap: 24px;">
+          
+          <!-- CHAT MODULE -->
+          <div class="chat-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnChatToggle" style="background:none; border:none; cursor:pointer;">
+              <i class='bx bx-message-rounded-dots' style="font-size: 20px; color: #374151;"></i>
+            </button>
+            <div class="chat-popup" id="chatPopup" style="display: none; position: absolute; right: 0; top: 40px; background: white; width: 300px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; padding: 16px;">
+              <h3 style="font-size: 16px; margin-bottom: 8px; color: #111827;">Pesan Internal</h3>
+              <p style="font-size: 13px; color: #6B7280;">Modul komunikasi antar departemen akan hadir di sini.</p>
+            </div>
+          </div>
+
+          <!-- WRAPPER NOTIFIKASI -->
+          <div class="notification-wrapper" style="position: relative;">
+            <button class="icon-btn" id="btnNotifToggle" style="background:none; border:none; cursor:pointer;">
+              <i class='bx bx-bell' style="font-size: 20px; color: #374151;"></i>
+            </button>
+
+            <!-- KOTAK POPUP NOTIFIKASI -->
+            <div class="notif-popup" id="notifPopup" style="display: none; position: absolute; right: 0; top: 40px; background: white; width: 320px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <div style="padding: 16px; border-bottom: 1px solid #F3F4F6; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin:0; font-size: 16px; color: #111827;">Notifikasi</h3>
+                <a href="#" class="notif-mark-read" style="font-size: 12px; color: #3B82F6; text-decoration: none;">Mark all as read</a>
+              </div>
+              <div style="max-height: 300px; overflow-y: auto;">
+                <div class="notif-item" style="padding: 16px; border-bottom: 1px solid #F3F4F6; display: flex; gap: 12px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='white'">
+                  <div style="width: 40px; height: 40px; border-radius: 50%; background: #E0E7FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class='bx bx-info-circle'></i>
+                  </div>
+                  <div>
+                    <h4 style="margin: 0 0 4px 0; font-size: 14px; color: #111827;">Pembaruan Sistem</h4>
+                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #6B7280;">Sistem ERP telah diperbarui ke versi terbaru.</p>
+                    <span style="font-size: 11px; color: #9CA3AF;">Baru saja</span>
+                  </div>
+                </div>
+              </div>
+              <div style="padding: 12px; text-align: center; border-top: 1px solid #F3F4F6;">
+                <a href="#" style="font-size: 13px; color: #3B82F6; text-decoration: none; font-weight: 500;">Lihat semua notifikasi</a>
+              </div>
+            </div>
+          </div>
+          <!-- END WRAPPER NOTIFIKASI -->
+
+          <!-- PROFILE DROPDOWN -->
+          <div class="profile-wrapper" style="position: relative;">
+            <div class="user-profile" id="btnProfileToggle" style="cursor: pointer; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+              <div class="user-info" style="text-align: right;">
+                <span class="user-name" id="userNameDisplay">Loading...</span>
+                <span class="user-role" id="topbarUserRole">Loading...</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+                </div>
+                <i class='bx bx-chevron-down' style="color: #6B7280; font-size: 16px;"></i>
+              </div>
+            </div>
+
+            <!-- KOTAK POPUP PROFILE -->
+            <div class="profile-popup" id="profilePopup" style="display: none; position: absolute; right: 0; top: 55px; background: white; width: 260px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <!-- Header Info -->
+              <div style="padding: 20px; border-bottom: 1px solid #F3F4F6; display: flex; gap: 16px; align-items: center;">
+                <div id="popupAvatarBg" style="width: 48px; height: 48px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+                </div>
+                <div>
+                  <h4 style="font-size: 14px; font-weight: 700; color: #111827; margin: 0 0 2px 0;" id="popupUserName">User</h4>
+                  <p style="font-size: 12px; color: #6B7280; margin: 0 0 8px 0;" id="popupUserEmail">user@foodsync.com</p>
+                  <span id="popupUserBadge" style="background: #DBEAFE; color: #1D4ED8; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">ROLE</span>
+                </div>
+              </div>
+              
+              <!-- Menu Links -->
+              <div style="padding: 8px 0;">
+                <a href="profil.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-user' style="font-size: 18px; color: #9CA3AF;"></i> My Profile
+                </a>
+                <a href="keamanan.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: #374151; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-cog' style="font-size: 18px; color: #9CA3AF;"></i> Account Settings
+                </a>
+              </div>
+
+              <!-- Logout -->
+              <div style="border-top: 1px solid #F3F4F6; padding: 8px 0;">
+                <button id="popupLogoutBtn" style="width: 100%; text-align: left; display: flex; align-items: center; gap: 12px; padding: 10px 20px; border: none; background: transparent; cursor: pointer; color: #DC2626; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-log-out' style="font-size: 18px;"></i> Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div style="padding: 24px 0;">
+        <h1 class="page-title">Faktur Pembelian</h1>
+        <p class="page-subtitle">Manajemen Tagihan dan Pembayaran Vendor</p>
+        
+        <!-- 3 Summary Cards -->
+        <div class="summary-grid">
+          <div class="summary-card card-blue">
+            <div class="summary-title">TOTAL TAGIHAN</div>
+            <div class="summary-value" id="valTotalTagihan">Rp 0</div>
+            <div class="summary-desc">Total semua faktur tercatat</div>
+          </div>
+          <div class="summary-card card-orange">
+            <div class="summary-title">BELUM DIBAYAR</div>
+            <div class="summary-value" id="valBelumDibayar">Rp 0</div>
+            <div class="summary-desc">Menunggu pembayaran</div>
+          </div>
+          <div class="summary-card card-green">
+            <div class="summary-title">LUNAS</div>
+            <div class="summary-value" id="valLunas">Rp 0</div>
+            <div class="summary-desc">Telah dibayar ke vendor</div>
+          </div>
+        </div>
+        
+        <div style="background: white; border-radius: 12px; padding: 16px 24px; margin-bottom: 24px; border: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+            <div>
+                <span style="font-size: 13px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Sisa Budget Purchasing (Finance)</span>
+                <div id="valSisaBudget" style="font-size: 24px; font-weight: 800; color: #111827;">Rp 0</div>
+            </div>
+            <div style="text-align: right;">
+                <span style="font-size: 12px; color: #6B7280;">Total Alokasi: <b id="valTotalAlokasi">Rp 0</b></span>
+            </div>
+        </div>
+        
+
+        <!-- Table Box -->
+        <div class="table-wrapper">
+          <!-- Search -->
+          <div class="search-container">
+            <i class='bx bx-search'></i>
+            <input type="text" placeholder="Cari Berdasarkan No. Faktur, ID PO, atau Vendor....">
+          </div>
+
+          <!-- Data Table -->
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="text-align: left; padding-left: 24px;">No. Faktur</th>
+                <th>PO Ref</th>
+                <th style="text-align: left;">Vendor</th>
+                <th>Jatuh Tempo</th>
+                <th>Total Tagihan</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="faktur-tbody"></tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <script src="js/topbar.js?v=3?v=3"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const userName = localStorage.getItem('user_name') || 'User';
+      const userNameDisplay = document.getElementById('userNameDisplay');
+      if (userNameDisplay) userNameDisplay.textContent = userName;
+    });
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      function formatRupiah(angka){
+          return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+      }
+
+      function renderData() {
+          let fakturData = JSON.parse(localStorage.getItem('erp_faktur_pembelian')) || [];
+
+          let allocations = JSON.parse(localStorage.getItem('erp_finance_allocations')) || [];
+          let totalAllocated = 0;
+          allocations.forEach(al => {
+              if (al.divisi === 'Purchasing' && al.status === 'approved') {
+                  totalAllocated += parseInt(al.nominal) || 0;
+              }
+          });
+
+          let totalTagihan = 0;
+          let belumDibayar = 0;
+          let lunas = 0;
+
+          const tbody = document.getElementById('faktur-tbody');
+          tbody.innerHTML = '';
+
+          fakturData.forEach((faktur, index) => {
+              totalTagihan += parseInt(faktur.total);
+              if (faktur.status === 'Lunas') {
+                  lunas += parseInt(faktur.total);
+              } else {
+                  belumDibayar += parseInt(faktur.total);
+              }
+
+              let statusHtml = faktur.status === 'Lunas' 
+                  ? '<span class="status-pill pill-lunas">LUNAS</span>' 
+                  : '<span class="status-pill pill-belum">BELUM DIBAYAR</span>';
+
+              let actionHtml = '';
+              if (faktur.status !== 'Lunas') {
+                  actionHtml = `<button onclick="bayarFaktur(${index})" style="background: #1D4ED8; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px;">Bayar Tagihan</button>`;
+              }
+
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td style="text-align: left; padding-left: 24px;">${faktur.id}</td>
+                <td><a href="#" class="ref-link">${faktur.prId}</a></td>
+                <td style="text-align: left;">${faktur.vendor}</td>
+                <td>${faktur.dueDate}</td>
+                <td>${formatRupiah(faktur.total)}</td>
+                <td>${statusHtml}<br><div style="margin-top: 8px;">${actionHtml}</div></td>
+              `;
+              tbody.appendChild(tr);
+          });
+
+          let sisaBudget = totalAllocated - lunas;
+
+          document.getElementById('valTotalTagihan').textContent = formatRupiah(totalTagihan);
+          document.getElementById('valBelumDibayar').textContent = formatRupiah(belumDibayar);
+          document.getElementById('valLunas').textContent = formatRupiah(lunas);
+          
+          document.getElementById('valTotalAlokasi').textContent = formatRupiah(totalAllocated);
+          
+          let elSisa = document.getElementById('valSisaBudget');
+          elSisa.textContent = formatRupiah(sisaBudget);
+          if (sisaBudget < 0) {
+              elSisa.style.color = '#DC2626'; // Red if over budget (should not happen due to check)
+          } else {
+              elSisa.style.color = '#111827';
+          }
+      }
+
+      window.bayarFaktur = function(index) {
+          let fakturData = JSON.parse(localStorage.getItem('erp_faktur_pembelian')) || [];
+          let allocations = JSON.parse(localStorage.getItem('erp_finance_allocations')) || [];
+          
+          let totalAllocated = 0;
+          allocations.forEach(al => {
+              if (al.divisi === 'Purchasing' && al.status === 'approved') {
+                  totalAllocated += parseInt(al.nominal) || 0;
+              }
+          });
+
+          let lunas = 0;
+          fakturData.forEach(f => {
+              if (f.status === 'Lunas') lunas += parseInt(f.total);
+          });
+
+          let sisaBudget = totalAllocated - lunas;
+          let faktur = fakturData[index];
+
+          if (confirm('Apakah Anda yakin ingin membayar tagihan ini? (Rp ' + formatRupiah(faktur.total) + ')')) {
+              if (faktur.total > sisaBudget) {
+                  alert('Pembayaran gagal! Sisa budget Purchasing (Rp ' + formatRupiah(sisaBudget) + ') tidak mencukupi untuk tagihan ini. Silakan ajukan alokasi dana ke Finance.');
+                  return;
+              }
+              
+              faktur.status = 'Lunas';
+              localStorage.setItem('erp_faktur_pembelian', JSON.stringify(fakturData));
+              renderData();
+              alert('Tagihan berhasil dibayar dan status menjadi LUNAS!');
+              window.dispatchEvent(new StorageEvent('storage', {key: 'erp_faktur_pembelian'}));
+          }
+      };
+
+      renderData();
+
+      // Listen for updates from Finance or Penerimaan
+      window.addEventListener('storage', (e) => {
+          if (e.key === 'erp_faktur_pembelian' || e.key === 'erp_finance_allocations') {
+              renderData();
+          }
+      });
+    });
+  </script>
+</body>
+</html>

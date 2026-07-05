@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Riwayat Produksi – FoodSync Production</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  
+  <link rel="stylesheet" href="css/dashboard.css?v=8" />
+
+<script>
+  (function() {
+    var photo = localStorage.getItem('user_photo');
+    if (photo) {
+      document.write('<style id="anti-flicker-avatar">');
+      document.write('.user-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.user-avatar i { display: none; }');
+      document.write('.pd-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
+      document.write('.pd-avatar i { display: none; }');
+      document.write('.big-avatar { background-image: url(' + photo + ') !important; background-size: cover !important; }');
+      document.write('</style>');
+    }
+  })();
+</script>
+<style>
+.sidebar-nav a.nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #4B5563; text-decoration: none; font-weight: 600; font-size: 14px; border-radius: 8px; transition: 0.2s;
+}
+.sidebar-nav a.nav-item:hover, .sidebar-nav a.nav-item.active {
+  background: #F3F4F6; color: #1E3A8A;
+}
+.sidebar-nav a.nav-item i { font-size: 20px; }
+
+/* Page Header */
+.page-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+.page-title {
+  font-size: 28px; font-weight: 800; color: #111827; margin: 0 0 8px 0;
+}
+.page-subtitle {
+  font-size: 14px; color: #6B7280; margin: 0;
+}
+.btn-export {
+  background: #E5E7EB; color: #374151; font-weight: 600; font-size: 13px; border: none; padding: 10px 20px; border-radius: 24px; cursor: pointer; transition: 0.2s;
+}
+.btn-export:hover { background: #D1D5DB; }
+
+/* Table Wrapper */
+.table-wrapper {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  border: 1px solid #F3F4F6;
+  overflow: hidden;
+}
+
+/* Data Table */
+.data-table {
+  width: 100%; border-collapse: collapse; text-align: center;
+}
+.data-table th {
+  background: #0B3B7B;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 16px;
+}
+.data-table td {
+  padding: 20px 16px;
+  border-bottom: 1px solid #F3F4F6;
+  font-size: 13px;
+  color: #111827;
+  font-weight: 600;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.td-poid {
+  color: #2563EB !important;
+  cursor: pointer;
+}
+.td-poid:hover { text-decoration: underline; }
+.status-pill {
+  display: inline-block;
+  background: #DCFCE7;
+  color: #166534;
+  padding: 6px 20px;
+  border-radius: 24px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Pagination */
+.pagination {
+  display: flex; gap: 8px; justify-content: center; margin-top: 24px; align-items: center;
+}
+.page-btn {
+  padding: 8px 16px; border-radius: 8px; border: 1px solid #E5E7EB; background: white; color: #374151; cursor: pointer; font-size: 13px; font-weight: 600;
+}
+.page-btn:disabled { color: #D1D5DB; cursor: not-allowed; }
+.page-num {
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 14px; font-weight: 700; color: #111827; cursor: pointer; transition: 0.2s;
+}
+.page-num.active { background: #CBD5E1; }
+.page-num:hover:not(.active) { background: #F3F4F6; }
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background: white;
+  width: 450px;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+.modal-title { font-size: 18px; font-weight: 700; margin: 0 0 16px 0; color: #111827; }
+.modal-note-box {
+  background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px; font-size: 13px; color: #374151; line-height: 1.6; min-height: 80px; margin-bottom: 24px;
+}
+.btn-close-modal {
+  width: 100%; background: #0B3B7B; color: white; padding: 10px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer;
+}
+.btn-close-modal:hover { background: #1E3A8A; }
+</style>
+</head>
+<body>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="assets/images/logo.png" alt="Logo FoodSync" class="logo-img" />
+      </div>
+
+      <p class="menu-label">MENU</p>
+      <nav class="sidebar-nav">
+        <a href="dashboardprod.html" class="nav-item">
+          <i class='bx bx-grid-alt'></i> Dashboard
+        </a>
+        <a href="rencanaproduksi.html" class="nav-item">
+          <i class='bx bx-calendar-event'></i> Rencana Produksi
+        </a>
+        <a href="monitoringproduksi.html" class="nav-item">
+          <i class='bx bx-desktop'></i> Monitoring Produksi
+        </a>
+        <a href="prosesproduksi.html" class="nav-item">
+          <i class='bx bx-cog'></i> Proses Produksi
+        </a>
+        <a href="qualitycheck.html" class="nav-item">
+          <i class='bx bx-check-shield'></i> Quality Check
+        </a>
+        <a href="riwayatproduksi.html" class="nav-item active">
+          <i class='bx bx-history'></i> Riwayat Produksi
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-right" style="margin-left: auto; display: flex; align-items: center; gap: 24px;">
+          <!-- PROFILE DROPDOWN -->
+          <div class="profile-wrapper" style="position: relative;">
+            <div class="user-profile" id="btnProfileToggle" style="cursor: pointer; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+              <div class="user-info" style="text-align: right;">
+                <span class="user-name" id="userNameDisplay">HOHO</span>
+                <span class="user-role">Production Spv</span>
+              </div>
+              <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: #E5E7EB; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;">
+                <i class='bx bx-user' style="font-size:24px; color: #9CA3AF;"></i>
+              </div>
+              <i class='bx bx-chevron-down' style="font-size: 16px; color: #6B7280;"></i>
+            </div>
+            
+            <div class="profile-popup" id="profilePopup" style="display: none; position: absolute; right: 0; top: 55px; background: white; width: 260px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #E5E7EB; z-index: 1000; overflow: hidden;">
+              <div style="border-top: 1px solid #F3F4F6; padding: 8px 0;">
+                <button id="popupLogoutBtn" style="width: 100%; text-align: left; display: flex; align-items: center; gap: 12px; padding: 10px 20px; border: none; background: transparent; cursor: pointer; color: #DC2626; font-size: 14px; transition: 0.2s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='transparent'">
+                  <i class='bx bx-log-out' style="font-size: 18px;"></i> Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div style="padding: 24px 0;">
+        <div class="page-header-container">
+          <div>
+            <h1 class="page-title">Riwayat Produksi</h1>
+            <p class="page-subtitle">Log data produksi historis yang telah di selesaikan dan msuk ke inventaris.</p>
+          </div>
+          <button class="btn-export">Export File</button>
+        </div>
+        
+        <div class="table-wrapper">
+          <table class="data-table" id="historyTable">
+            <thead>
+              <tr>
+                <th style="width: 15%; text-align: left; padding-left: 32px;">Nomor PO</th>
+                <th style="text-align: left;">Produk</th>
+                <th>Waktu Selesai</th>
+                <th>Quantity</th>
+                <th>Defect</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+
+                <div class="pagination" id="paginationContainer">
+          <!-- Dynamic pagination buttons will be rendered here -->
+        </div>
+
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Note Modal -->
+  <div class="modal-overlay" id="noteModal">
+    <div class="modal-content">
+      <h3 class="modal-title" id="modalPoTitle">Catatan Khusus - PO</h3>
+      <div class="modal-note-box" id="modalNoteContent">
+        <!-- Catatan goes here -->
+      </div>
+      <button class="btn-close-modal" onclick="closeNoteModal()">Tutup</button>
+    </div>
+  </div>
+
+  <script src="js/topbar.js?v=4"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const userName = localStorage.getItem('user_name') || 'User';
+      const userNameDisplay = document.getElementById('userNameDisplay');
+      if (userNameDisplay) userNameDisplay.textContent = userName;
+      
+      initDummyData();
+      renderHistoryList();
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'historyList') {
+        renderHistoryList();
+      }
+    });
+    });
+
+    const dummyData = [
+      { poId: 'PO - 2310 - 007', productName: 'Indomie Mi Goreng Special', date: '28 Okt 2023', quantity: '150,000 Dus', defect: '12', note: 'Mesin line 3 sempat mati 10 menit, namun produksi lancar.' },
+      { poId: 'PO - 2310 - 008', productName: 'Indomie Rasa Ayam Bawang', date: '30 Okt 2023', quantity: '85,000 Dus', defect: '8', note: 'Kemasan defect akibat suhu _sealer_ terlalu panas pada awal shift.' },
+      { poId: 'PO - 2310 - 009', productName: 'Chitato Rasa Sapi Panggang', date: '02 Nov 2023', quantity: '40,000 Dus', defect: '21', note: 'Bumbu sedikit menggumpal di batch awal, sudah dikoreksi.' },
+      { poId: 'PO - 2310 - 010', productName: 'Pop Mie Rasa Ayam Peda', date: '05 Nov 2023', quantity: '60,000 Dus', defect: '0', note: 'Produksi sempurna. Tidak ada catatan defect.' }
+    ];
+
+    function initDummyData() {
+      let historyList = localStorage.getItem('historyList');
+      if (!historyList || JSON.parse(historyList).length === 0) {
+        localStorage.setItem('historyList', JSON.stringify(dummyData));
+      }
+    }
+
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    function renderHistoryList() {
+      let historyList = JSON.parse(localStorage.getItem('historyList') || '[]');
+      const tbody = document.getElementById('historyBody');
+      const paginationContainer = document.getElementById('paginationContainer');
+      tbody.innerHTML = '';
+
+      if (historyList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #6B7280; padding: 40px;">Belum ada riwayat produksi</td></tr>';
+        if (paginationContainer) paginationContainer.innerHTML = '';
+        return;
+      }
+
+      // Pagination logic
+      const totalPages = Math.ceil(historyList.length / itemsPerPage);
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const paginatedData = historyList.slice(startIndex, startIndex + itemsPerPage);
+
+      paginatedData.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        // Store note in data attribute safely
+        const safeNote = item.note ? item.note.replace(/"/g, '&quot;') : '';
+        
+        tr.innerHTML = `
+          <td class="td-poid" style="text-align: left; padding-left: 32px;" onclick="openNoteModal('${item.poId}', '${safeNote}')">${item.poId}</td>
+          <td style="text-align: left;">${item.productName}</td>
+          <td>${item.date}</td>
+          <td>${item.quantity}</td>
+          <td>${item.defect}</td>
+          <td><span class="status-pill">Selesai</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Render Pagination Buttons
+      if (paginationContainer) {
+          paginationContainer.innerHTML = '';
+          
+
+
+          // Page numbers
+          for (let i = 1; i <= totalPages; i++) {
+              const btn = document.createElement('div');
+              btn.className = 'page-num' + (i === currentPage ? ' active' : '');
+              btn.textContent = i;
+              btn.onclick = () => {
+                  currentPage = i;
+                  renderHistoryList();
+              };
+              paginationContainer.appendChild(btn);
+          }
+          
+
+      }
+    }
+
+    function openNoteModal(poId, note) {
+      document.getElementById('modalPoTitle').textContent = 'Catatan Khusus - ' + poId;
+      document.getElementById('modalNoteContent').textContent = note;
+      document.getElementById('noteModal').style.display = 'flex';
+    }
+
+    function closeNoteModal() {
+      document.getElementById('noteModal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
