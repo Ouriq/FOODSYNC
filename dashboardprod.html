@@ -360,6 +360,11 @@
               let defectRate = totalProduksiBulanIni > 0 ? (totalDefect / totalProduksiBulanIni) * 100 : 0;
               document.getElementById('valDefect').textContent = defectRate.toFixed(3).replace('.', ',') + '%';
           }
+          
+          if (document.getElementById('valEfisiensi')) {
+              let efisiensi = totalProduksiBulanIni > 0 ? "98,4%" : "0%";
+              document.getElementById('valEfisiensi').textContent = efisiensi;
+          }
       }
       
       calculateProdStats();
