@@ -346,6 +346,7 @@
               <th>Sumber</th>
               <th>Keterangan</th>
               <th>Pendapatan (Rp)</th>
+              <th>Keuntungan (Rp)</th>
               <th>Status Buku</th>
             </tr>
           </thead>
@@ -360,6 +361,7 @@
               <th>Sumber</th>
               <th>Keterangan</th>
               <th>Nilai Laporan (Rp)</th>
+              <th>Keuntungan (Rp)</th>
               <th style="text-align: right;">Aksi</th>
             </tr>
           </thead>
@@ -414,10 +416,10 @@
                     // Generate Real CSV from Data
                     let history = JSON.parse(localStorage.getItem('erp_finance_income_history') || '[]');
                     let csvContent = "data:text/csv;charset=utf-8,";
-                    csvContent += "ID Laporan,Tanggal Terima,Sumber,Keterangan,Pendapatan (Rp),Status Buku\n";
+                    csvContent += "ID Laporan,Tanggal Terima,Sumber,Keterangan,Pendapatan (Rp),Keuntungan (Rp),Status Buku\n";
                     
                     if (history.length === 0) {
-                        csvContent += "Tidak ada data riwayat pemasukan resmi.,,,,,\n";
+                        csvContent += "Tidak ada data riwayat pemasukan resmi.,,,,,,\n";
                     } else {
                         history.forEach(item => {
                             let itemMonth = '';
@@ -433,7 +435,8 @@
                             // Filter by selected month
                             if (itemMonth === month || month === "") {
                                 let total = (item.nominal || 0).toString().replace(/,/g, '');
-                                let row = `${item.id},${item.date},${item.sumber},"${item.keterangan}",${total},Tercatat\n`;
+                                let profit = (item.keuntungan || 0).toString().replace(/,/g, '');
+                                let row = `${item.id},${item.date},${item.sumber},"${item.keterangan}",${total},${profit},Tercatat\n`;
                                 csvContent += row;
                             }
                         });
@@ -498,12 +501,14 @@
                 tbodyRiwayat.innerHTML = '';
                 history.forEach(item => {
                     const tr = document.createElement('tr');
+                    let profitVal = item.keuntungan || 0;
                     tr.innerHTML = `
                       <td class="clickable-id" data-id="${item.id}" data-source="history"><b>${item.id}</b></td>
                       <td>${item.date}</td>
                       <td>${item.sumber}</td>
                       <td>${item.keterangan}</td>
                       <td class="amount" style="color: #059669; font-weight: bold;">+ Rp ${formatRupiah(item.nominal)}</td>
+                      <td class="amount" style="color: #10b981; font-weight: bold;">+ Rp ${formatRupiah(profitVal)}</td>
                       <td>
                           <div style="display:flex; align-items:center; gap:8px;">
                               <span class="status-badge status-completed" style="background:#ecfdf5; color:#059669; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:bold;">Tercatat</span>
@@ -518,16 +523,18 @@
             if (tbodyDraft) {
                 tbodyDraft.innerHTML = '';
                 if (drafts.length === 0) {
-                    tbodyDraft.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color:#6b7280;">Tidak ada draft laporan masuk.</td></tr>';
+                    tbodyDraft.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color:#6b7280;">Tidak ada draft laporan masuk.</td></tr>';
                 } else {
                     drafts.forEach(item => {
                         const tr = document.createElement('tr');
+                        let profitVal = item.keuntungan || 0;
                         tr.innerHTML = `
                           <td class="clickable-id" data-id="${item.id}" data-source="draft"><b>${item.id}</b></td>
                           <td>${item.date}</td>
                           <td>${item.sumber}</td>
                           <td>${item.keterangan}</td>
                           <td class="amount" style="color: #d97706; font-weight: bold;">Rp ${formatRupiah(item.nominal)}</td>
+                          <td class="amount" style="color: #10b981; font-weight: bold;">+ Rp ${formatRupiah(profitVal)}</td>
                           <td style="text-align: right;">
                               <div class="action-btns">
                                 <button class="btn-action approve" data-id="${item.id}" title="Terima & Masukkan Laba"><i class='bx bx-check'></i></button>
