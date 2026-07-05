@@ -538,7 +538,6 @@ Dibutuhkan: ${qty}`);
         // Save updated inventory and pengeluaran
         localStorage.setItem('erp_inventory_stock', JSON.stringify(inventory));
         localStorage.setItem('erp_pengeluaran_produksi', JSON.stringify(pengeluaran));
-        window.dispatchEvent(new StorageEvent('storage', {key: 'erp_inventory_stock'}));
 
         const lini = document.getElementById('selectLini').value;
 
@@ -574,18 +573,10 @@ Dibutuhkan: ${qty}`);
             statusBadge.style.background = '#DCFCE7';
             statusBadge.style.color = '#166534';
             
-            if(!newCard.querySelector('.btn-lanjut-qc')) {
-              const btnLanjut = document.createElement('button');
-              btnLanjut.className = 'btn-lanjut-qc';
-              btnLanjut.textContent = 'Lanjut ke QC →';
-              btnLanjut.style.cssText = 'width: 100%; margin-top: 16px; padding: 10px; background: #10B981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s;';
-              btnLanjut.onmouseover = function() { this.style.background = '#059669'; };
-              btnLanjut.onmouseout = function() { this.style.background = '#10B981'; };
-              btnLanjut.onclick = function() {
-                moveToQC(newCard, poId, productName, targetStr);
-              };
-              newCard.appendChild(btnLanjut);
-            }
+            // Automatically move to QC after a short delay
+            setTimeout(() => {
+              moveToQC(newCard, poId, productName, targetStr);
+            }, 800);
           }
           const percent = Math.floor((currentCount / targetNum) * 100);
           if(progressFill) progressFill.style.width = percent + '%';
