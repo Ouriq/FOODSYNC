@@ -93,7 +93,7 @@ function initApp() {
     if (!tableBody) return;
     tableBody.innerHTML = '';
 
-    if (customersData.length === 0) {
+    if (customersData.length === 0 && !localStorage.getItem('foodsync_is_cleared')) {
       tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">Belum ada data pelanggan.</td></tr>';
       if (paginationContainer) paginationContainer.innerHTML = '';
       return;

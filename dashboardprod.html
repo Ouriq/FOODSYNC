@@ -343,7 +343,7 @@
           }
           
           if (document.getElementById('valTotalProduksi')) {
-              if (totalProduksiBulanIni > 0) {
+              if (true) {
                   document.getElementById('valTotalProduksi').textContent = totalProduksiBulanIni.toLocaleString('id-ID');
               }
           }
@@ -356,8 +356,8 @@
               }
           }
           
-          if (document.getElementById('valDefect') && totalProduksiBulanIni > 0) {
-              let defectRate = (totalDefect / totalProduksiBulanIni) * 100;
+          if (document.getElementById('valDefect')) {
+              let defectRate = totalProduksiBulanIni > 0 ? (totalDefect / totalProduksiBulanIni) * 100 : 0;
               document.getElementById('valDefect').textContent = defectRate.toFixed(3).replace('.', ',') + '%';
           }
       }
@@ -380,7 +380,7 @@
           datasets: [
             {
               label: 'Actual Output',
-              data: [65000, 72000, 68000, 85000, 82000, 50000, 45000, 60000, 75000, 80000, 88000, 92000],
+              data: totalProduksiBulanIni > 0 ? [65000, 72000, 68000, 85000, 82000, 50000, 45000, 60000, 75000, 80000, 88000, 92000] : [0,0,0,0,0,0,0,0,0,0,0,0],
               borderColor: '#3B82F6',
               backgroundColor: gradient,
               borderWidth: 3,

@@ -22,9 +22,21 @@
     <script>
         document.getElementById('btnReset').addEventListener('click', () => {
             if(confirm('Anda yakin ingin membersihkan semua data?')) {
-                // Clear localStorage
+                                // Clear localStorage
                 localStorage.clear();
                 sessionStorage.clear();
+                
+                // Set flag so dummy data doesn't auto-reinject
+                localStorage.setItem('foodsync_is_cleared', 'true');
+                
+                // Initialize arrays so pages don't crash on null
+                const keys = [
+                    'historyList', 'erp_production_orders', 'erp_finance_income_history', 
+                    'erp_faktur_pembelian', 'erp_pr_data', 'sales_orders', 'market_data', 
+                    'customers_data', 'campaigns_data', 'erp_pengeluaran_produksi', 'erp_inventory_stock'
+                ];
+                keys.forEach(k => localStorage.setItem(k, '[]'));
+
                 
                 alert('Berhasil! Semua data telah dibersihkan menjadi 0. Anda akan dialihkan ke halaman Login.');
                 window.location.href = 'signin.html';

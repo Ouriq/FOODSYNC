@@ -266,7 +266,7 @@
 
     function initDummyData() {
       let historyList = localStorage.getItem('historyList');
-      if (!historyList || JSON.parse(historyList).length === 0) {
+      if ((!historyList || JSON.parse(historyList).length === 0) && !localStorage.getItem('foodsync_is_cleared')) {
         localStorage.setItem('historyList', JSON.stringify(dummyData));
       }
     }

@@ -9,7 +9,7 @@ const INITIAL_STOCK_DATA = [
 ];
 
 function initDB() {
-  if (!localStorage.getItem('erp_inventory_stock')) {
+  if (!localStorage.getItem('erp_inventory_stock') && !localStorage.getItem('foodsync_is_cleared')) {
     localStorage.setItem('erp_inventory_stock', JSON.stringify(INITIAL_STOCK_DATA));
   }
 }
