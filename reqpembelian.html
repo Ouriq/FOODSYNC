@@ -267,7 +267,7 @@
           <div class="stat-icon bg-blue"><i class='bx bx-notepad'></i></div>
           <div class="stat-info">
             <p>Total PR</p>
-            <h2>28</h2>
+            <h2 id="valTotalPR">28</h2>
           </div>
         </div>
         
@@ -275,7 +275,7 @@
           <div class="stat-icon bg-green"><i class='bx bx-check'></i></div>
           <div class="stat-info">
             <p>Disetujui</p>
-            <h2>14</h2>
+            <h2 id="valDisetujui">14</h2>
           </div>
         </div>
 
@@ -283,7 +283,7 @@
           <div class="stat-icon bg-orange"><i class='bx bx-time'></i></div>
           <div class="stat-info">
             <p>Menunggu</p>
-            <h2>9</h2>
+            <h2 id="valMenunggu">9</h2>
           </div>
         </div>
         
@@ -291,7 +291,7 @@
           <div class="stat-icon bg-red"><i class='bx bx-x'></i></div>
           <div class="stat-info">
             <p>Ditolak</p>
-            <h2>5</h2>
+            <h2 id="valDitolak">5</h2>
           </div>
         </div>
       </div>
@@ -428,8 +428,21 @@
       }
 
       const statusFilter = document.getElementById('statusFilter');
+            function updateTopCards() {
+          let totalPR = prData.length;
+          let disetujui = prData.filter(pr => pr.status === 'Disetujui').length;
+          let menunggu = prData.filter(pr => pr.status === 'Menunggu').length;
+          let ditolak = prData.filter(pr => pr.status === 'Ditolak').length;
+
+          if(document.getElementById('valTotalPR')) document.getElementById('valTotalPR').textContent = totalPR;
+          if(document.getElementById('valDisetujui')) document.getElementById('valDisetujui').textContent = disetujui;
+          if(document.getElementById('valMenunggu')) document.getElementById('valMenunggu').textContent = menunggu;
+          if(document.getElementById('valDitolak')) document.getElementById('valDitolak').textContent = ditolak;
+      }
+      
       function renderTable() {
           tbody.innerHTML = '';
+          updateTopCards();
           prData.forEach(pr => {
               const tr = document.createElement('tr');
               tr.innerHTML = `
