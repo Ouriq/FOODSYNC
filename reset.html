@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Reset Database - FoodSync</title>
+    <style>
+        body { font-family: 'DM Sans', sans-serif; background: #F3F4F6; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; }
+        h1 { color: #111827; font-size: 24px; margin-bottom: 10px; }
+        p { color: #6B7280; margin-bottom: 24px; }
+        button { background: #EF4444; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        button:hover { background: #DC2626; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Reset Semua Data</h1>
+        <p>Tindakan ini akan menghapus semua riwayat transaksi, stok, dan data masukan.<br>Sistem akan kembali menjadi 0 (Kosong).</p>
+        <button id="btnReset">Ya, Bersihkan Data (Format)</button>
+    </div>
+
+    <script>
+        document.getElementById('btnReset').addEventListener('click', () => {
+            if(confirm('Anda yakin ingin membersihkan semua data?')) {
+                // Clear localStorage
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                alert('Berhasil! Semua data telah dibersihkan menjadi 0. Anda akan dialihkan ke halaman Login.');
+                window.location.href = 'signin.html';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -91,6 +91,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const formatRupiah = (num) => 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
   document.getElementById('totalIncomeDisplay').textContent = formatRupiah(totalIncome);
   document.getElementById('totalKartonDisplay').textContent = new Intl.NumberFormat('id-ID').format(totalKarton);
+  
+  const kartonBadge = document.getElementById('kartonGrowthBadge');
+  if (kartonBadge) {
+      kartonBadge.style.display = totalKarton === 0 ? 'none' : 'inline-block';
+  }
 
   // Hitung persentase bubble
   let totalTop = qtySoto + qtyGoreng + qtyKari;
