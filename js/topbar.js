@@ -245,9 +245,20 @@ document.querySelectorAll('.chat-tab').forEach(tab => {
 function renderChatList() {
     const list = document.getElementById('chatList');
     list.innerHTML = '';
+    const msgs = getMessages();
     
     divisions.forEach(div => {
         if (div.id === currentUserRole) return; // Jangan chat diri sendiri (kecuali superadmin)
+        
+        const convoMsgs = msgs.filter(m => 
+            m.type === 'dm' && 
+            ((m.from === currentUserRole && m.to === div.id) || 
+             (m.to === currentUserRole && m.from === div.id))
+        );
+        const latestMsg = convoMsgs.length > 0 ? convoMsgs[convoMsgs.length - 1] : null;
+        const msgText = latestMsg ? (latestMsg.text.length > 25 ? latestMsg.text.substring(0, 25) + '...' : latestMsg.text) : 'Click to chat';
+        const msgTime = latestMsg ? latestMsg.time : '';
+        const unreadDot = (latestMsg && latestMsg.from !== currentUserRole) ? `<div style="width:10px;height:10px;background:#EF4444;border-radius:50%;margin-top:4px;"></div>` : '';
         
         const item = document.createElement('div');
         item.className = 'chat-item';
@@ -255,9 +266,12 @@ function renderChatList() {
             <div class="chat-avatar" style="background:${div.color}">${div.badge.substring(0,2)}</div>
             <div class="chat-info">
                 <h4 class="chat-name">${div.name}</h4>
-                <p class="chat-time">Click to chat</p>
+                <p class="chat-time" style="color: ${latestMsg && latestMsg.from !== currentUserRole ? '#111827; font-weight:600;' : '#9CA3AF;'}">${msgText}</p>
             </div>
-            <div class="chat-badge">${div.badge}</div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                <span style="font-size:11px; color:#9CA3AF; margin-bottom:4px;">${msgTime}</span>
+                ${unreadDot}
+            </div>
         `;
         item.addEventListener('click', () => openChatRoom(div));
         list.appendChild(item);
