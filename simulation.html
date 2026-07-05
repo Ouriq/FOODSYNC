@@ -95,15 +95,29 @@
             let allocations = [];
             let qcList = [];
             let pengeluaranPrd = [];
+            let customersData = [
+                { id: "CUST-001", nama: "PT Distributor Indomie Jaya", pic: "Budi Santoso", telp: "08123456789", alamat: "Jakarta", kategori: "Distributor Utama", tier: "Gold", status: "Aktif", joinedAt: Date.now() - 5000000000 },
+                { id: "CUST-002", nama: "CV Berkah Mart", pic: "Andi", telp: "08987654321", alamat: "Bandung", kategori: "Retail", tier: "Silver", status: "Aktif", joinedAt: Date.now() - 2000000000 }
+            ];
+            let campaignsData = [
+                { id: "CMP-001", nama: "Promo Lebaran Indomie", media: "Sosial Media", anggaran: 15000000, target: "Peningkatan Sales 20%", status: "Aktif", startDate: "2026-03-01", endDate: "2026-04-30" },
+                { id: "CMP-002", nama: "Bundling Soto & Kari", media: "E-Commerce", anggaran: 5000000, target: "Pengenalan Varian", status: "Selesai", startDate: "2026-01-10", endDate: "2026-02-10" }
+            ];
+            let marketData = [
+                { id: "MKT-001", namaPesaing: "Mie Sedap Goreng", varian: "Mie Goreng", hargaKarton: 82000, promo: "Beli 2 Gratis 1 Mangkok", dicatatOleh: "Tim Intel", tanggal: "2026-05-10" },
+                { id: "MKT-002", namaPesaing: "Lemonilo Ayam Bawang", varian: "Kuah", hargaKarton: 110000, promo: "Diskon 10%", dicatatOleh: "Tim Intel", tanggal: "2026-05-12" }
+            ];
 
             let prCounter = 1;
             let poCounter = 1;
             let invCounter = 1;
             let fktCounter = 1;
 
-            logMsg("Membangun simulasi transaksi bulanan (Jan - Jun)...");
-
-            for (let m = 0; m < 6; m++) {
+            logMsg("Membangun simulasi transaksi...");
+            let endMonth = new Date().getMonth();
+            let startMonth = endMonth >= 5 ? endMonth - 5 : 0;
+            
+            for (let m = startMonth; m <= endMonth; m++) {
                 let monthStr = MONTHS[m];
                 let monthNum = (m + 1).toString().padStart(2, '0');
                 
@@ -132,6 +146,17 @@
 
                     // Reduce stock
                     currentStock[prod.sku] -= salesQty;
+                    
+                    if (m === 2 && idx === 0) {
+                        allocations.push({
+                            id: `REQ-26${monthNum}-MKT`,
+                            divisi: 'Sales & Marketing',
+                            keperluan: `Budget Promo Lebaran`,
+                            nominal: 20000000,
+                            status: 'approved',
+                            date: `2026-${monthNum}-01`
+                        });
+                    }
                     
                     soProducts.push({
                         name: prod.name,
@@ -250,10 +275,11 @@
                         // Allocation
                         allocations.push({
                             id: prId,
-                            name: rm.name,
+                            divisi: 'Purchasing',
+                            keperluan: `Pembelian ${rm.name}`,
                             nominal: cost,
                             type: rm.type,
-                            status: 'Sudah Dibayar',
+                            status: 'completed',
                             date: `2026-${monthNum}-08`
                         });
 
@@ -304,6 +330,9 @@
             localStorage.setItem('historyList', JSON.stringify(historyList));
             localStorage.setItem('erp_finance_income_history', JSON.stringify(incomeHistory));
             localStorage.setItem('erp_finance_allocations', JSON.stringify(allocations));
+            localStorage.setItem('customers_data', JSON.stringify(customersData));
+            localStorage.setItem('campaigns_data', JSON.stringify(campaignsData));
+            localStorage.setItem('market_data', JSON.stringify(marketData));
             localStorage.setItem('qcList', JSON.stringify(qcList));
             localStorage.setItem('erp_pengeluaran_produksi', JSON.stringify(pengeluaranPrd));
             
