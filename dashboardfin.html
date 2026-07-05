@@ -348,7 +348,7 @@
         <div class="summary-card revenue">
           <div class="summary-icon"><i class='bx bx-trending-up'></i></div>
           <div class="summary-info">
-            <div class="summary-label">Total Pendapatan (Bulan Ini)</div>
+            <div class="summary-label">Total Keuntungan (Bulan Ini)</div>
             <div class="summary-value" id="valPendapatan">Rp 125.400.000</div>
           </div>
         </div>
@@ -421,13 +421,15 @@
                 
                 // For current month sum
                 if (mIdx === currentMonth && y === currentYear) {
-                    totalPendapatanBulanIni += parseInt(inc.nominal) || 0;
+                    let profitVal = inc.keuntungan !== undefined ? inc.keuntungan : (inc.sumber === 'Sales & Marketing' ? inc.nominal * 0.10 : inc.nominal);
+                    totalPendapatanBulanIni += parseInt(profitVal) || 0;
                 }
                 
                 // For chart
                 let monthDiff = (currentYear - y) * 12 + (currentMonth - mIdx);
                 if (monthDiff >= 0 && monthDiff < 6) {
-                    dataPendapatan[5 - monthDiff] += parseInt(inc.nominal) || 0;
+                    let profitVal = inc.keuntungan !== undefined ? inc.keuntungan : (inc.sumber === 'Sales & Marketing' ? inc.nominal * 0.10 : inc.nominal);
+                    dataPendapatan[5 - monthDiff] += parseInt(profitVal) || 0;
                 }
             }
         });
