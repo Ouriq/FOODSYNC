@@ -291,12 +291,18 @@
 
   <script src="js/topbar.js?v=4"></script>
   <script>
+    // === Initialize on DOM ready ===
     document.addEventListener('DOMContentLoaded', function () {
       const userName = localStorage.getItem('user_name') || 'User';
       const userNameDisplay = document.getElementById('userNameDisplay');
       if (userNameDisplay) userNameDisplay.textContent = userName;
-      
+
+      // Initial render
+      renderKanban();
       renderQCList();
+    });
+
+    // === All functions in global scope so they can call each other ===
 
     function renderKanban() {
       const poData = JSON.parse(localStorage.getItem('erp_production_orders') || '[]');
@@ -369,14 +375,11 @@
       });
     }
 
-    renderKanban();
-
+    // Listen for cross-tab localStorage changes
     window.addEventListener('storage', (e) => {
       if (e.key === 'erp_production_orders') {
         renderKanban();
       }
-    });
-    
     });
 
     function getQCList() {
