@@ -3,13 +3,13 @@ import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebase
 
 // TODO: GANTI DENGAN FIREBASE CONFIG ANDA
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  databaseURL: "YOUR_DATABASE_URL",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAR5NiwcKKHA7nOOW6BFuZLBSXyPztU380",
+  authDomain: "foodsyncerp.firebaseapp.com",
+  databaseURL: "https://foodsyncerp-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  projectId: "foodsyncerp",
+  storageBucket: "foodsyncerp.firebasestorage.app",
+  messagingSenderId: "956117976103",
+  appId: "1:956117976103:web:08811896b3b34ac1d0ba02",
 };
 
 let app, db;
@@ -53,7 +53,7 @@ if (isFirebaseInitialized) {
 
 // 2. CEGAT (OVERRIDE) SETITEM AGAR OTOMATIS TERKIRIM KE FIREBASE
 const originalSetItem = localStorage.setItem;
-localStorage.setItem = function(key, value) {
+localStorage.setItem = function (key, value) {
   // Selalu jalankan fungsi aslinya untuk menyimpan ke browser lokal
   originalSetItem.apply(this, arguments);
 
