@@ -419,7 +419,10 @@
       Chart.register(ChartDataLabels);
 
       // BAR CHART
-      // We will keep dummy history and put the current data at the end (May)
+      let isDataEmpty = (totalBahanBaku === 0 && totalKemasan === 0);
+      let barDataBahanBaku = isDataEmpty ? [0,0,0,0,0] : [75000000, 65000000, 60000000, 72000000, totalBahanBaku > 0 ? totalBahanBaku : 68000000];
+      let barDataKemasan = isDataEmpty ? [0,0,0,0,0] : [60000000, 85000000, 70000000, 80000000, totalKemasan > 0 ? totalKemasan : 75000000];
+
       const ctxBar = document.getElementById('barChart').getContext('2d');
       const barChart = new Chart(ctxBar, {
         type: 'bar',
@@ -428,7 +431,7 @@
           datasets: [
             {
               label: 'Bahan Baku',
-              data: [75000000, 65000000, 60000000, 72000000, totalBahanBaku > 0 ? totalBahanBaku : 68000000],
+              data: barDataBahanBaku,
               backgroundColor: '#16A34A', // Green
               borderRadius: 12,
               borderSkipped: false,
@@ -437,7 +440,7 @@
             },
             {
               label: 'Kemasan',
-              data: [60000000, 85000000, 70000000, 80000000, totalKemasan > 0 ? totalKemasan : 75000000],
+              data: barDataKemasan,
               backgroundColor: '#EF4444', // Red
               borderRadius: 12,
               borderSkipped: false,
@@ -488,7 +491,7 @@
         data: {
           labels: ['Bahan Baku', 'Kemasan'],
           datasets: [{
-            data: [pctBahanBaku, pctKemasan],
+            data: isDataEmpty ? [0.001, 0.001] : [pctBahanBaku, pctKemasan],
             backgroundColor: ['#16A34A', '#FF3B00'],
             borderWidth: 0,
             hoverOffset: 4
@@ -504,6 +507,7 @@
               color: 'white',
               font: { family: 'DM Sans', weight: 'bold', size: 18 },
               formatter: (value, ctx) => {
+                if (isDataEmpty) return "";
                 let sum = 0;
                 let dataArr = ctx.chart.data.datasets[0].data;
                 dataArr.map(data => { sum += data; });
@@ -519,12 +523,13 @@
       
       // RENDER AKTIVITAS TERBARU
       const activityContainer = document.getElementById('purcActivityList');
-      if (activityContainer && prData.length > 0) {
+      if (activityContainer) {
           activityContainer.innerHTML = '';
-          // ambil 3 data terakhir
-          const recentPR = prData.slice(0, 3);
-          
-          recentPR.forEach(pr => {
+          if (prData.length === 0) {
+              activityContainer.innerHTML = '<p style="padding: 20px; text-align: center; color: #6B7280; font-size: 14px;">Belum ada aktivitas.</p>';
+          } else {
+              const recentPR = prData.slice(0, 3);
+              recentPR.forEach(pr => {
               let title = pr.status === 'Disetujui' ? 'PO Disetujui' : (pr.status === 'Diterima' ? 'Barang Diterima' : 'PR Baru Dibuat');
               let pillClass = 'pill-tertunda';
               if(pr.status === 'Disetujui' || pr.status === 'Diterima') pillClass = 'pill-berhasil';
@@ -549,6 +554,7 @@
               `;
               activityContainer.appendChild(item);
           });
+          }
       }
     });
   </script>
