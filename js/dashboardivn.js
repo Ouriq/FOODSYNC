@@ -60,9 +60,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const ctx = document.getElementById('stokChartInv');
   if (ctx) {
     // Generate realistic historical dummy based on current data for visual flow
-    let stokData = [45000, 75000, 74000, 88000, 58000, currentTotalStok > 0 ? currentTotalStok : 81000];
-    let masukData = [22000, 29000, 21000, 31000, 30000, currentBulanMasuk > 0 ? currentBulanMasuk : 29000];
-    let keluarData = [13000, 17000, 15000, 18000, 23000, currentBulanKeluar > 0 ? currentBulanKeluar : 22000];
+    let isDataEmpty = (currentTotalStok === 0 && currentBulanMasuk === 0 && currentBulanKeluar === 0);
+    let stokData = isDataEmpty ? [0,0,0,0,0,0] : [45000, 75000, 74000, 88000, 58000, currentTotalStok > 0 ? currentTotalStok : 81000];
+    let masukData = isDataEmpty ? [0,0,0,0,0,0] : [22000, 29000, 21000, 31000, 30000, currentBulanMasuk > 0 ? currentBulanMasuk : 29000];
+    let keluarData = isDataEmpty ? [0,0,0,0,0,0] : [13000, 17000, 15000, 18000, 23000, currentBulanKeluar > 0 ? currentBulanKeluar : 22000];
     
     // Scale max for chart
     let maxVal = Math.max(...stokData, ...masukData, ...keluarData);
