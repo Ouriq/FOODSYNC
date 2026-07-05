@@ -111,7 +111,14 @@ function applySelectedCustomer() {
         normalizedName = 'indomie soto';
       }
       
-      if (allowedCategories.length === 0 || allowedCategories[0] === '' || allowedCategories.includes(normalizedName) || allowedCategories.includes(prodName)) {
+      let isAllowed = false;
+      if (allowedCategories.length === 0 || allowedCategories[0] === '') {
+          isAllowed = true;
+      } else {
+          isAllowed = allowedCategories.some(cat => normalizedName.includes(cat) || prodName.includes(cat));
+      }
+      
+      if (isAllowed) {
         item.style.display = 'flex';
       } else {
         item.style.display = 'none';
