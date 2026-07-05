@@ -287,6 +287,13 @@
     let currentPage = 1;
     const itemsPerPage = 10;
 
+    function getStatusBadge(status) {
+      if (status === 'Menunggu') return '<span class="status-pill" style="background:#FEF3C7; color:#D97706;">Menunggu</span>';
+      if (status === 'Dalam Proses') return '<span class="status-pill status-proses">Diproses</span>';
+      if (status === 'Selesai') return '<span class="status-pill status-selesai">Selesai</span>';
+      return '<span class="status-pill" style="background:#E5E7EB; color:#374151;">' + status + '</span>';
+    }
+
     function renderTable() {
       const tbody = document.getElementById('monitoringTableBody');
       const paginationContainer = document.getElementById('paginationContainer');
