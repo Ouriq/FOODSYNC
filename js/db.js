@@ -2,11 +2,11 @@
 
 // Initial Seed Data for Inventory
 const INITIAL_STOCK_DATA = [
-  { id: 'FG-001', sku: 'IDN-GRG', name: 'Indomie Goreng', type: 'Barang Jadi', unit: 'dus', stock: 1500, price: 85000, img: 'assets/images/gorengicon.png', statusClass: 'pill-green' },
-  { id: 'FG-002', sku: 'IDN-STO', name: 'Indomie Kuah Soto', type: 'Barang Jadi', unit: 'dus', stock: 1500, price: 82000, img: 'assets/images/sotoicon.png', statusClass: 'pill-green' },
-  { id: 'FG-003', sku: 'IDN-KRI', name: 'Indomie Kari', type: 'Barang Jadi', unit: 'dus', stock: 1500, price: 85000, img: 'assets/images/gorengicon.png', statusClass: 'pill-green' },
-  { id: 'RM-001', sku: 'RM-TPG', name: 'Tepung Terigu Bogasari 10kg', type: 'Bahan Baku', unit: 'sak', stock: 120, price: 0, img: '', statusClass: 'pill-orange' },
-  { id: 'PM-001', sku: 'PM-KDS', name: 'Kardus Indomie', type: 'Kemasan', unit: 'pcs', stock: 5000, price: 0, img: '', statusClass: 'pill-blue' }
+  { id: 'FG-001', sku: 'IDN-GRG', name: 'Indomie Goreng', type: 'Barang Jadi', unit: 'dus', stock: 0, price: 85000, img: 'assets/images/gorengicon.png', statusClass: 'pill-green' },
+  { id: 'FG-002', sku: 'IDN-STO', name: 'Indomie Kuah Soto', type: 'Barang Jadi', unit: 'dus', stock: 0, price: 82000, img: 'assets/images/sotoicon.png', statusClass: 'pill-green' },
+  { id: 'FG-003', sku: 'IDN-KRI', name: 'Indomie Kari', type: 'Barang Jadi', unit: 'dus', stock: 0, price: 85000, img: 'assets/images/gorengicon.png', statusClass: 'pill-green' },
+  { id: 'RM-001', sku: 'RM-TPG', name: 'Tepung Terigu Bogasari 10kg', type: 'Bahan Baku', unit: 'sak', stock: 0, price: 0, img: '', statusClass: 'pill-orange' },
+  { id: 'PM-001', sku: 'PM-KDS', name: 'Kardus Indomie', type: 'Kemasan', unit: 'pcs', stock: 0, price: 0, img: '', statusClass: 'pill-blue' }
 ];
 
 function initDB() {
