@@ -301,7 +301,7 @@
           <div class="stat-icon bg-blue"><i class='bx bx-stop'></i></div>
           <div class="stat-info">
             <p>Total Item</p>
-            <h2>1.248</h2>
+            <h2 id="valTotalItem">1.248</h2>
             <p>Item</p>
           </div>
         </div>
@@ -310,7 +310,7 @@
           <div class="stat-icon bg-green"><i class='bx bx-down-arrow-alt'></i></div>
           <div class="stat-info">
             <p>Total Stok</p>
-            <h2>258.760</h2>
+            <h2 id="valTotalStok">258.760</h2>
             <p>Unit</p>
           </div>
         </div>
@@ -319,7 +319,7 @@
           <div class="stat-icon bg-orange"><i class='bx bx-up-arrow-alt'></i></div>
           <div class="stat-info">
             <p>Stok Minimum</p>
-            <h2>45</h2>
+            <h2 id="valStokMinimum">45</h2>
             <p>Item</p>
           </div>
         </div>
@@ -328,7 +328,7 @@
           <div class="stat-icon bg-red"><i class='bx bx-down-arrow-alt'></i></div>
           <div class="stat-info">
             <p>Di Bawah Minimum</p>
-            <h2>12</h2>
+            <h2 id="valDiBawahMinimum">12</h2>
             <p>Item</p>
           </div>
         </div>
@@ -416,6 +416,36 @@
 
   <script src="js/db.js"></script>
   <script>
+    
+    function updateTopCards(allData) {
+      let totalBarangJadi = 0;
+      let totalBahanMentah = 0;
+      let countStokMinimum = 0;
+      let countDiBawahMinimum = 0;
+      
+      allData.forEach(item => {
+        let type = (item.type || '').toLowerCase();
+        let qty = parseInt(item.stock) || 0;
+        
+        if (type.includes('barang jadi')) {
+          totalBarangJadi += qty;
+        } else if (type.includes('bahan baku') || type.includes('kemasan')) {
+          totalBahanMentah += qty;
+        }
+        
+        if (qty < 100) {
+          countDiBawahMinimum += 1;
+        } else if (qty < 500) {
+          countStokMinimum += 1;
+        }
+      });
+      
+      if (document.getElementById('valTotalItem')) document.getElementById('valTotalItem').textContent = totalBarangJadi.toLocaleString('id-ID');
+      if (document.getElementById('valTotalStok')) document.getElementById('valTotalStok').textContent = totalBahanMentah.toLocaleString('id-ID');
+      if (document.getElementById('valStokMinimum')) document.getElementById('valStokMinimum').textContent = countStokMinimum.toLocaleString('id-ID');
+      if (document.getElementById('valDiBawahMinimum')) document.getElementById('valDiBawahMinimum').textContent = countDiBawahMinimum.toLocaleString('id-ID');
+    }
+    
     function renderPaginatedTable() {
       const tbody = document.getElementById('inventory-tbody');
       if (!tbody) return;
@@ -505,7 +535,10 @@
       const kategoriVal = kategoriFilter ? kategoriFilter.value.toLowerCase() : '';
       const jenisVal = jenisFilter ? jenisFilter.value.toLowerCase() : '';
 
+      
       const allData = getInventoryStock();
+      updateTopCards(allData);
+
       currentFilteredData = allData.filter(item => {
         const kode = (item.id || item.sku || '').toLowerCase();
         const nama = (item.name || '').toLowerCase();
