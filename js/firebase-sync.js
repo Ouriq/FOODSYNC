@@ -36,8 +36,15 @@ if (isFirebaseInitialized) {
   onValue(erpRef, (snapshot) => {
     const data = snapshot.val();
     if (data) {
+      if (data.force_wipe && localStorage.getItem('last_wipe') !== String(data.force_wipe)) {
+          localStorage.clear();
+          originalSetItem.call(localStorage, 'last_wipe', String(data.force_wipe));
+          window.location.reload();
+          return;
+      }
+
       Object.keys(data).forEach(key => {
-        if (!excludedKeys.includes(key)) {
+        if (!excludedKeys.includes(key) && key !== 'force_wipe') {
           let val = data[key];
           // Firebase sering mengubah array menjadi object jika ada indeks yang kosong.
           // Kita kembalikan menjadi array agar .filter() dkk tidak error.
