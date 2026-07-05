@@ -151,6 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         let totalNilai = 0;
+        let totalProfit = 0;
         
         processedOrders.forEach(so => {
             if (so.products) {
@@ -162,6 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             let itemTotal = p.subtotal || (p.price * p.quantity) || 0;
                             let itemProfit = itemTotal * 0.10; // 10% profit
                             totalNilai += itemTotal;
+                            totalProfit += itemProfit;
                             
                             let itemId = p.id || so.soNumber || '-';
                             let itemName = p.name || 'Produk';
@@ -203,6 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (btnSendToFinance) {
             btnSendToFinance.style.display = 'inline-block';
             btnSendToFinance.dataset.total = totalNilai;
+            btnSendToFinance.dataset.profit = totalProfit;
             btnSendToFinance.dataset.count = count;
             window.currentReportOrders = processedOrders;
         }
@@ -217,6 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnSendToFinance) {
       btnSendToFinance.addEventListener('click', () => {
         let total = parseInt(btnSendToFinance.dataset.total) || 0;
+        let profit = parseInt(btnSendToFinance.dataset.profit) || 0;
         let count = parseInt(btnSendToFinance.dataset.count) || 0;
         
         if (total <= 0) {
@@ -233,6 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
             sumber: 'Sales & Marketing',
             keterangan: 'Laporan Penjualan Otomatis (' + count + ' Transaksi)',
             nominal: total,
+            keuntungan: profit,
             orders: window.currentReportOrders || []
         });
         
