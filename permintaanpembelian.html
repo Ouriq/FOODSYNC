@@ -271,15 +271,15 @@
         <div class="summary-grid">
           <div class="summary-card card-green">
             <div class="summary-title">DISETUJUI</div>
-            <div class="summary-value">32</div>
+            <div class="summary-value" id="valDisetujui">32</div>
           </div>
           <div class="summary-card card-orange">
             <div class="summary-title">TERTUNDA</div>
-            <div class="summary-value">156</div>
+            <div class="summary-value" id="valTertunda">156</div>
           </div>
           <div class="summary-card card-red">
             <div class="summary-title">DITOLAK</div>
-            <div class="summary-value">5</div>
+            <div class="summary-value" id="valDitolak">5</div>
           </div>
         </div>
 
@@ -346,8 +346,19 @@
           return `<span class="status-pill pill-tertunda">${status.toUpperCase()}</span>`;
       }
 
+            function updateSummaryCards() {
+          let countDisetujui = prData.filter(pr => pr.status === 'Disetujui' || pr.status === 'Diterima').length;
+          let countTertunda = prData.filter(pr => pr.status === 'Menunggu' || pr.status === 'Tertunda').length;
+          let countDitolak = prData.filter(pr => pr.status === 'Ditolak').length;
+
+          if (document.getElementById('valDisetujui')) document.getElementById('valDisetujui').textContent = countDisetujui;
+          if (document.getElementById('valTertunda')) document.getElementById('valTertunda').textContent = countTertunda;
+          if (document.getElementById('valDitolak')) document.getElementById('valDitolak').textContent = countDitolak;
+      }
+
       function renderTable() {
           tbody.innerHTML = '';
+          updateSummaryCards();
           prData.forEach((pr, index) => {
               const tr = document.createElement('tr');
               let actionHtml = '';
