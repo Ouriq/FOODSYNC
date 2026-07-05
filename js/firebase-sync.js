@@ -38,7 +38,16 @@ if (isFirebaseInitialized) {
     if (data) {
       Object.keys(data).forEach(key => {
         if (!excludedKeys.includes(key)) {
-          const stringifiedValue = JSON.stringify(data[key]);
+          let val = data[key];
+          // Firebase sering mengubah array menjadi object jika ada indeks yang kosong.
+          // Kita kembalikan menjadi array agar .filter() dkk tidak error.
+          if (val && typeof val === 'object' && !Array.isArray(val)) {
+            const keys = Object.keys(val);
+            if (keys.length > 0 && keys.every(k => !isNaN(k))) {
+              val = Object.values(val);
+            }
+          }
+          const stringifiedValue = JSON.stringify(val);
           // Cek apakah berbeda sebelum disave agar tidak terjadi infinite loop
           if (localStorage.getItem(key) !== stringifiedValue) {
             originalSetItem.call(localStorage, key, stringifiedValue);
