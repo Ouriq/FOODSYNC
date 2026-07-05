@@ -91,6 +91,7 @@
             let poData = [];
             let historyList = [];
             let incomeHistory = [];
+            let salesOrders = [];
             let allocations = [];
             let qcList = [];
             let pengeluaranPrd = [];
@@ -109,6 +110,9 @@
                 // Base demand trend: slightly increasing
                 let baseDemand = 3000 + (m * 200) + getRandomInt(-300, 300);
 
+                let soProducts = [];
+                let soGrandTotal = 0;
+
                 // --- 1. SALES (PENJUALAN) ---
                 PRODUCTS.forEach((prod, idx) => {
                     let salesQty = Math.floor(baseDemand * prod.demandMultiplier);
@@ -118,16 +122,31 @@
                     let totalRevenue = salesQty * prod.price;
                     incomeHistory.push({
                         id: `INV-26${monthNum}-${String(invCounter++).padStart(3, '0')}`,
-                        date: `15-${monthNum}-2026`,
-                        client: `Distributor Utama ${['Jawa', 'Sumatera', 'Bali'][idx]}`,
-                        items: `${salesQty} Dus ${prod.name}`,
-                        total: totalRevenue,
+                        date: `15 ${monthStr} 2026`,
+                        sumber: `Distributor Utama ${['Jawa', 'Sumatera', 'Bali'][idx]}`,
+                        keterangan: `${salesQty} Dus ${prod.name}`,
+                        nominal: totalRevenue,
                         status: 'Lunas',
                         source: 'B2B Sales'
                     });
 
                     // Reduce stock
                     currentStock[prod.sku] -= salesQty;
+                    
+                    soProducts.push({
+                        name: prod.name,
+                        quantity: salesQty,
+                        subtotal: totalRevenue
+                    });
+                    soGrandTotal += totalRevenue;
+                });
+                
+                salesOrders.push({
+                    status: 'processed',
+                    grandTotal: soGrandTotal,
+                    createdAt: `2026-${monthNum}-15T10:00:00Z`,
+                    customer: { nama: 'Distributor Utama (Simulasi)' },
+                    products: soProducts
                 });
 
                 // --- 2. PRODUCTION (PRODUKSI) ---
@@ -183,10 +202,12 @@
                             pengeluaranPrd.push({
                                 id: `ISS-26${monthNum}-${getRandomInt(100,999)}`,
                                 date: prDate,
-                                name: rm.name,
-                                qty: consumed,
-                                unit: rm.unit,
-                                note: `Untuk SPK ${poId}`
+                                note: `Untuk SPK ${poId}`,
+                                items: [{
+                                    name: rm.name,
+                                    qty: consumed,
+                                    unit: rm.unit
+                                }]
                             });
                         });
                     }
@@ -285,6 +306,8 @@
             localStorage.setItem('erp_finance_allocations', JSON.stringify(allocations));
             localStorage.setItem('qcList', JSON.stringify(qcList));
             localStorage.setItem('erp_pengeluaran_produksi', JSON.stringify(pengeluaranPrd));
+            
+            localStorage.setItem('sales_orders', JSON.stringify(salesOrders));
             
             // To prevent empty fallbacks
             localStorage.setItem('foodsync_is_cleared', 'true'); 
