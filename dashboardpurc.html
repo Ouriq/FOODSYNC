@@ -393,9 +393,9 @@
       let inventory = JSON.parse(localStorage.getItem('erp_inventory_stock')) || [];
         
         let allocData = JSON.parse(localStorage.getItem('erp_finance_allocations')) || [];
-        let formatRp = (num) => 'Rp. <br/>' + (num / 1000000).toLocaleString('id-ID') + 'jt';
+        let formatRp = (num) => 'Rp. <br/>' + num.toLocaleString('id-ID');
         if(window.innerWidth < 768) {
-             formatRp = (num) => 'Rp ' + (num / 1000000).toLocaleString('id-ID') + 'jt';
+             formatRp = (num) => 'Rp ' + num.toLocaleString('id-ID');
         }
         
         let purcBudget = 0;
