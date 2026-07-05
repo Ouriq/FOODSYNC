@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function() {
   };
 
   // 3. Logika Kalkulator Sales Order
-  const updateOrderSummary = function() {
+  window.updateOrderSummary = function() {
     let subtotal = 0;
     let totalItems = 0;
     let discountRate = 0;
@@ -753,52 +753,115 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // --- SYNC WITH INVENTORY DB ---
 document.addEventListener('DOMContentLoaded', () => {
-    function syncWithInventory() {
+    function formatRupiah(angka) {
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(angka).replace('Rp', 'Rp ');
+    }
+
+    function renderProductsFromInventory() {
         if (typeof getInventoryStock === 'function') {
             const stocks = getInventoryStock();
-            const productItems = document.querySelectorAll('.product-item');
-            productItems.forEach(item => {
-                const skuEl = item.querySelector('.sku');
-                if (skuEl) {
-                    const skuText = skuEl.textContent.replace(/\s+/g, "").trim();
-                    const dbItem = stocks.find(s => s.sku.replace(/\s+/g, "") === skuText);
-                    if (dbItem) {
-                        // Update Stock Status Text
-                        const statusEl = item.querySelector('.status-ok') || item.querySelector('.status-warn');
-                        if (statusEl) {
-                            statusEl.textContent = `Tersedia (Stok: ${dbItem.stock})`;
-                            statusEl.className = dbItem.stock < 500 ? 'status-warn' : 'status-ok';
-                            if (dbItem.stock < 500) statusEl.style.color = '#EA580C';
-                            else statusEl.style.color = '#059669';
-                        }
-                        // Update Price
-                        item.dataset.price = dbItem.price;
-                        const priceEl = item.querySelector('.prod-price');
-                        if (priceEl) priceEl.textContent = 'Rp ' + dbItem.price.toLocaleString('id-ID');
-                        
-                        // Update Max Qty
-                        const inputQty = item.querySelector('.input-qty');
-                        if (inputQty) {
-                            inputQty.max = dbItem.stock;
-                            if (parseInt(inputQty.value) > dbItem.stock) {
-                                inputQty.value = dbItem.stock;
-                            }
-                        }
-                    }
+            const productList = document.getElementById('productList');
+            if (!productList) return;
+            
+            productList.innerHTML = '';
+            const barangJadi = stocks.filter(s => s.type === 'Barang Jadi');
+            
+            barangJadi.forEach(dbItem => {
+                const stock = dbItem.stock || 0;
+                const price = dbItem.price || 0;
+                const isWarn = stock < 500;
+                const statusClass = isWarn ? 'status-warn' : 'status-ok';
+                const statusColor = isWarn ? '#EA580C' : '#059669';
+                
+                // Set default icon if none provided
+                let imgSrc = dbItem.img;
+                if (!imgSrc) {
+                    if (dbItem.name.toLowerCase().includes('goreng')) imgSrc = 'assets/images/gorengicon.png';
+                    else if (dbItem.name.toLowerCase().includes('soto')) imgSrc = 'assets/images/sotoicon.png';
+                    else imgSrc = 'assets/images/gorengicon.png';
                 }
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'product-item';
+                itemDiv.setAttribute('data-price', price);
+                itemDiv.innerHTML = `
+                  <div class="col-produk prod-info">
+                    <div class="prod-img-wrapper">
+                      <img src="${imgSrc}" alt="${dbItem.name}" class="prod-img-raw" onerror="this.src='assets/images/gorengicon.png'">
+                    </div>
+                    <div>
+                      <h4>${dbItem.name}</h4>
+                      <p class="sku">${dbItem.sku}</p>
+                      <p class="${statusClass}" style="color: ${statusColor}">Tersedia (Stok: ${stock})</p>
+                    </div>
+                  </div>
+                  <div class="col-harga prod-price">${formatRupiah(price)}</div>
+                  <div class="col-qty">
+                    <div class="qty-stepper">
+                      <button class="btn-min"><i class='bx bx-minus'></i></button>
+                      <input type="number" class="input-qty" value="0" min="0" max="${stock}">
+                      <button class="btn-plus"><i class='bx bx-plus'></i></button>
+                    </div>
+                  </div>
+                  <div class="col-sub prod-subtotal">Rp 0</div>
+                `;
+                productList.appendChild(itemDiv);
+                
+                // Bind stepper events for this item
+                const stepper = itemDiv.querySelector('.qty-stepper');
+                const btnMin = stepper.querySelector('.btn-min');
+                const btnPlus = stepper.querySelector('.btn-plus');
+                const input = stepper.querySelector('.input-qty');
+                
+                btnMin.addEventListener('click', function() {
+                  let currentValue = parseInt(input.value) || 0;
+                  if (currentValue > 0) {
+                    input.value = currentValue - 1;
+                    if (typeof updateOrderSummary === 'function') updateOrderSummary();
+                  }
+                });
+
+                btnPlus.addEventListener('click', function() {
+                  let currentValue = parseInt(input.value) || 0;
+                  if (currentValue < stock) {
+                      input.value = currentValue + 1;
+                      if (typeof updateOrderSummary === 'function') updateOrderSummary();
+                  } else {
+                      if(typeof showToast === 'function') showToast("Maksimal stok: " + stock, "#f59e0b");
+                  }
+                });
+                
+                input.addEventListener('input', function() {
+                  let val = parseInt(this.value) || 0;
+                  if (val > stock) {
+                    val = stock;
+                    this.value = stock;
+                    if(typeof showToast === 'function') showToast("Maksimal stok: " + stock, "#f59e0b");
+                  }
+                  if (val < 0) {
+                    val = 0;
+                    this.value = 0;
+                  }
+                  if (typeof updateOrderSummary === 'function') updateOrderSummary();
+                });
             });
-            if (typeof updateAllSubtotals === 'function') {
-                updateAllSubtotals();
-            }
+            
+            // Re-apply customer filter logic since elements are new
+            if (typeof applySelectedCustomer === 'function') applySelectedCustomer();
         }
     }
     
-    syncWithInventory();
+    renderProductsFromInventory();
     
     // Listen for storage events to update real-time
     window.addEventListener('storage', (e) => {
         if (e.key === 'erp_inventory_stock') {
-            syncWithInventory();
+            renderProductsFromInventory();
         }
     });
 });
