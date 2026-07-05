@@ -18,6 +18,9 @@ let isFirebaseInitialized = false;
 // Kunci yang JANGAN disinkronkan ke Firebase (biarkan tetap lokal per perangkat)
 const excludedKeys = ['user_name', 'user_role', 'user_email', 'auth_token', 'user_photo'];
 
+// CEGAT (OVERRIDE) SETITEM DI AWAL AGAR AMAN
+const originalSetItem = localStorage.setItem;
+
 try {
   app = initializeApp(firebaseConfig);
   db = getDatabase(app);
@@ -38,7 +41,7 @@ if (isFirebaseInitialized) {
           const stringifiedValue = JSON.stringify(data[key]);
           // Cek apakah berbeda sebelum disave agar tidak terjadi infinite loop
           if (localStorage.getItem(key) !== stringifiedValue) {
-            localStorage.setItem(key, stringifiedValue);
+            originalSetItem.call(localStorage, key, stringifiedValue);
             // Trigger storage event agar UI update realtime
             window.dispatchEvent(new StorageEvent('storage', {
               key: key,
@@ -52,7 +55,6 @@ if (isFirebaseInitialized) {
 }
 
 // 2. CEGAT (OVERRIDE) SETITEM AGAR OTOMATIS TERKIRIM KE FIREBASE
-const originalSetItem = localStorage.setItem;
 localStorage.setItem = function (key, value) {
   // Selalu jalankan fungsi aslinya untuk menyimpan ke browser lokal
   originalSetItem.apply(this, arguments);
