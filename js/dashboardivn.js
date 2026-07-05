@@ -44,7 +44,9 @@ document.addEventListener('DOMContentLoaded', function () {
   
   let currentBulanKeluar = 0;
   pengeluaran.forEach(p => {
-      if (p.items) {
+      if (p.qty) {
+          currentBulanKeluar += (parseInt(p.qty) || 0);
+      } else if (p.items) {
           p.items.forEach(i => { currentBulanKeluar += (parseInt(i.qty) || 0); });
       }
   });
@@ -72,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
         datasets: [
           {
             label: 'Stok',
@@ -165,8 +167,8 @@ document.addEventListener('DOMContentLoaded', function () {
       
       // Barang Keluar (Pengeluaran Produksi)
       pengeluaran.forEach(p => {
-          let totalQty = 0;
-          if(p.items) p.items.forEach(i => totalQty += parseInt(i.qty) || 0);
+          let totalQty = parseInt(p.qty) || 0;
+          if(p.items) { totalQty = 0; p.items.forEach(i => totalQty += parseInt(i.qty) || 0); }
           activities.push({
               title: 'Barang Keluar',
               desc: `${totalQty.toLocaleString('id-ID')} unit`,

@@ -302,7 +302,9 @@
         });
         
         pengeluaran.forEach(p => {
-            if (p.items && Array.isArray(p.items)) {
+            if (p.qty) {
+                totalBarangKeluar += (parseInt(p.qty) || 0);
+            } else if (p.items && Array.isArray(p.items)) {
                 p.items.forEach(i => {
                     totalBarangKeluar += (parseInt(i.qty) || 0);
                 });
