@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Data Simulator - FoodSync ERP</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #F3F4F6; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; max-width: 500px; width: 100%; }
+        h1 { color: #111827; margin-bottom: 10px; }
+        p { color: #6B7280; font-size: 14px; margin-bottom: 30px; line-height: 1.5; }
+        button { background: #4F46E5; color: white; border: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; width: 100%; }
+        button:hover { background: #4338CA; }
+        button:disabled { background: #9CA3AF; cursor: not-allowed; }
+        .loader { border: 4px solid #F3F4F6; border-top: 4px solid white; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: none; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .progress-log { margin-top: 20px; font-size: 12px; color: #4B5563; text-align: left; background: #F9FAFB; padding: 12px; border-radius: 6px; max-height: 150px; overflow-y: auto; display: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Simulasi Data 6 Bulan</h1>
+        <p>Alat ini akan mengisi database ERP Anda dengan data transaksi dummy yang realistis dari <strong>Januari hingga Juni 2026</strong>. Berfokus pada Indomie Goreng, Soto, dan Kari.</p>
+        
+        <button id="btnSimulate">
+            <span id="btnText">Mulai Simulasi Data</span>
+            <div class="loader" id="btnLoader"></div>
+        </button>
+
+        <div class="progress-log" id="progressLog"></div>
+    </div>
+
+    <script>
+        const btnSimulate = document.getElementById('btnSimulate');
+        const btnText = document.getElementById('btnText');
+        const btnLoader = document.getElementById('btnLoader');
+        const progressLog = document.getElementById('progressLog');
+
+        function logMsg(msg) {
+            progressLog.style.display = 'block';
+            progressLog.innerHTML += `<div>> ${msg}</div>`;
+            progressLog.scrollTop = progressLog.scrollHeight;
+        }
+
+        const MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni'];
+        
+        // Products
+        const PRODUCTS = [
+            { sku: 'IDN-GRG', name: 'Indomie Goreng', price: 85000, demandMultiplier: 1.0 },
+            { sku: 'IDN-STO', name: 'Indomie Soto', price: 82000, demandMultiplier: 0.6 },
+            { sku: 'IDN-KRI', name: 'Indomie Kari', price: 84000, demandMultiplier: 0.4 }
+        ];
+
+        // RM Needed per 1000 dus
+        // Tepung: 50 sak, Bumbu: 20 karton, Kemasan: 1000 pcs
+        const RAW_MATERIALS = [
+            { sku: 'RM-TPG', name: 'Tepung Terigu 10kg', type: 'Bahan Baku', unit: 'sak', cost: 120000, needPer1k: 50 },
+            { sku: 'RM-BMB', name: 'Bumbu Ekstrak', type: 'Bahan Baku', unit: 'karton', cost: 250000, needPer1k: 20 },
+            { sku: 'PM-KDS', name: 'Kardus Indomie', type: 'Kemasan', unit: 'pcs', cost: 2000, needPer1k: 1000 }
+        ];
+
+        btnSimulate.addEventListener('click', () => {
+            btnSimulate.disabled = true;
+            btnText.style.display = 'none';
+            btnLoader.style.display = 'block';
+            progressLog.innerHTML = '';
+            
+            // Allow UI to update
+            setTimeout(() => {
+                runSimulation();
+            }, 500);
+        });
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function runSimulation() {
+            logMsg("Membersihkan database lama...");
+            // Clear specific keys
+            const keys = ['erp_inventory_stock', 'erp_pr_data', 'erp_faktur_pembelian', 'erp_production_orders', 'historyList', 'erp_finance_income_history', 'erp_finance_allocations', 'qcList', 'foodsync_is_cleared', 'erp_pengeluaran_produksi'];
+            keys.forEach(k => localStorage.removeItem(k));
+
+            let currentStock = {
+                'IDN-GRG': 1000, 'IDN-STO': 500, 'IDN-KRI': 300,
+                'RM-TPG': 200, 'RM-BMB': 100, 'PM-KDS': 5000
+            };
+
+            let prData = [];
+            let fakturData = [];
+            let poData = [];
+            let historyList = [];
+            let incomeHistory = [];
+            let allocations = [];
+            let qcList = [];
+            let pengeluaranPrd = [];
+
+            let prCounter = 1;
+            let poCounter = 1;
+            let invCounter = 1;
+            let fktCounter = 1;
+
+            logMsg("Membangun simulasi transaksi bulanan (Jan - Jun)...");
+
+            for (let m = 0; m < 6; m++) {
+                let monthStr = MONTHS[m];
+                let monthNum = (m + 1).toString().padStart(2, '0');
+                
+                // Base demand trend: slightly increasing
+                let baseDemand = 3000 + (m * 200) + getRandomInt(-300, 300);
+
+                // --- 1. SALES (PENJUALAN) ---
+                PRODUCTS.forEach((prod, idx) => {
+                    let salesQty = Math.floor(baseDemand * prod.demandMultiplier);
+                    if (m === 2 && prod.sku === 'IDN-GRG') salesQty += 1500; // Spike di bulan Maret (misal Ramadhan)
+
+                    // Sell
+                    let totalRevenue = salesQty * prod.price;
+                    incomeHistory.push({
+                        id: `INV-26${monthNum}-${String(invCounter++).padStart(3, '0')}`,
+                        date: `15-${monthNum}-2026`,
+                        client: `Distributor Utama ${['Jawa', 'Sumatera', 'Bali'][idx]}`,
+                        items: `${salesQty} Dus ${prod.name}`,
+                        total: totalRevenue,
+                        status: 'Lunas',
+                        source: 'B2B Sales'
+                    });
+
+                    // Reduce stock
+                    currentStock[prod.sku] -= salesQty;
+                });
+
+                // --- 2. PRODUCTION (PRODUKSI) ---
+                // Produce to cover negative stock + safety stock (500-1000)
+                PRODUCTS.forEach((prod) => {
+                    let targetStock = prod.demandMultiplier * 1500; // Safety
+                    let deficit = targetStock - currentStock[prod.sku];
+                    if (deficit > 0) {
+                        let produceQty = Math.ceil(deficit / 100) * 100; // round up to hundreds
+                        
+                        let poId = `PO-26${monthNum}-${String(poCounter++).padStart(3, '0')}`;
+                        let prDate = `10 ${monthStr} 2026`;
+                        
+                        poData.push({
+                            id: poId,
+                            date: prDate,
+                            customer: 'Internal Restock',
+                            items: `${produceQty} dus ${prod.name}`,
+                            progress: 100,
+                            status: 'Selesai'
+                        });
+
+                        let defect = getRandomInt(1, Math.ceil(produceQty * 0.005)); // 0.5% defect
+                        historyList.push({
+                            poId: poId,
+                            productName: prod.name,
+                            date: prDate,
+                            quantity: `${produceQty} Dus`,
+                            defect: defect.toString(),
+                            note: 'Produksi berjalan sesuai target'
+                        });
+                        
+                        qcList.push({
+                            id: `QC-26${monthNum}-${String(poCounter).padStart(3, '0')}`,
+                            poRef: poId,
+                            productName: prod.name,
+                            date: prDate,
+                            sampleSize: Math.ceil(produceQty * 0.1),
+                            defectCount: defect,
+                            status: 'Lulus QC',
+                            inspector: 'Tim QC A'
+                        });
+
+                        currentStock[prod.sku] += (produceQty - defect);
+
+                        // Consume RM
+                        let multiplier = produceQty / 1000;
+                        RAW_MATERIALS.forEach(rm => {
+                            let consumed = Math.ceil(rm.needPer1k * multiplier);
+                            currentStock[rm.sku] -= consumed;
+                            
+                            // Catat pengeluaran bahan baku
+                            pengeluaranPrd.push({
+                                id: `ISS-26${monthNum}-${getRandomInt(100,999)}`,
+                                date: prDate,
+                                name: rm.name,
+                                qty: consumed,
+                                unit: rm.unit,
+                                note: `Untuk SPK ${poId}`
+                            });
+                        });
+                    }
+                });
+
+                // --- 3. PURCHASING (PENGADAAN) ---
+                // Buy RM to cover negative + safety
+                RAW_MATERIALS.forEach(rm => {
+                    let targetStock = rm.needPer1k * 8; // Safety for 8000 dus
+                    let deficit = targetStock - currentStock[rm.sku];
+                    if (deficit > 0) {
+                        let buyQty = Math.ceil(deficit / 50) * 50;
+                        let cost = buyQty * rm.cost;
+
+                        let prId = `PR-26${monthNum}-${String(prCounter++).padStart(3, '0')}`;
+                        let prDate = `05 ${monthStr} 2026`;
+                        
+                        prData.push({
+                            id: prId,
+                            date: prDate,
+                            name: rm.name,
+                            qty: buyQty,
+                            unit: rm.unit,
+                            total: cost,
+                            status: 'Diterima', // Must be diterima to show up in history safely without hanging
+                            vendor: `PT. Suplier ${rm.type}`
+                        });
+
+                        // Create invoice
+                        let fkId = `FK-26${monthNum}-${String(fktCounter++).padStart(3, '0')}`;
+                        fakturData.push({
+                            id: fkId,
+                            vendor: `PT. Suplier ${rm.type}`,
+                            date: `08 ${monthStr} 2026`,
+                            noPr: prId,
+                            total: cost,
+                            status: 'Sudah Dibayar'
+                        });
+
+                        // Allocation
+                        allocations.push({
+                            id: prId,
+                            name: rm.name,
+                            nominal: cost,
+                            type: rm.type,
+                            status: 'Sudah Dibayar',
+                            date: `2026-${monthNum}-08`
+                        });
+
+                        currentStock[rm.sku] += buyQty;
+                    }
+                });
+            }
+            
+            // Add some pending/rejected PRs in June just for UI variety
+            prData.push({
+                id: `PR-2606-${String(prCounter++).padStart(3, '0')}`,
+                date: '28 Juni 2026', name: 'Tepung Terigu 10kg', qty: 200, unit: 'sak', total: 24000000, status: 'Menunggu', vendor: 'PT. Terigu Jaya'
+            });
+            prData.push({
+                id: `PR-2606-${String(prCounter++).padStart(3, '0')}`,
+                date: '25 Juni 2026', name: 'Bumbu Ekstrak', qty: 50, unit: 'karton', total: 12500000, status: 'Ditolak', vendor: 'PT. Bumbu Rahasia'
+            });
+
+            logMsg("Mengemas data Inventory Akhir...");
+            let inventoryObj = [];
+            let fgs = [
+                {id: 'FG-001', sku: 'IDN-GRG', name: 'Indomie Goreng 75g', type: 'Barang Jadi', unit: 'dus', price: 85000, img: 'assets/images/gorengicon.png'},
+                {id: 'FG-002', sku: 'IDN-STO', name: 'Indomie Soto 70g', type: 'Barang Jadi', unit: 'dus', price: 82000, img: 'assets/images/sotoicon.png'},
+                {id: 'FG-003', sku: 'IDN-KRI', name: 'Indomie Kari 72g', type: 'Barang Jadi', unit: 'dus', price: 84000, img: 'assets/images/kariicon.png'}
+            ];
+            fgs.forEach(fg => {
+                let qty = currentStock[fg.sku];
+                let statusClass = qty < 500 ? 'pill-red' : (qty < 1000 ? 'pill-orange' : 'pill-green');
+                inventoryObj.push({...fg, stock: qty, statusClass: statusClass});
+            });
+
+            let rms = [
+                {id: 'RM-001', sku: 'RM-TPG', name: 'Tepung Terigu 10kg', type: 'Bahan Baku', unit: 'sak', price: 120000, img: ''},
+                {id: 'RM-002', sku: 'RM-BMB', name: 'Bumbu Ekstrak', type: 'Bahan Baku', unit: 'karton', price: 250000, img: ''},
+                {id: 'PM-001', sku: 'PM-KDS', name: 'Kardus Indomie', type: 'Kemasan', unit: 'pcs', price: 2000, img: ''}
+            ];
+            rms.forEach(rm => {
+                let qty = currentStock[rm.sku];
+                let statusClass = qty < 50 ? 'pill-red' : (qty < 200 ? 'pill-orange' : 'pill-blue');
+                inventoryObj.push({...rm, stock: qty, statusClass: statusClass});
+            });
+
+            logMsg("Menyimpan ke localStorage...");
+            localStorage.setItem('erp_inventory_stock', JSON.stringify(inventoryObj));
+            localStorage.setItem('erp_pr_data', JSON.stringify(prData));
+            localStorage.setItem('erp_faktur_pembelian', JSON.stringify(fakturData));
+            localStorage.setItem('erp_production_orders', JSON.stringify(poData));
+            localStorage.setItem('historyList', JSON.stringify(historyList));
+            localStorage.setItem('erp_finance_income_history', JSON.stringify(incomeHistory));
+            localStorage.setItem('erp_finance_allocations', JSON.stringify(allocations));
+            localStorage.setItem('qcList', JSON.stringify(qcList));
+            localStorage.setItem('erp_pengeluaran_produksi', JSON.stringify(pengeluaranPrd));
+            
+            // To prevent empty fallbacks
+            localStorage.setItem('foodsync_is_cleared', 'true'); 
+
+            logMsg("Selesai! Mengalihkan ke Dashboard dalam 2 detik...");
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
