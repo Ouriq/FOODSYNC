@@ -407,11 +407,18 @@
         
         let purcReal = 0;
         let purcPending = 0;
+        let fakturData = JSON.parse(localStorage.getItem('erp_faktur_pembelian')) || [];
+        
+        fakturData.forEach(f => {
+            let tot = parseInt((f.total || '').toString().replace(/[^0-9]/g, '')) || 0;
+            if(f.status === 'Lunas') {
+                purcReal += tot;
+            }
+        });
+        
         prData.forEach(pr => {
             let tot = parseInt(pr.total) || 0;
-            if(pr.status === 'Diterima' || pr.status === 'Sudah Dibayar' || pr.status === 'Selesai') {
-                purcReal += tot;
-            } else if (pr.status === 'Disetujui' || pr.status === 'Menunggu') {
+            if (pr.status === 'Disetujui' || pr.status === 'Menunggu') {
                 purcPending += tot;
             }
         });
@@ -430,11 +437,23 @@
         if(elPending) elPending.innerHTML = purcPending === 0 ? 'Rp. <br/>0' : formatRp(purcPending);
 
       
+      // Dynamically calculate chart labels & data (6 months)
+      let labels = [];
+      let barDataBahanBaku = [0, 0, 0, 0, 0, 0];
+      let barDataKemasan = [0, 0, 0, 0, 0, 0];
       let totalBahanBaku = 0;
       let totalKemasan = 0;
       
-      // Let's assume current month is May based on the mockup chart labels, or just put the data in the latest month.
-      // For simplicity and mockup styling, we will aggregate all PRs.
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth(); // 0-11
+      const monthsIndo = { 'Jan':0, 'Feb':1, 'Mar':2, 'Apr':3, 'Mei':4, 'Jun':5, 'Jul':6, 'Agu':7, 'Sep':8, 'Okt':9, 'Nov':10, 'Des':11, 'Januari':0, 'Februari':1, 'Maret':2, 'April':3, 'Juni':5, 'Juli':6, 'Agustus':7, 'September':8, 'Oktober':9, 'November':10, 'Desember':11 };
+
+      for (let i = 5; i >= 0; i--) {
+          let d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+          labels.push(d.toLocaleDateString('id-ID', { month: 'short' }));
+      }
+      
       prData.forEach(pr => {
           let type = 'Bahan Baku';
           let invItem = inventory.find(i => i.name === pr.name);
@@ -449,23 +468,52 @@
           }
           
           let total = parseInt(pr.total) || 0;
-          if (type === 'Bahan Baku') totalBahanBaku += total;
-          if (type === 'Kemasan') totalKemasan += total;
+          
+          // Parse Date
+          let mIdx = -1;
+          let y = currentYear;
+          if (pr.date) {
+              let parts = pr.date.split(' ');
+              if (parts.length >= 3) {
+                  mIdx = monthsIndo[parts[1]] !== undefined ? monthsIndo[parts[1]] : -1;
+                  y = parseInt(parts[2]);
+              }
+          }
+          
+          // Current Month Totals
+          if (mIdx === currentMonth && y === currentYear) {
+              if (type === 'Bahan Baku') totalBahanBaku += total;
+              if (type === 'Kemasan') totalKemasan += total;
+          }
+          
+          // Chart Logic
+          if (mIdx !== -1) {
+              let monthDiff = (currentYear - y) * 12 + (currentMonth - mIdx);
+              if (monthDiff >= 0 && monthDiff < 6) {
+                  let index = 5 - monthDiff;
+                  if (type === 'Bahan Baku') barDataBahanBaku[index] += total;
+                  if (type === 'Kemasan') barDataKemasan[index] += total;
+              }
+          }
       });
-
+      
+      // Calculate totals for donut chart if there's no data this month, aggregate last 6 months
+      if (totalBahanBaku === 0 && totalKemasan === 0) {
+          totalBahanBaku = barDataBahanBaku.reduce((a,b) => a+b, 0);
+          totalKemasan = barDataKemasan.reduce((a,b) => a+b, 0);
+      }
+      
       // Chart.js Configuration
       Chart.register(ChartDataLabels);
 
       // BAR CHART
-      let isDataEmpty = (totalBahanBaku === 0 && totalKemasan === 0);
-      let barDataBahanBaku = isDataEmpty ? [0,0,0,0,0] : [75000000, 65000000, 60000000, 72000000, totalBahanBaku > 0 ? totalBahanBaku : 68000000];
-      let barDataKemasan = isDataEmpty ? [0,0,0,0,0] : [60000000, 85000000, 70000000, 80000000, totalKemasan > 0 ? totalKemasan : 75000000];
+      let isDataEmpty = (barDataBahanBaku.reduce((a,b)=>a+b, 0) === 0 && barDataKemasan.reduce((a,b)=>a+b, 0) === 0);
 
       const ctxBar = document.getElementById('barChart').getContext('2d');
       const barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+          labels: labels,
           datasets: [
             {
               label: 'Bahan Baku',
