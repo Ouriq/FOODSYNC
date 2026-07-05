@@ -330,6 +330,13 @@ document.getElementById('sendChatMessageBtn').addEventListener('click', () => {
     renderMessages();
 });
 
+document.getElementById('chatMessageInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('sendChatMessageBtn').click();
+    }
+});
+
 // ANNOUNCEMENT LOGIC
 if (currentUserRole === 'super_admin') {
     document.getElementById('announcementInputContainer').style.display = 'block';
@@ -369,6 +376,13 @@ document.getElementById('sendAnnouncementBtn').addEventListener('click', () => {
     saveMessages(msgs);
     input.value = '';
     renderAnnouncements();
+});
+
+document.getElementById('announcementInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('sendAnnouncementBtn').click();
+    }
 });
 
 // REALTIME LISTENER
