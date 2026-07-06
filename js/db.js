@@ -17,15 +17,16 @@ function initDB() {
 
 function getInventoryStock() {
   let data = JSON.parse(localStorage.getItem('erp_inventory_stock') || '[]');
+  let deletedSkus = JSON.parse(localStorage.getItem('foodsync_deleted_skus') || '[]');
   
   // Auto-merge initial data to ensure missing items (like Indomie Kari) exist
   let hasChanged = false;
   INITIAL_STOCK_DATA.forEach(initialItem => {
       let exists = data.find(item => item.sku === initialItem.sku);
-      if (!exists) {
+      if (!exists && !deletedSkus.includes(initialItem.sku)) {
           data.push(initialItem);
           hasChanged = true;
-      } else {
+      } else if (exists) {
           // Rename if it was the old name
           if (exists.name === 'Indomie Goreng 75g' && initialItem.name === 'Indomie Goreng') {
               exists.name = 'Indomie Goreng';

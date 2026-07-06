@@ -344,6 +344,7 @@
               <th>Satuan</th>
               <th>Stok</th>
               <th>Status</th>
+              <th id="aksiHeader" style="display: none; text-align: center;">Aksi</th>
             </tr>
           </thead>
           <tbody id="inventory-tbody"></tbody>
@@ -451,6 +452,14 @@
       if (!tbody) return;
       tbody.innerHTML = '';
       
+      const userRole = localStorage.getItem('user_role') || sessionStorage.getItem('user_role') || '';
+      const isSuperAdmin = userRole === 'super_admin' || userRole === 'superadmin';
+
+      const aksiHeader = document.getElementById('aksiHeader');
+      if (aksiHeader) {
+          aksiHeader.style.display = isSuperAdmin ? 'table-cell' : 'none';
+      }
+      
       const totalItems = currentFilteredData.length;
       const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
       
@@ -467,6 +476,12 @@
 
       slice.forEach(item => {
         let stockStatus = item.stock < 500 ? '<span class="pill pill-red">Kritis</span>' : '<span class="pill pill-green">Aman</span>';
+        
+        let actionBtn = '';
+        if (isSuperAdmin) {
+            actionBtn = `<td><button class="btn-delete" onclick="deleteItem('${item.sku}')" style="background:#FEE2E2; color:#EF4444; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;" title="Hapus Barang"><i class='bx bx-trash'></i></button></td>`;
+        }
+        
         let tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${item.id || item.sku}</td>
@@ -475,6 +490,7 @@
           <td>${item.unit}</td>
           <td class="text-green">${item.stock.toLocaleString('id-ID')}</td>
           <td>${stockStatus}</td>
+          ${actionBtn}
         `;
         tbody.appendChild(tr);
       });
@@ -528,6 +544,22 @@
     window.goToPage = function(p) {
       currentPage = p;
       renderPaginatedTable();
+    };
+
+    window.deleteItem = function(sku) {
+        if(confirm('Yakin ingin menghapus barang ini secara permanen?')) {
+            let allData = getInventoryStock();
+            allData = allData.filter(i => i.sku !== sku);
+            localStorage.setItem('erp_inventory_stock', JSON.stringify(allData));
+            
+            let deletedSkus = JSON.parse(localStorage.getItem('foodsync_deleted_skus') || '[]');
+            if(!deletedSkus.includes(sku)) {
+                deletedSkus.push(sku);
+                localStorage.setItem('foodsync_deleted_skus', JSON.stringify(deletedSkus));
+            }
+            
+            refreshDataAndFilter();
+        }
     };
 
     function refreshDataAndFilter() {
