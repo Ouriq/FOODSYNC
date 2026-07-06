@@ -39,6 +39,7 @@ if (isFirebaseInitialized) {
       if (data.force_wipe && localStorage.getItem('last_wipe') !== String(data.force_wipe)) {
           localStorage.clear();
           originalSetItem.call(localStorage, 'last_wipe', String(data.force_wipe));
+          originalSetItem.call(localStorage, 'foodsync_is_cleared', 'true');
           window.location.reload();
           return;
       }
