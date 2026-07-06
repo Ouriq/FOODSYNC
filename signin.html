@@ -364,16 +364,19 @@
       setTimeout(() => { toast.className = 'toast'; }, 3500);
     }
 
-    // Mock Database Akun
-    const mockUsers = [
-      { email: 'admin@foodsync.com', password: 'admin123', role: 'superadmin', name: 'Super Admin' },
-      { email: 'sales@foodsync.com', password: 'sales123', role: 'sales', name: 'Sales Team' },
-      { email: 'finance@foodsync.com', password: 'finance123', role: 'finance', name: 'Finance Team' },
-      { email: 'hr@foodsync.com', password: 'hr123', role: 'hr', name: 'HR Team' },
-      { email: 'production@foodsync.com', password: 'prod123', role: 'production', name: 'Production Team' },
-      { email: 'inventory@foodsync.com', password: 'inv123', role: 'inventory', name: 'Inventory Team' },
-      { email: 'purchasing@foodsync.com', password: 'purch123', role: 'purchasing', name: 'Purchasing Team' }
+    // Initialize Database Akun di LocalStorage jika belum ada
+    const defaultUsers = [
+      { email: 'admin@foodsync.com', password: 'admin123', role: 'superadmin', name: 'Super Admin', gender: 'Laki-laki', department: 'Management' },
+      { email: 'sales@foodsync.com', password: 'sales123', role: 'sales', name: 'Sales Team', gender: 'Perempuan', department: 'Sales' },
+      { email: 'finance@foodsync.com', password: 'finance123', role: 'finance', name: 'Finance Team', gender: 'Perempuan', department: 'Finance' },
+      { email: 'hr@foodsync.com', password: 'hr123', role: 'hr', name: 'HR Team', gender: 'Laki-laki', department: 'HR' },
+      { email: 'production@foodsync.com', password: 'prod123', role: 'production', name: 'Production Team', gender: 'Laki-laki', department: 'Production' },
+      { email: 'inventory@foodsync.com', password: 'inv123', role: 'inventory', name: 'Inventory Team', gender: 'Laki-laki', department: 'Inventory' },
+      { email: 'purchasing@foodsync.com', password: 'purch123', role: 'purchasing', name: 'Purchasing Team', gender: 'Perempuan', department: 'Purchasing' }
     ];
+    if (!localStorage.getItem('erp_users')) {
+      localStorage.setItem('erp_users', JSON.stringify(defaultUsers));
+    }
 
     document.getElementById('signinForm').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -386,10 +389,13 @@
       submitBtn.textContent = 'Signing In...';
       showToast('⏳ Memeriksa kredensial...', 'loading');
 
+      // Ambil data users terbaru dari localStorage
+      const usersDB = JSON.parse(localStorage.getItem('erp_users')) || defaultUsers;
+
       // Simulasi proses login
       setTimeout(() => {
         // Cari user yang cocok
-        const user = mockUsers.find(u => u.email === email && u.password === password);
+        const user = usersDB.find(u => u.email === email && u.password === password);
 
         if (user) {
           // Menyimpan session di localStorage

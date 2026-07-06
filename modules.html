@@ -130,6 +130,31 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* Absensi Modal Styles */
+    .absensi-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(4px); opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .absensi-overlay.show { opacity: 1; pointer-events: auto; }
+    .absensi-modal {
+      background: #fff; width: 400px; padding: 30px; border-radius: 20px;
+      text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      transform: translateY(20px); transition: transform 0.3s;
+    }
+    .absensi-overlay.show .absensi-modal { transform: translateY(0); }
+    .absensi-modal i { font-size: 50px; color: #10B981; margin-bottom: 10px; }
+    .absensi-modal h2 { font-size: 24px; font-weight: 700; color: #1F2937; margin-bottom: 8px; }
+    .absensi-modal p { font-size: 14px; color: #6B7280; margin-bottom: 24px; }
+    .absensi-btn {
+      background: #0b2e59; color: white; border: none; padding: 14px 24px;
+      border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
+      width: 100%; transition: background 0.2s;
+    }
+    .absensi-btn:hover { background: #082244; }
   </style>
 
 <script>
@@ -187,13 +212,13 @@
       </a>
 
       <!-- Card 4 -->
-      <a href="#" onclick="checkAccess(event, 'hr', '#')" class="card">
+      <a href="#" onclick="checkAccess(event, 'hr', 'dashboardhr.html')" class="card">
         <div class="icon-wrapper">
           <!-- Masukkan link/path icon Anda di atribut src di bawah ini -->
           <img src="iconhr.png" alt="HR Icon">
         </div>
         <h2 class="card-title">HR</h2>
-        <p class="card-desc">lorem ipsum sir amet wat gatau aaashdjkheufhefsdbhbfegyggfry</p>
+        <p class="card-desc">Pusat manajemen absensi, data karyawan, dan pembuatan akun baru.</p>
       </a>
 
       <!-- Card 5 -->
@@ -233,6 +258,17 @@
       return;
     }
 
+    // Cek apakah sudah absen hari ini
+    const today = new Date().toISOString().split('T')[0];
+    const email = localStorage.getItem('user_email');
+    const attendance = JSON.parse(localStorage.getItem('erp_attendance')) || [];
+    const hasClockedIn = attendance.some(a => a.email === email && a.date === today && a.timeIn);
+
+    if (!hasClockedIn) {
+      alert("Anda harus Absen Masuk terlebih dahulu sebelum mengakses modul.");
+      return;
+    }
+
     // Superadmin bebas akses ke mana saja
     if (userRole === 'superadmin' || userRole === requiredRole) {
       if (targetUrl === '#') {
@@ -244,6 +280,57 @@
       alert("Akses Ditolak: Anda tidak memiliki izin untuk masuk ke modul ini.");
     }
   }
+
+  // Logika Pop-up Absen Masuk
+  document.addEventListener("DOMContentLoaded", () => {
+    const userRole = localStorage.getItem('user_role');
+    if (!userRole) return;
+
+    const today = new Date().toISOString().split('T')[0];
+    const email = localStorage.getItem('user_email');
+    const attendance = JSON.parse(localStorage.getItem('erp_attendance')) || [];
+    const hasClockedIn = attendance.some(a => a.email === email && a.date === today && a.timeIn);
+
+    if (!hasClockedIn) {
+      // Create and show modal
+      const modalHtml = `
+        <div class="absensi-overlay show" id="absensiModal">
+          <div class="absensi-modal">
+            <i class='bx bx-time-five'></i>
+            <h2>Absen Masuk</h2>
+            <p>Silakan lakukan absen masuk untuk memulai aktivitas Anda hari ini.</p>
+            <button class="absensi-btn" id="btnAbsenMasuk">Absen Sekarang</button>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+      document.getElementById('btnAbsenMasuk').addEventListener('click', () => {
+        const now = new Date();
+        const timeString = now.toTimeString().split(' ')[0];
+        
+        attendance.push({
+          email: email,
+          name: localStorage.getItem('user_name') || 'User',
+          date: today,
+          timeIn: timeString,
+          timeOut: null,
+          status: 'Hadir'
+        });
+        
+        localStorage.setItem('erp_attendance', JSON.stringify(attendance));
+        
+        // Notify firebase-sync if needed
+        window.dispatchEvent(new Event('storage'));
+        
+        const modal = document.getElementById('absensiModal');
+        modal.classList.remove('show');
+        setTimeout(() => modal.remove(), 300);
+        
+        alert("Absen Masuk Berhasil! Selamat Bekerja.");
+      });
+    }
+  });
 </script>
 <script type="module" src="js/firebase-sync.js"></script>
 </body>

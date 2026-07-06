@@ -126,11 +126,48 @@ document.addEventListener("DOMContentLoaded", () => {
   // Fungsi Logout dari dropdown baru
   if (popupLogoutBtn) {
     popupLogoutBtn.addEventListener('click', () => {
-      ['auth_token', 'user_name', 'user_email'].forEach((key) => {
-        localStorage.removeItem(key);
-        sessionStorage.removeItem(key);
-      });
-      window.location.href = 'signin.html';
+      // Cek apakah hari ini sudah absen masuk tapi belum absen keluar
+      const today = new Date().toISOString().split('T')[0];
+      const email = localStorage.getItem('user_email');
+      const attendance = JSON.parse(localStorage.getItem('erp_attendance')) || [];
+      const todayRecordIndex = attendance.findIndex(a => a.email === email && a.date === today && a.timeIn);
+
+      if (todayRecordIndex !== -1 && !attendance[todayRecordIndex].timeOut) {
+        // Tampilkan modal Absen Keluar
+        const modalHtml = `
+          <div class="absensi-overlay show" id="logoutAbsensiModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+            <div style="background: #fff; width: 400px; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+              <i class='bx bx-log-out-circle' style="font-size: 50px; color: #EF4444; margin-bottom: 10px;"></i>
+              <h2 style="font-size: 24px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Absen Keluar</h2>
+              <p style="font-size: 14px; color: #6B7280; margin-bottom: 24px;">Anda belum melakukan absen keluar hari ini. Silakan klik tombol di bawah untuk mencatat waktu pulang Anda.</p>
+              <button id="btnAbsenKeluar" style="background: #EF4444; color: white; border: none; padding: 14px 24px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s;">Absen Keluar & Logout</button>
+            </div>
+          </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        document.getElementById('btnAbsenKeluar').addEventListener('click', () => {
+          const now = new Date();
+          attendance[todayRecordIndex].timeOut = now.toTimeString().split(' ')[0];
+          localStorage.setItem('erp_attendance', JSON.stringify(attendance));
+          window.dispatchEvent(new Event('storage'));
+          
+          alert("Absen Keluar Berhasil! Hati-hati di jalan.");
+          
+          ['auth_token', 'user_name', 'user_email', 'user_role'].forEach((key) => {
+            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
+          });
+          window.location.href = 'signin.html';
+        });
+      } else {
+        // Langsung logout jika sudah absen keluar atau belum absen masuk
+        ['auth_token', 'user_name', 'user_email', 'user_role'].forEach((key) => {
+          localStorage.removeItem(key);
+          sessionStorage.removeItem(key);
+        });
+        window.location.href = 'signin.html';
+      }
     });
   }
 });
