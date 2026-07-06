@@ -300,6 +300,8 @@
         greetingEl.textContent = `Selamat Datang, ${userName}`;
       }
 
+      let totalProduksiBulanIni = 0;
+
       // --- DYNAMIC DATA CALCULATION ---
       function calculateProdStats() {
           const poData = JSON.parse(localStorage.getItem('erp_production_orders') || '[]');
@@ -307,7 +309,7 @@
           
           let sedangProduksiCount = poData.filter(po => po.status === 'Diproses' || po.status === 'QC').length;
           
-          let totalProduksiBulanIni = 0;
+          totalProduksiBulanIni = 0; // Reset every call
           let selesaiHariIni = 0;
           let totalDefect = 0;
           
