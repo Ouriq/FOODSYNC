@@ -37,6 +37,12 @@ if (isFirebaseInitialized) {
     const data = snapshot.val();
     if (data) {
       if (data.force_wipe && localStorage.getItem('last_wipe') !== String(data.force_wipe)) {
+          // Hapus semua data dari Firebase juga (kecuali force_wipe)
+          Object.keys(data).forEach(key => {
+            if (key !== 'force_wipe') {
+              set(ref(db, 'foodsync-erp/' + key), null);
+            }
+          });
           localStorage.clear();
           originalSetItem.call(localStorage, 'last_wipe', String(data.force_wipe));
           originalSetItem.call(localStorage, 'foodsync_is_cleared', 'true');
