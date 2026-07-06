@@ -485,10 +485,11 @@
         ];
 
         let historyData = JSON.parse(localStorage.getItem('erp_finance_income_history'));
-        if (!historyData) {
+        if (!historyData && !localStorage.getItem('foodsync_is_cleared')) {
             historyData = defaultHistory;
             localStorage.setItem('erp_finance_income_history', JSON.stringify(historyData));
         }
+        if (!historyData) historyData = [];
 
         function renderTables() {
             const tbodyRiwayat = document.getElementById('tbody-riwayat');
