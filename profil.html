@@ -308,6 +308,19 @@
     </div>
 
   <script src="js/topbar.js?v=4"></script>
-<script type="module" src="js/firebase-sync.js"></script>
+  <script type="module" src="js/firebase-sync.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedSidebar = sessionStorage.getItem('saved_sidebar_nav');
+      if (savedSidebar) {
+        const sidebarNav = document.querySelector('.sidebar-nav');
+        if (sidebarNav) {
+          sidebarNav.innerHTML = savedSidebar;
+          // Hapus 'active' dari elemen mana pun agar tidak terkesan kita sedang di menu tersebut
+          sidebarNav.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        }
+      }
+    });
+  </script>
 </body>
 </html>

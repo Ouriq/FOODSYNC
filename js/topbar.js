@@ -593,3 +593,15 @@ window.renderNotifications = function() {
 
   // Panggil pengecekan rollover
   checkMonthlyRollover();
+
+  // SAVE SIDEBAR FOR PROFIL
+  document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll('a[href="profil.html"]').forEach(link => {
+          link.addEventListener('click', () => {
+              const sidebarNav = document.querySelector('.sidebar-nav');
+              if (sidebarNav) {
+                  sessionStorage.setItem('saved_sidebar_nav', sidebarNav.innerHTML);
+              }
+          });
+      });
+  });
