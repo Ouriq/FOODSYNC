@@ -25,9 +25,9 @@ function formatRupiah(number) {
 
 function formatShortRupiah(number) {
     if (number >= 1000000000) {
-        return 'Rp ' + (number / 1000000000).toFixed(1) + ' M';
+        return 'Rp ' + Number((number / 1000000000).toFixed(2)) + ' M';
     } else if (number >= 1000000) {
-        return 'Rp ' + (number / 1000000).toFixed(1) + ' Jt';
+        return 'Rp ' + Number((number / 1000000).toFixed(2)) + ' Jt';
     }
     return 'Rp ' + formatRupiah(number);
 }
