@@ -737,7 +737,7 @@
   <script src="js/topbar.js?v=4"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      const userName = localStorage.getItem('user_name') || 'User';
+      const userName = (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) || 'User';
       const userNameDisplay = document.getElementById('userNameDisplay');
       if (userNameDisplay) userNameDisplay.textContent = userName;
 

@@ -311,7 +311,7 @@
         
         attendance.push({
           email: email,
-          name: sessionStorage.getItem('user_name') || localStorage.getItem('user_name') || 'User',
+          name: sessionStorage.getItem('user_name') || (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) || 'User',
           date: today,
           timeIn: timeNow,
           timeOut: null,

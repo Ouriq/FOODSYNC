@@ -4,7 +4,7 @@ function isLoggedIn() {
   return !!(
     localStorage.getItem('auth_token') ||
     sessionStorage.getItem('auth_token') ||
-    localStorage.getItem('user_name') ||
+    (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) ||
     sessionStorage.getItem('user_name')
   );
 }
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const userName = localStorage.getItem('user_name') || sessionStorage.getItem('user_name') || 'Guest User';
+    const userName = (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) || sessionStorage.getItem('user_name') || 'Guest User';
     const userEmail = localStorage.getItem('user_email') || sessionStorage.getItem('user_email') || 'guest@foodsync.com';
     const userRole = localStorage.getItem('user_role') || sessionStorage.getItem('user_role') || 'guest';
     const userPhone = localStorage.getItem('user_phone') || '081234567890';

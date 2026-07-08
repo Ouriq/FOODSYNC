@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const isLoggedIn = !!(
     localStorage.getItem('auth_token') ||
     sessionStorage.getItem('auth_token') ||
-    localStorage.getItem('user_name') ||
+    (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) ||
     sessionStorage.getItem('user_name')
   );
   if (!isLoggedIn) {
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Greeting
-  const userName = localStorage.getItem('user_name') || sessionStorage.getItem('user_name') || 'Guest';
+  const userName = (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) || sessionStorage.getItem('user_name') || 'Guest';
   const greetingEl = document.getElementById('greetingText');
   if (greetingEl) {
     greetingEl.textContent = `Selamat Datang, ${userName}`;

@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Load user data from localStorage
-    const userName = localStorage.getItem('user_name') || 'Guest User';
+    const userName = (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) || 'Guest User';
     const userEmail = localStorage.getItem('user_email') || 'guest@foodsync.com';
     const userRole = localStorage.getItem('user_role') || 'guest';
     

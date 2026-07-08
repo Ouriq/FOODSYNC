@@ -11,7 +11,7 @@ function isLoggedIn() {
   return !!(
     localStorage.getItem('auth_token') ||
     sessionStorage.getItem('auth_token') ||
-    localStorage.getItem('user_name') ||
+    (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) ||
     sessionStorage.getItem('user_name')
   );
 }
@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Logic has been moved to topbar.js, but we still need userName for greeting
-  const userName = localStorage.getItem('user_name') || sessionStorage.getItem('user_name') || 'Pengguna';
+  const userName = (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) || sessionStorage.getItem('user_name') || 'Pengguna';
   document.getElementById('greetingText').textContent = `Selamat Datang, ${userName}`;
 
   // 2. Format Tanggal Hari Ini

@@ -12,7 +12,7 @@ function isLoggedIn() {
   return !!(
     localStorage.getItem('auth_token') ||
     sessionStorage.getItem('auth_token') ||
-    localStorage.getItem('user_name') ||
+    (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) ||
     sessionStorage.getItem('user_name')
   );
 }
@@ -39,7 +39,7 @@ function initApp() {
   }
 
   const userName =
-    localStorage.getItem('user_name') ||
+    (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) ||
     sessionStorage.getItem('user_name') ||
     'Pengguna';
   

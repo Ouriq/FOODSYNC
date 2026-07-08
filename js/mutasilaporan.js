@@ -4,7 +4,7 @@ function isLoggedIn() {
   return !!(
     localStorage.getItem('auth_token') ||
     sessionStorage.getItem('auth_token') ||
-    localStorage.getItem('user_name') ||
+    (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) ||
     sessionStorage.getItem('user_name')
   );
 }
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const userName =
-      localStorage.getItem('user_name') ||
+      (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) ||
       sessionStorage.getItem('user_name') ||
       'Admin Gudang';
     const userNameDisplay = document.getElementById('userNameDisplay');

@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   // 1. Set Nama dan Role Pengguna dari Login (Prioritaskan sessionStorage agar multi-tab bisa beda akun)
-  const userName = sessionStorage.getItem('user_name') || localStorage.getItem('user_name') || 'Pengguna';
+  const userName = sessionStorage.getItem('user_name') || (sessionStorage.getItem('user_name') || localStorage.getItem('user_name')) || 'Pengguna';
   const userRole = sessionStorage.getItem('user_role') || localStorage.getItem('user_role') || 'sales';
   
   const roleTitleMap = {
