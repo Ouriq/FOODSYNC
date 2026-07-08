@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // --- DATA PERSISTENCE LOGIC ---
     let marketData = JSON.parse(localStorage.getItem('market_data') || '[]');
-    if (marketData.length === 0 && !localStorage.getItem('foodsync_is_cleared')) {
+    if (marketData.length === 0 && false) {
         // Default data
         marketData = [
             { id: '1', nama: 'Sedaap', varian: 'Ayam Bawang, Soto', harga: '85000', promo: 'Bundling + Cashback 10%', date: '19 Mei 2026', badge: 'badge-green', catatan: 'Bundling promo strategy' },
