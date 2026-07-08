@@ -303,7 +303,7 @@
       let totalProduksiBulanIni = 0;
 
       // --- DYNAMIC DATA CALCULATION ---
-      function calculateProdStats() {
+      function renderDashboardData() {
           const poData = JSON.parse(localStorage.getItem('erp_production_orders') || '[]');
           const historyList = JSON.parse(localStorage.getItem('historyList') || '[]');
           
@@ -367,10 +367,6 @@
               let efisiensi = totalProduksiBulanIni > 0 ? "98,4%" : "0%";
               document.getElementById('valEfisiensi').textContent = efisiensi;
           }
-      }
-      
-      calculateProdStats();
-      // --- END DYNAMIC DATA ---
 
 
       // Chart.js
@@ -380,7 +376,11 @@
       gradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
       gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
 
-      new Chart(ctx, {
+      if (window.prodChartInstance) {
+          window.prodChartInstance.destroy();
+      }
+
+      window.prodChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
           labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
@@ -457,6 +457,15 @@
             intersect: false,
             mode: 'index',
           },
+        }
+      });
+      } // End of renderDashboardData
+
+      renderDashboardData();
+
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'erp_production_orders' || e.key === 'historyList') {
+            renderDashboardData();
         }
       });
     });
