@@ -15,29 +15,25 @@ let app, db;
 let isFirebaseInitialized = false;
 let initialSyncComplete = false;
 
-// Kunci yang JANGAN disinkronkan ke Firebase (tetap lokal per perangkat/tab)
 const excludedKeys = [
   'user_name', 'user_role', 'user_email', 'auth_token', 'user_photo',
   'foodsync_initial_sync_done', 'foodsync_is_cleared', 'last_wipe',
-  'foodsync_session_synced'
+  'foodsync_session_synced', 'foodsync_last_sync_ts'
 ];
 
-// Simpan referensi asli SEBELUM override
 const originalSetItem = localStorage.setItem;
 
 try {
   app = initializeApp(firebaseConfig);
   db = getDatabase(app);
   isFirebaseInitialized = true;
-  console.log('[FoodSync] Firebase berhasil diinisialisasi.');
+  console.log('[FoodSync] Firebase OK.');
 } catch (error) {
-  console.warn('[FoodSync] Firebase gagal:', error);
+  console.warn('[FoodSync] Firebase GAGAL:', error);
 }
 
 // ========================================================================
-// OVERRIDE localStorage.setItem
-// Semua penulisan oleh script lain akan dicegat di sini.
-// Upload ke Firebase HANYA setelah initial sync selesai.
+// OVERRIDE localStorage.setItem — cegat semua penulisan
 // ========================================================================
 localStorage.setItem = function (key, value) {
   originalSetItem.apply(this, arguments);
@@ -46,43 +42,31 @@ localStorage.setItem = function (key, value) {
     return;
   }
 
+  // Upload ke Firebase + update timestamp
   try {
     set(ref(db, 'foodsync-erp/' + key), JSON.parse(value));
   } catch (e) {
     set(ref(db, 'foodsync-erp/' + key), value);
   }
+  // Update sync timestamp agar device lain tahu data berubah
+  set(ref(db, 'foodsync-erp/_last_updated'), Date.now());
 };
 
 // ========================================================================
-// Helper: Upload SEMUA data localStorage ke Firebase
-// Dipanggil setelah initial sync agar data yang ditulis oleh inline scripts
-// (yang berjalan SEBELUM module ini) tetap terunggah ke Firebase.
+// Helper: konversi Firebase object kembali ke array jika perlu
 // ========================================================================
-function uploadAllLocalToFirebase(firebaseData) {
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (excludedKeys.includes(k)) continue;
-
-    const localVal = localStorage.getItem(k);
-    
-    // Cek apakah key ini sudah ada di Firebase dengan nilai yang sama
-    if (firebaseData && firebaseData[k] !== undefined) {
-      const fbVal = JSON.stringify(firebaseData[k]);
-      if (fbVal === localVal) continue; // Sudah sama, skip
-    }
-
-    // Upload ke Firebase
-    try {
-      set(ref(db, 'foodsync-erp/' + k), JSON.parse(localVal));
-    } catch (e) {
-      set(ref(db, 'foodsync-erp/' + k), localVal);
+function fixFirebaseArray(val) {
+  if (val && typeof val === 'object' && !Array.isArray(val)) {
+    const keys = Object.keys(val);
+    if (keys.length > 0 && keys.every(k => !isNaN(k))) {
+      return Object.values(val);
     }
   }
-  console.log('[FoodSync] Upload data lokal ke Firebase selesai.');
+  return val;
 }
 
 // ========================================================================
-// DENGARKAN FIREBASE → SYNC KE LOCALSTORAGE
+// FIREBASE LISTENER
 // ========================================================================
 if (isFirebaseInitialized) {
   const erpRef = ref(db, 'foodsync-erp');
@@ -90,7 +74,7 @@ if (isFirebaseInitialized) {
   onValue(erpRef, (snapshot) => {
     const data = snapshot.val();
     
-    // --- Handle force_wipe ---
+    // --- force_wipe ---
     if (data && data.force_wipe && localStorage.getItem('last_wipe') !== String(data.force_wipe)) {
       Object.keys(data).forEach(key => {
         if (key !== 'force_wipe') set(ref(db, 'foodsync-erp/' + key), null);
@@ -103,26 +87,20 @@ if (isFirebaseInitialized) {
     }
 
     // ================================================================
-    // INITIAL SYNC (callback pertama dari Firebase)
+    // INITIAL SYNC
     // ================================================================
     if (!initialSyncComplete) {
       initialSyncComplete = true;
-      console.log('[FoodSync] Initial sync callback. Firebase data:', data ? 'ADA' : 'KOSONG');
-
-      if (data) {
-        // --- DOWNLOAD: Firebase → localStorage ---
+      
+      if (data && Object.keys(data).filter(k => k !== 'force_wipe' && k !== '_last_updated').length > 0) {
+        // ---- Firebase PUNYA data ----
+        console.log('[FoodSync] Firebase punya data. Download ke localStorage...');
+        
         let hasChanges = false;
         Object.keys(data).forEach(key => {
-          if (excludedKeys.includes(key) || key === 'force_wipe') return;
+          if (excludedKeys.includes(key) || key === 'force_wipe' || key === '_last_updated') return;
           
-          let val = data[key];
-          // Firebase konversi array → object: kembalikan
-          if (val && typeof val === 'object' && !Array.isArray(val)) {
-            const keys = Object.keys(val);
-            if (keys.length > 0 && keys.every(k => !isNaN(k))) {
-              val = Object.values(val);
-            }
-          }
+          let val = fixFirebaseArray(data[key]);
           const stringifiedValue = JSON.stringify(val);
           if (localStorage.getItem(key) !== stringifiedValue) {
             originalSetItem.call(localStorage, key, stringifiedValue);
@@ -130,23 +108,32 @@ if (isFirebaseInitialized) {
           }
         });
 
-        // --- UPLOAD: localStorage → Firebase ---
-        // Ini penting! Inline scripts mungkin sudah menulis data baru
-        // ke localStorage SEBELUM module ini berjalan. Data itu perlu
-        // diunggah ke Firebase agar tersinkronisasi.
-        uploadAllLocalToFirebase(data);
+        // Juga upload key yang ada di lokal tapi BELUM ada di Firebase
+        // (misalnya data baru yang ditulis inline scripts)
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (excludedKeys.includes(k) || k === '_last_updated') continue;
+          if (data[k] === undefined) {
+            // Key ini ada di lokal tapi belum di Firebase → upload
+            try {
+              set(ref(db, 'foodsync-erp/' + k), JSON.parse(localStorage.getItem(k)));
+            } catch(e) {
+              set(ref(db, 'foodsync-erp/' + k), localStorage.getItem(k));
+            }
+          }
+        }
 
-        // Reload SATU KALI per sesi agar semua script membaca data benar
+        // Reload SATU KALI per sesi jika ada perubahan
         if (hasChanges && !sessionStorage.getItem('foodsync_session_synced')) {
           sessionStorage.setItem('foodsync_session_synced', 'true');
-          console.log('[FoodSync] Data berubah. Reload halaman...');
+          console.log('[FoodSync] Data berubah dari Firebase. Reload...');
           window.location.reload();
           return;
         }
 
-        // Dispatch storage events agar UI update
+        // Dispatch storage events
         Object.keys(data).forEach(key => {
-          if (excludedKeys.includes(key) || key === 'force_wipe') return;
+          if (excludedKeys.includes(key) || key === 'force_wipe' || key === '_last_updated') return;
           window.dispatchEvent(new StorageEvent('storage', {
             key: key,
             newValue: localStorage.getItem(key)
@@ -154,27 +141,30 @@ if (isFirebaseInitialized) {
         });
 
       } else {
-        // Firebase KOSONG → upload semua data lokal
+        // ---- Firebase KOSONG → upload semua data lokal ----
         console.log('[FoodSync] Firebase kosong. Upload semua data lokal...');
-        uploadAllLocalToFirebase(null);
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (excludedKeys.includes(k)) continue;
+          try {
+            set(ref(db, 'foodsync-erp/' + k), JSON.parse(localStorage.getItem(k)));
+          } catch(e) {
+            set(ref(db, 'foodsync-erp/' + k), localStorage.getItem(k));
+          }
+        }
+        set(ref(db, 'foodsync-erp/_last_updated'), Date.now());
       }
       return;
     }
 
     // ================================================================
-    // SUBSEQUENT UPDATES (realtime sync setelah initial)
+    // SUBSEQUENT UPDATES (realtime)
     // ================================================================
     if (data) {
       Object.keys(data).forEach(key => {
-        if (excludedKeys.includes(key) || key === 'force_wipe') return;
+        if (excludedKeys.includes(key) || key === 'force_wipe' || key === '_last_updated') return;
         
-        let val = data[key];
-        if (val && typeof val === 'object' && !Array.isArray(val)) {
-          const keys = Object.keys(val);
-          if (keys.length > 0 && keys.every(k => !isNaN(k))) {
-            val = Object.values(val);
-          }
-        }
+        let val = fixFirebaseArray(data[key]);
         const stringifiedValue = JSON.stringify(val);
         if (localStorage.getItem(key) !== stringifiedValue) {
           originalSetItem.call(localStorage, key, stringifiedValue);

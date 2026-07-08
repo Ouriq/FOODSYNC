@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Force Sync - FoodSync ERP</title>
+    <style>
+        body { font-family: 'DM Sans', sans-serif; background: #F3F4F6; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; max-width: 500px; }
+        h1 { color: #111827; font-size: 22px; margin-bottom: 8px; }
+        p { color: #6B7280; margin-bottom: 24px; font-size: 14px; line-height: 1.6; }
+        .btn { border: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; margin: 6px; display: inline-block; }
+        .btn-upload { background: #2563EB; color: white; }
+        .btn-upload:hover { background: #1D4ED8; }
+        .btn-download { background: #059669; color: white; }
+        .btn-download:hover { background: #047857; }
+        #log { text-align: left; background: #1F2937; color: #10B981; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; margin-top: 20px; display: none; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔄 Force Sync Data</h1>
+        <p>
+            Gunakan halaman ini untuk memaksa sinkronisasi data antara perangkat.<br>
+            <strong>Upload:</strong> Kirim semua data dari laptop INI ke Firebase (Cloud).<br>
+            <strong>Download:</strong> Tarik semua data dari Firebase ke laptop INI.
+        </p>
+        <button class="btn btn-upload" id="btnUpload">⬆️ Upload Data ke Cloud</button>
+        <button class="btn btn-download" id="btnDownload">⬇️ Download Data dari Cloud</button>
+        <div id="log"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAR5NiwcKKHA7nOOW6BFuZLBSXyPztU380",
+            authDomain: "foodsyncerp.firebaseapp.com",
+            databaseURL: "https://foodsyncerp-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "foodsyncerp",
+            storageBucket: "foodsyncerp.firebasestorage.app",
+            messagingSenderId: "956117976103",
+            appId: "1:956117976103:web:08811896b3b34ac1d0ba02",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const logEl = document.getElementById('log');
+
+        const excludedKeys = [
+            'user_name', 'user_role', 'user_email', 'auth_token', 'user_photo',
+            'foodsync_initial_sync_done', 'foodsync_is_cleared', 'last_wipe',
+            'foodsync_session_synced', 'foodsync_last_sync_ts'
+        ];
+
+        function log(msg) {
+            logEl.style.display = 'block';
+            logEl.textContent += msg + '\n';
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // UPLOAD: localStorage → Firebase
+        document.getElementById('btnUpload').addEventListener('click', async () => {
+            if (!confirm('Upload SEMUA data dari laptop ini ke Cloud?\nData di Cloud akan DITIMPA dengan data laptop ini.')) return;
+            
+            log('=== MULAI UPLOAD ===');
+            let count = 0;
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (excludedKeys.includes(k)) continue;
+                
+                const val = localStorage.getItem(k);
+                try {
+                    await set(ref(db, 'foodsync-erp/' + k), JSON.parse(val));
+                } catch(e) {
+                    await set(ref(db, 'foodsync-erp/' + k), val);
+                }
+                count++;
+                log('✅ ' + k);
+            }
+            
+            await set(ref(db, 'foodsync-erp/_last_updated'), Date.now());
+            log('\n🎉 SELESAI! ' + count + ' key berhasil diupload ke Cloud.');
+            log('Sekarang buka laptop lain, buka halaman ini, dan klik "Download".');
+            
+            // Clear session flag agar device lain reload
+            sessionStorage.removeItem('foodsync_session_synced');
+        });
+
+        // DOWNLOAD: Firebase → localStorage
+        document.getElementById('btnDownload').addEventListener('click', async () => {
+            if (!confirm('Download SEMUA data dari Cloud ke laptop ini?\nData lokal akan DITIMPA dengan data dari Cloud.')) return;
+            
+            log('=== MULAI DOWNLOAD ===');
+            
+            const snapshot = await get(ref(db, 'foodsync-erp'));
+            const data = snapshot.val();
+            
+            if (!data) {
+                log('❌ Firebase kosong! Tidak ada data untuk didownload.');
+                return;
+            }
+            
+            let count = 0;
+            Object.keys(data).forEach(key => {
+                if (excludedKeys.includes(key) || key === 'force_wipe' || key === '_last_updated') return;
+                
+                let val = data[key];
+                // Fix Firebase array conversion
+                if (val && typeof val === 'object' && !Array.isArray(val)) {
+                    const keys = Object.keys(val);
+                    if (keys.length > 0 && keys.every(k => !isNaN(k))) {
+                        val = Object.values(val);
+                    }
+                }
+                localStorage.setItem(key, JSON.stringify(val));
+                count++;
+                log('✅ ' + key);
+            });
+            
+            // Clear session flag to force reload on next page
+            sessionStorage.removeItem('foodsync_session_synced');
+            
+            log('\n🎉 SELESAI! ' + count + ' key berhasil didownload dari Cloud.');
+            log('Refresh halaman ERP untuk melihat data terbaru.');
+        });
+    </script>
+</body>
+</html>
