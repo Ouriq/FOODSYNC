@@ -31,9 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const today = new Date().toLocaleDateString('id-ID', dateOptions);
   document.getElementById('currentDate').textContent = today;
 
-  // --- FETCH DYNAMIC DATA DARI LOCALSTORAGE ---
-  let salesOrders = JSON.parse(localStorage.getItem('sales_orders') || '[]');
-  let processedOrders = salesOrders.filter(so => so.status === 'processed');
+  // Fungsi untuk render ulang chart dan data saat localStorage berubah
+  function renderDashboardData() {
+    // --- FETCH DYNAMIC DATA DARI LOCALSTORAGE ---
+    let salesOrders = JSON.parse(localStorage.getItem('sales_orders') || '[]');
+    let processedOrders = salesOrders.filter(so => so.status === 'processed');
 
   let totalIncome = 0;
   let totalKarton = 0;
@@ -114,7 +116,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let maxChartVal = allChartData.length > 0 ? Math.max(...allChartData) : 90;
   maxChartVal = maxChartVal < 10 ? 10 : Math.ceil(maxChartVal * 1.2 / 10) * 10;
 
-  new Chart(ctx, {
+  if (window.revenueChart) {
+    window.revenueChart.destroy();
+  }
+
+  window.revenueChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
@@ -174,8 +180,18 @@ document.addEventListener("DOMContentLoaded", () => {
           grid: { display: false },
           ticks: { font: { family: "'DM Sans', sans-serif", weight: '600' } },
           border: { display: false }
-        }
       }
+    }
+  });
+  } // End of renderDashboardData
+
+  // Panggil pertama kali saat halaman dimuat
+  renderDashboardData();
+
+  // Dengarkan perubahan dari tab lain atau dari firebase-sync
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'sales_orders') {
+      renderDashboardData();
     }
   });
 
