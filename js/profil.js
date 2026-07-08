@@ -200,8 +200,8 @@ document.addEventListener("DOMContentLoaded", () => {
         opt.addEventListener('click', () => {
           const newSrc = opt.getAttribute('data-src');
           
-          // Update localStorage
-          localStorage.setItem('user_photo', newSrc);
+          // Simpan foto di sessionStorage
+          sessionStorage.setItem('user_photo', newSrc);
           
           // Update all avatars in DOM
           const userAvatars = document.querySelectorAll('.user-avatar');
@@ -227,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Load saved photo on startup
-    const savedPhoto = localStorage.getItem('user_photo');
+    const savedPhoto = (sessionStorage.getItem('user_photo') || localStorage.getItem('user_photo'));
     if (savedPhoto) {
       const userAvatars = document.querySelectorAll('.user-avatar');
       const bigAvatars = document.querySelectorAll('.big-avatar');

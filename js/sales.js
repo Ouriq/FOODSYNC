@@ -302,7 +302,7 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   // User photo
-  const userPhoto = localStorage.getItem('user_photo');
+  const userPhoto = (sessionStorage.getItem('user_photo') || localStorage.getItem('user_photo'));
   if (userPhoto) {
     const avatars = document.querySelectorAll('.user-avatar');
     avatars.forEach(function(av) {

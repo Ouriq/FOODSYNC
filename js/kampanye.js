@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     'Pengguna';
   document.getElementById('userNameDisplay').textContent = userName;
 
-  const userPhoto = localStorage.getItem('user_photo');
+  const userPhoto = (sessionStorage.getItem('user_photo') || localStorage.getItem('user_photo'));
   if (userPhoto) {
     var avatars = document.querySelectorAll('.user-avatar');
     avatars.forEach(function(av) {

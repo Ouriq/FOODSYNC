@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pdRoleBadge) pdRoleBadge.textContent = userRole.toUpperCase();
 
     // 2.5 Load Avatar
-    const savedPhoto = localStorage.getItem('user_photo');
+    const savedPhoto = (sessionStorage.getItem('user_photo') || localStorage.getItem('user_photo'));
     if (savedPhoto) {
         const userAvatars = document.querySelectorAll('.user-avatar');
         const bigAvatars = document.querySelectorAll('.big-avatar');

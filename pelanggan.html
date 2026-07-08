@@ -10,7 +10,7 @@
 
 <script>
   (function() {
-    var photo = localStorage.getItem('user_photo');
+    var photo = sessionStorage.getItem('user_photo') || localStorage.getItem('user_photo');
     if (photo) {
       document.write('<style id="anti-flicker-avatar">');
       document.write('.user-avatar { background-image: url(' + photo + '); background-size: cover; background-position: center; }');
