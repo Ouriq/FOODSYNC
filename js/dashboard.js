@@ -108,11 +108,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let maxChartVal = allChartData.length > 0 ? Math.max(...allChartData) : 90;
   maxChartVal = maxChartVal < 10 ? 10 : Math.ceil(maxChartVal * 1.2 / 10) * 10;
 
-  if (window.revenueChart) {
-    window.revenueChart.destroy();
+  if (window.myRevenueChart) {
+    window.myRevenueChart.destroy();
   }
 
-  window.revenueChart = new Chart(ctx, {
+  window.myRevenueChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
