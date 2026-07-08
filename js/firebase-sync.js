@@ -14,6 +14,7 @@ const firebaseConfig = {
 
 let app, db;
 let isFirebaseInitialized = false;
+let initialSyncComplete = false;
 
 // Kunci yang JANGAN disinkronkan ke Firebase (biarkan tetap lokal per perangkat)
 const excludedKeys = ['user_name', 'user_role', 'user_email', 'auth_token', 'user_photo'];
@@ -74,6 +75,33 @@ if (isFirebaseInitialized) {
         }
       });
     }
+
+    // Set flag initial sync complete
+    if (!initialSyncComplete) {
+      initialSyncComplete = true;
+      if (!localStorage.getItem('foodsync_initial_sync_done')) {
+        originalSetItem.call(localStorage, 'foodsync_initial_sync_done', 'true');
+        
+        if (!data) {
+          // Firebase kosong (pengguna baru). Unggah semua dummy data lokal ke Firebase!
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (!excludedKeys.includes(k) && k !== 'foodsync_initial_sync_done' && k !== 'foodsync_is_cleared' && k !== 'last_wipe') {
+              try {
+                set(ref(db, 'foodsync-erp/' + k), JSON.parse(localStorage.getItem(k)));
+              } catch(e) {
+                set(ref(db, 'foodsync-erp/' + k), localStorage.getItem(k));
+              }
+            }
+          }
+        } else {
+          // Firebase ada data dan berhasil menimpa localStorage.
+          // Reload halaman agar semua script membaca data asli dari Cloud, bukan dummy data!
+          window.location.reload();
+          return;
+        }
+      }
+    }
   });
 }
 
@@ -82,8 +110,9 @@ localStorage.setItem = function (key, value) {
   // Selalu jalankan fungsi aslinya untuk menyimpan ke browser lokal
   originalSetItem.apply(this, arguments);
 
-  // Jika Firebase aktif dan key bukan pengecualian, kirim ke cloud!
-  if (isFirebaseInitialized && !excludedKeys.includes(key)) {
+  // Cegah upload jika initial sync dari Firebase belum selesai!
+  // Ini mencegah dummy data lokal menimpa data asli di Cloud saat buka di laptop baru.
+  if (isFirebaseInitialized && !excludedKeys.includes(key) && initialSyncComplete) {
     try {
       // Data di localStorage berbentuk string JSON, kita parse dulu agar rapi di Firebase
       const parsedValue = JSON.parse(value);
