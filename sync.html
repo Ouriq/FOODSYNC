@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Sync Tool v2</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, sans-serif; background: #111; color: #eee; padding: 20px; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 20px; }
+        .info { text-align: center; color: #888; font-size: 13px; margin-bottom: 20px; }
+        .btns { display: flex; gap: 10px; justify-content: center; margin: 20px 0; flex-wrap: wrap; }
+        button { padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .b1 { background: #2563EB; color: #fff; }
+        .b2 { background: #059669; color: #fff; }
+        .b3 { background: #7C3AED; color: #fff; }
+        #out { background: #1a1a2e; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 11px; white-space: pre-wrap; word-break: break-all; max-height: 60vh; overflow-y: auto; color: #0f0; }
+    </style>
+</head>
+<body>
+    <h1>🔄 Sync Tool v2</h1>
+    <p class="info">Upload = kirim data laptop ini ke cloud. Download = tarik data dari cloud.</p>
+    <div class="btns">
+        <button class="b1" onclick="doUpload()">⬆ UPLOAD</button>
+        <button class="b2" onclick="doDownload()">⬇ DOWNLOAD</button>
+        <button class="b3" onclick="doCheck()">🔍 CEK FIREBASE</button>
+    </div>
+    <div id="out">Siap.\n</div>
+<script>
+var BASE='https://foodsyncerp-default-rtdb.asia-southeast1.firebasedatabase.app/foodsync-erp';
+var o=document.getElementById('out');
+function w(s){o.textContent+=s+'\n';o.scrollTop=o.scrollHeight;}
+
+function badKey(k){
+  if(!k)return true;
+  if(k.indexOf('.')!==-1)return true;
+  if(k.indexOf(':')!==-1)return true;
+  if(k.indexOf('$')!==-1)return true;
+  if(k.indexOf('#')!==-1)return true;
+  if(k.indexOf('[')!==-1)return true;
+  if(k.indexOf(']')!==-1)return true;
+  if(k.indexOf('/')!==-1)return true;
+  return false;
+}
+
+var SKIP=['user_name','user_role','user_email','auth_token','user_photo',
+  'foodsync_initial_sync_done','foodsync_is_cleared','last_wipe',
+  'foodsync_session_synced','foodsync_last_sync_ts','foodsync_preloaded',
+  'force_wipe','_last_updated'];
+
+function skip(k){return SKIP.indexOf(k)!==-1||badKey(k);}
+
+async function doUpload(){
+  if(!confirm('Upload semua data ke cloud?'))return;
+  o.textContent='';
+  w('=== UPLOAD (satu per satu) ===');
+  var ok=0,fail=0;
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(skip(k)){w('⏭ SKIP: '+k);continue;}
+    var v=localStorage.getItem(k);
+    var j;try{j=JSON.parse(v);}catch(e){j=v;}
+    try{
+      var r=await fetch(BASE+'/'+encodeURIComponent(k)+'.json',{
+        method:'PUT',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(j)
+      });
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      ok++;
+      w('✅ '+k+' ('+v.length+' bytes)');
+    }catch(e){
+      fail++;
+      w('❌ '+k+' → '+e.message);
+    }
+  }
+  w('\n🎉 Selesai! '+ok+' OK, '+fail+' gagal.');
+  sessionStorage.removeItem('foodsync_preloaded');
+  sessionStorage.removeItem('foodsync_session_synced');
+}
+
+async function doDownload(){
+  if(!confirm('Download semua data dari cloud?'))return;
+  o.textContent='';
+  w('=== DOWNLOAD ===');
+  try{
+    var r=await fetch(BASE+'.json');
+    var data=await r.json();
+    if(!data){w('Firebase KOSONG!');return;}
+    var c=0;
+    Object.keys(data).forEach(function(k){
+      if(skip(k))return;
+      var v=data[k];
+      if(v&&typeof v==='object'&&!Array.isArray(v)){
+        var ks=Object.keys(v);
+        if(ks.length>0&&ks.every(function(x){return !isNaN(x);}))v=Object.values(v);
+      }
+      localStorage.setItem(k,JSON.stringify(v));
+      c++;
+      w('✅ '+k);
+    });
+    sessionStorage.removeItem('foodsync_preloaded');
+    sessionStorage.removeItem('foodsync_session_synced');
+    w('\n🎉 '+c+' key didownload. Refresh halaman ERP.');
+  }catch(e){w('❌ '+e.message);}
+}
+
+async function doCheck(){
+  o.textContent='';
+  w('=== CEK FIREBASE ===');
+  try{
+    var r=await fetch(BASE+'.json');
+    var data=await r.json();
+    if(!data){w('KOSONG!');return;}
+    var ks=Object.keys(data);
+    w('Total: '+ks.length+' key\n');
+    ks.forEach(function(k){
+      var v=data[k],s=JSON.stringify(v).length;
+      var p=Array.isArray(v)?(' ['+v.length+' items]'):
+        (typeof v==='object'&&v!==null?(' {'+Object.keys(v).length+' keys}'):
+        (' = '+String(v).substring(0,60)));
+      w('  '+k+' ('+s+' b)'+p);
+    });
+  }catch(e){w('❌ '+e.message);}
+}
+
+// Show local keys
+(function(){
+  var ks=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(!skip(k))ks.push(k);
+  }
+  w('Data lokal: '+ks.length+' key valid');
+  w('Keys: '+ks.join(', ')+'\n');
+})();
+</script>
+</body>
+</html>
