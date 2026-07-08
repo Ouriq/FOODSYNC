@@ -35,10 +35,15 @@ try {
 // ========================================================================
 // OVERRIDE localStorage.setItem — cegat semua penulisan
 // ========================================================================
+// Helper: cek apakah key valid untuk Firebase
+function isValidFirebaseKey(k) {
+  return !/[.$#\[\]\/:]/.test(k) && k.indexOf('firebase') !== 0;
+}
+
 localStorage.setItem = function (key, value) {
   originalSetItem.apply(this, arguments);
 
-  if (!isFirebaseInitialized || !initialSyncComplete || excludedKeys.includes(key)) {
+  if (!isFirebaseInitialized || !initialSyncComplete || excludedKeys.includes(key) || !isValidFirebaseKey(key)) {
     return;
   }
 
@@ -112,7 +117,7 @@ if (isFirebaseInitialized) {
         // (misalnya data baru yang ditulis inline scripts)
         for (let i = 0; i < localStorage.length; i++) {
           const k = localStorage.key(i);
-          if (excludedKeys.includes(k) || k === '_last_updated') continue;
+          if (excludedKeys.includes(k) || k === '_last_updated' || !isValidFirebaseKey(k)) continue;
           if (data[k] === undefined) {
             // Key ini ada di lokal tapi belum di Firebase → upload
             try {
@@ -145,7 +150,7 @@ if (isFirebaseInitialized) {
         console.log('[FoodSync] Firebase kosong. Upload semua data lokal...');
         for (let i = 0; i < localStorage.length; i++) {
           const k = localStorage.key(i);
-          if (excludedKeys.includes(k)) continue;
+          if (excludedKeys.includes(k) || !isValidFirebaseKey(k)) continue;
           try {
             set(ref(db, 'foodsync-erp/' + k), JSON.parse(localStorage.getItem(k)));
           } catch(e) {
