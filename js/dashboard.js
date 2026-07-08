@@ -180,6 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
           grid: { display: false },
           ticks: { font: { family: "'DM Sans', sans-serif", weight: '600' } },
           border: { display: false }
+        }
       }
     }
   });
