@@ -71,7 +71,11 @@ function setLoading(isLoading) {
 }
 
 function saveSession(user, remember) {
-  const storage = remember ? localStorage : sessionStorage;
+  // Menghapus data dari localStorage agar tidak mengganggu multi-tab
+  ['user_name', 'user_role', 'user_email', 'auth_token', 'user_photo', 'isLoggedIn'].forEach(key => localStorage.removeItem(key));
+  
+  // HANYA gunakan sessionStorage
+  const storage = sessionStorage;
   storage.setItem('auth_token', 'session-' + Date.now());
   storage.setItem('user_name', user.name);
   storage.setItem('user_email', user.email);

@@ -1,8 +1,7 @@
-
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Set Nama dan Role Pengguna dari Login
-  const userName = localStorage.getItem('user_name') || sessionStorage.getItem('user_name') || 'Pengguna';
-  const userRole = localStorage.getItem('user_role') || sessionStorage.getItem('user_role') || 'sales';
+  // 1. Set Nama dan Role Pengguna dari Login (Prioritaskan sessionStorage agar multi-tab bisa beda akun)
+  const userName = sessionStorage.getItem('user_name') || localStorage.getItem('user_name') || 'Pengguna';
+  const userRole = sessionStorage.getItem('user_role') || localStorage.getItem('user_role') || 'sales';
   
   const roleTitleMap = {
       'sales': 'Sales & Marketing Manager',
@@ -37,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   if (popupUserName) popupUserName.textContent = userName;
   if (popupUserEmail) {
-      let email = localStorage.getItem('user_email') || sessionStorage.getItem('user_email');
+      let email = sessionStorage.getItem('user_email') || localStorage.getItem('user_email');
       popupUserEmail.textContent = email || 'sales@indofood.com';
   }
   if (popupUserBadge) {
@@ -45,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Set User Photo
-  const savedPhoto = localStorage.getItem('user_photo');
+  const savedPhoto = sessionStorage.getItem('user_photo') || localStorage.getItem('user_photo');
   if (savedPhoto) {
     const userAvatars = document.querySelectorAll('.user-avatar');
     userAvatars.forEach(av => {

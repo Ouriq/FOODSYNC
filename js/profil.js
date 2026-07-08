@@ -282,9 +282,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const userNameDisplay = document.getElementById('userNameDisplay');
         if (userNameDisplay) userNameDisplay.textContent = newName;
         
-        // Simpan ke localStorage agar bertahan antar halaman
-        localStorage.setItem('user_name', newName);
-        localStorage.setItem('user_phone', newPhone);
+        // Simpan ke sessionStorage agar bertahan antar halaman dalam tab yang sama
+        sessionStorage.setItem('user_name', newName);
+        sessionStorage.setItem('user_phone', newPhone);
         
         // Kembali ke mode display
         profileEditView.style.display = 'none';

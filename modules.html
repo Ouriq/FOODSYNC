@@ -249,8 +249,8 @@
   function checkAccess(event, requiredRole, targetUrl) {
     event.preventDefault();
     
-    // Ambil role dari localStorage
-    const userRole = localStorage.getItem('user_role');
+    // Ambil role dari sessionStorage (prioritas multi-tab) atau localStorage (fallback)
+    const userRole = sessionStorage.getItem('user_role') || localStorage.getItem('user_role');
     
     if (!userRole) {
       alert("Anda belum login! Silakan login terlebih dahulu.");
@@ -260,7 +260,7 @@
 
     // Cek apakah sudah absen hari ini
     const today = new Date().toISOString().split('T')[0];
-    const email = localStorage.getItem('user_email');
+    const email = sessionStorage.getItem('user_email') || localStorage.getItem('user_email');
     const attendance = JSON.parse(localStorage.getItem('erp_attendance')) || [];
     const hasClockedIn = attendance.some(a => a.email === email && a.date === today && a.timeIn);
 
@@ -283,11 +283,11 @@
 
   // Logika Pop-up Absen Masuk
   document.addEventListener("DOMContentLoaded", () => {
-    const userRole = localStorage.getItem('user_role');
+    const userRole = sessionStorage.getItem('user_role') || localStorage.getItem('user_role');
     if (!userRole) return;
 
     const today = new Date().toISOString().split('T')[0];
-    const email = localStorage.getItem('user_email');
+    const email = sessionStorage.getItem('user_email') || localStorage.getItem('user_email');
     const attendance = JSON.parse(localStorage.getItem('erp_attendance')) || [];
     const hasClockedIn = attendance.some(a => a.email === email && a.date === today && a.timeIn);
 
@@ -307,13 +307,13 @@
 
       document.getElementById('btnAbsenMasuk').addEventListener('click', () => {
         const now = new Date();
-        const timeString = now.toTimeString().split(' ')[0];
+        const timeNow = now.toTimeString().split(' ')[0];
         
         attendance.push({
           email: email,
-          name: localStorage.getItem('user_name') || 'User',
+          name: sessionStorage.getItem('user_name') || localStorage.getItem('user_name') || 'User',
           date: today,
-          timeIn: timeString,
+          timeIn: timeNow,
           timeOut: null,
           status: 'Hadir'
         });
