@@ -462,3 +462,12 @@ if (userPhoto) {
     av.innerHTML = "<img src='" + userPhoto + "' style='width:100%; height:100%; border-radius:50%; object-fit:cover;'>";
   });
 }
+
+
+// Dengarkan perubahan dari firebase-sync
+window.addEventListener('storage', (e) => {
+    if (e.key === 'customers_data') {
+        customersData = JSON.parse(localStorage.getItem('customers_data')) || [];
+        renderTable();
+    }
+});
