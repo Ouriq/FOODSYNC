@@ -49,15 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let qtySoto = 0, qtyGoreng = 0, qtyKari = 0;
 
   processedOrders.forEach(so => {
-    // 1. Total Income
-    let orderTotal = 0;
-    if (typeof so.grandTotal === 'string') {
-        orderTotal = parseInt(so.grandTotal.replace(/[^0-9]/g, '')) || 0;
-    } else {
-        orderTotal = so.grandTotal || 0;
-    }
-    totalIncome += orderTotal;
-
     // 2. Data Bulan (Hanya Jan-Mei)
     let d = new Date(so.createdAt);
     let month = d.getMonth(); // 0-11
@@ -65,8 +56,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (so.products) {
       so.products.forEach(p => {
         let q = p.quantity || 0;
-        let sub = p.subtotal || 0;
+        let sub = p.subtotal || (p.price * p.quantity) || 0;
         
+        totalIncome += sub;
         totalKarton += q;
 
         let name = (p.name || '').toLowerCase();
