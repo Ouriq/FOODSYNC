@@ -131,6 +131,22 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const selectedVarian = document.getElementById('filterVarian') ? document.getElementById('filterVarian').value : 'Semua Varian';
         
+        const dateFromStr = document.getElementById('inputDateFrom') ? document.getElementById('inputDateFrom').value : '';
+        const dateToStr = document.getElementById('inputDateTo') ? document.getElementById('inputDateTo').value : '';
+        
+        if (dateFromStr && dateToStr) {
+            const startOfDay = new Date(dateFromStr);
+            startOfDay.setHours(0, 0, 0, 0);
+            
+            const endOfDay = new Date(dateToStr);
+            endOfDay.setHours(23, 59, 59, 999);
+            
+            processedOrders = processedOrders.filter(so => {
+                const soDate = new Date(so.createdAt);
+                return soDate >= startOfDay && soDate <= endOfDay;
+            });
+        }
+        
         if (selectedVarian !== 'Semua Varian') {
             processedOrders = processedOrders.filter(so => {
                 return so.products && so.products.some(p => p.quantity > 0 && p.name === selectedVarian);
@@ -200,6 +216,40 @@ document.addEventListener("DOMContentLoaded", () => {
         
         document.getElementById('repTotalTransaksi').textContent = count + ' dari ' + count + ' transaksi';
         document.getElementById('repTotalNilaiBawah').textContent = 'Rp ' + totalNilaiStr;
+
+        // Update UI dynamic text
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        let periodeText = '-';
+        let monthStr = '';
+        if (dateFromStr && dateToStr) {
+            const dF = new Date(dateFromStr);
+            const dT = new Date(dateToStr);
+            const dFStr = dF.getDate() + ' ' + months[dF.getMonth()] + ' ' + dF.getFullYear();
+            const dTStr = dT.getDate() + ' ' + months[dT.getMonth()] + ' ' + dT.getFullYear();
+            periodeText = dFStr + ' - ' + dTStr;
+            monthStr = months[dF.getMonth()].toUpperCase() + ' ' + dF.getFullYear();
+        }
+        
+        const now = new Date();
+        const nowStr = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear() + ', ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+        
+        if (document.getElementById('docPeriode')) {
+            document.getElementById('docPeriode').textContent = periodeText;
+        }
+        if (document.getElementById('docVarian')) {
+            document.getElementById('docVarian').textContent = selectedVarian;
+        }
+        if (document.getElementById('docTitleBanner')) {
+            document.getElementById('docTitleBanner').textContent = 'LAPORAN PENJUALAN - SALES ORDER REPORT' + (monthStr ? ' - ' + monthStr : '');
+        }
+        if (document.getElementById('previewBannerDesc')) {
+            document.getElementById('previewBannerDesc').textContent = 'Digenerate ' + nowStr + ' - 1 halaman';
+        }
+        if (document.getElementById('previewBannerTitle')) {
+            let mStr = dateFromStr ? months[new Date(dateFromStr).getMonth()].substring(0,3) + new Date(dateFromStr).getFullYear() : '';
+            let vStr = selectedVarian.replace(/\s+/g, '');
+            document.getElementById('previewBannerTitle').textContent = 'Laporan_Penjualan_' + mStr + '_' + vStr + '.pdf';
+        }
 
         const btnSendToFinance = document.getElementById('btnSendToFinance');
         if (btnSendToFinance) {
