@@ -1,7 +1,37 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Inisialisasi Data
     const usersDB = JSON.parse(localStorage.getItem('erp_users')) || [];
-    const attendanceDB = JSON.parse(localStorage.getItem('erp_attendance')) || [];
+    let attendanceDB = JSON.parse(localStorage.getItem('erp_attendance')) || [];
+    
+    // --- GENERATE 6 MONTHS DUMMY DATA ---
+    if (attendanceDB.length < 50 && usersDB.length > 0) {
+        const statuses = ['Hadir', 'Hadir', 'Hadir', 'Hadir', 'Hadir', 'Hadir', 'Cuti', 'Sakit', 'Alpa'];
+        const now = new Date();
+        const newRecords = [];
+        
+        for (let i = 0; i < 180; i++) {
+            const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+            if (d.getDay() === 0 || d.getDay() === 6) continue; // Skip weekend
+            const dateStr = d.toISOString().split('T')[0];
+            
+            usersDB.forEach(user => {
+                // Avoid duplicating if record exists
+                if (attendanceDB.some(a => a.date === dateStr && a.email === user.email)) return;
+                
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+                if (status === 'Hadir') {
+                    newRecords.push({ date: dateStr, email: user.email, name: user.name, timeIn: '08:00', timeOut: '17:00', status: 'Hadir' });
+                } else {
+                    newRecords.push({ date: dateStr, email: user.email, name: user.name, timeIn: '-', timeOut: '-', status: status });
+                }
+            });
+        }
+        
+        attendanceDB = [...attendanceDB, ...newRecords];
+        localStorage.setItem('erp_attendance', JSON.stringify(attendanceDB));
+        window.dispatchEvent(new Event('storage')); // trigger sync to Firebase
+    }
+    // -------------------------------------
     
     // Format Tanggal Hari Ini
     const todayStr = new Date().toISOString().split('T')[0];
