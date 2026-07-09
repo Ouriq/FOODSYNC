@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Jika belum ada alokasi sama sekali, beri nilai default agar tidak 0 / error (opsional, sesuaikan bisnis logik)
   if (maxBudget === 0) {
-      maxBudget = 0; // Mengikuti budget finance yang sebenarnya (0 jika belum ada dana turun)
+      maxBudget = 2500000000; // Default 2.5 Miliar jika finance belum set
   }
 
   // --- Listener untuk storage event (agar sinkron saat finance ubah alokasi) ---
@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
               }
           });
           maxBudget = newMaxBudget;
+          if (maxBudget === 0) maxBudget = 2500000000; // Default fallback
           
           if (e.key === 'campaigns_data') {
              loadCampaigns();
