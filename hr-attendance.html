@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard HR & Absensi – FoodSync</title>
+  <title>Employee Attendance – FoodSync</title>
   
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -124,13 +124,13 @@
       </div>
       <p class="menu-label">MENU</p>
       <nav class="sidebar-nav">
-        <a href="dashboardhr.html" class="nav-item active">
+        <a href="dashboardhr.html" class="nav-item">
           <i class='bx bx-home'></i> Dashboard HR
         </a>
         <a href="hr-staff.html" class="nav-item">
           <i class='bx bx-user-pin'></i> Staff Management
         </a>
-        <a href="hr-attendance.html" class="nav-item">
+        <a href="hr-attendance.html" class="nav-item active">
           <i class='bx bx-time-five'></i> Employee Attendance
         </a>
         <a href="hr-recap.html" class="nav-item">
@@ -214,62 +214,34 @@
 
       <div>
         <h1 class="page-title" id="greetingText">Selamat Datang</h1>
-        <p class="page-subtitle"><span id="currentDate">Senin, 10 Juni 2026</span> | <span id="dashboardTitle">HR & Staff Management Dashboard</span></p>
+        <p class="page-subtitle"><span id="currentDate">Senin, 10 Juni 2026</span> | <span id="dashboardTitle">Employee Attendance</span></p>
       </div>
 
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon bg-blue"><i class='bx bx-group'></i></div>
-          <div class="stat-info">
-            <p>Total Karyawan</p>
-            <h2 id="valTotalStaff">0</h2>
-            <p>Orang</p>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon bg-green"><i class='bx bx-user-check'></i></div>
-          <div class="stat-info">
-            <p>Hadir Hari Ini</p>
-            <h2 id="valHadir">0</h2>
-            <p>Karyawan</p>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon bg-red"><i class='bx bx-user-x'></i></div>
-          <div class="stat-info">
-            <p>Belum Hadir / Cuti</p>
-            <h2 id="valBelumHadir">0</h2>
-            <p>Karyawan</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="charts-container">
-        <!-- Chart 1: Departemen -->
-        <div class="chart-card">
+      <div class="charts-container" style="margin-top: 24px;">
+        <!-- Tabel Absensi Hari Ini -->
+        <div class="chart-card" style="flex: 1;">
           <div class="chart-header">
             <div>
-              <h3>Sebaran Karyawan per Departemen</h3>
-              <p>Distribusi jumlah karyawan di tiap modul / departemen</p>
+              <h3>Data Absensi Karyawan Hari Ini</h3>
+              <p>Monitor jam masuk dan jam keluar karyawan secara real-time</p>
             </div>
           </div>
-          <div style="height: 300px; display: flex; align-items: center; justify-content: center; width: 100%;">
-            <canvas id="deptChart"></canvas>
-          </div>
-        </div>
-        
-        <!-- Chart 2: Gender -->
-        <div class="chart-card" style="flex: 0.6;">
-          <div class="chart-header">
-            <div>
-              <h3>Distribusi Gender</h3>
-              <p>Rasio Karyawan Laki-laki vs Perempuan</p>
-            </div>
-          </div>
-          <div style="height: 300px; display: flex; align-items: center; justify-content: center;">
-            <canvas id="genderChart"></canvas>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama</th>
+                  <th>Jam Masuk</th>
+                  <th>Jam Keluar</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceTableBody">
+                <!-- Data diisi oleh JS -->
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

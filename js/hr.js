@@ -15,9 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const presentToday = attendanceDB.filter(a => a.date === todayStr && a.timeIn).length;
     const absentToday = totalStaff - presentToday;
     
-    document.getElementById('valTotalStaff').textContent = totalStaff;
-    document.getElementById('valHadir').textContent = presentToday;
-    document.getElementById('valBelumHadir').textContent = absentToday;
+    if (document.getElementById('valTotalStaff')) document.getElementById('valTotalStaff').textContent = totalStaff;
+    if (document.getElementById('valHadir')) document.getElementById('valHadir').textContent = presentToday;
+    if (document.getElementById('valBelumHadir')) document.getElementById('valBelumHadir').textContent = absentToday;
 
     // ==========================================
     // 2. RENDER CHARTS
@@ -92,23 +92,39 @@ document.addEventListener('DOMContentLoaded', () => {
         const todayAttendance = attendanceDB.filter(a => a.date === todayStr);
         let html = '';
         if (todayAttendance.length === 0) {
-            html = `<tr><td colspan="5" style="text-align: center; color: #6B7280;">Belum ada data absensi hari ini.</td></tr>`;
+            html = `<tr><td colspan="6" style="text-align: center; color: #6B7280;">Belum ada data absensi hari ini.</td></tr>`;
         } else {
             todayAttendance.forEach((att, index) => {
-                const timeOutText = att.timeOut ? att.timeOut : '<span style="color:#F59E0B">Belum Keluar</span>';
+                const timeOutText = att.timeOut ? att.timeOut : '<span style="color:#F59E0B">Belum Logout</span>';
                 html += `
                     <tr>
                         <td>${index + 1}</td>
                         <td style="font-weight: 600;">${att.name}</td>
                         <td style="color: #10B981; font-weight: 600;">${att.timeIn}</td>
                         <td style="font-weight: 600;">${timeOutText}</td>
-                        <td><span style="background: #D1FAE5; color: #065F46; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 700;">Hadir</span></td>
+                        <td><span style="background: #D1FAE5; color: #065F46; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 700;">${att.status || 'Hadir'}</span></td>
+                        <td>
+                            <button onclick="deleteAttendance('${att.email}', '${att.date}')" style="background: #FEE2E2; color: #DC2626; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 700;">Hapus</button>
+                        </td>
                     </tr>
                 `;
             });
         }
         attendanceTableBody.innerHTML = html;
     }
+
+    // Fungsi Hapus Absensi (Global Scope)
+    window.deleteAttendance = function(email, date) {
+        if(confirm(`Are you sure you want to delete this attendance record?\nThis employee will need to Check In again.`)) {
+            const index = attendanceDB.findIndex(a => a.email === email && a.date === date);
+            if (index > -1) {
+                attendanceDB.splice(index, 1);
+                localStorage.setItem('erp_attendance', JSON.stringify(attendanceDB));
+                window.dispatchEvent(new Event('storage'));
+                location.reload();
+            }
+        }
+    };
 
     // ==========================================
     // 4. RENDER TABEL MANAJEMEN STAF
@@ -195,5 +211,102 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Akun berhasil dibuat!");
             location.reload(); // Muat ulang untuk render ulang chart & tabel
         });
+    }
+    // ==========================================
+    // 6. MONTHLY RECAP LOGIC
+    // ==========================================
+    const recapTableBody = document.getElementById('recapTableBody');
+    if (recapTableBody) {
+        const filterMonth = document.getElementById('filterMonth');
+        const filterYear = document.getElementById('filterYear');
+        const btnFilterRecap = document.getElementById('btnFilterRecap');
+        const btnExportCSV = document.getElementById('btnExportCSV');
+
+        // Populate Years
+        const currentYear = new Date().getFullYear();
+        for (let i = currentYear; i >= currentYear - 5; i--) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = i;
+            filterYear.appendChild(opt);
+        }
+
+        // Set Default Month & Year
+        filterMonth.value = String(new Date().getMonth() + 1).padStart(2, '0');
+        filterYear.value = currentYear;
+
+        function renderRecap() {
+            const month = filterMonth.value;
+            const year = filterYear.value;
+            const prefix = `${year}-${month}`;
+
+            let totalPresent = 0;
+            let totalLeave = 0;
+            let totalSick = 0;
+            let totalAbsent = 0;
+
+            let html = '';
+            
+            usersDB.forEach((user, index) => {
+                const userAtt = attendanceDB.filter(a => a.email === user.email && a.date.startsWith(prefix));
+                const present = userAtt.filter(a => a.status === 'Hadir').length;
+                const leave = userAtt.filter(a => a.status === 'Cuti').length;
+                const sick = userAtt.filter(a => a.status === 'Sakit').length;
+                const absent = userAtt.filter(a => a.status === 'Alpa').length;
+
+                totalPresent += present;
+                totalLeave += leave;
+                totalSick += sick;
+                totalAbsent += absent;
+
+                html += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td style="font-weight: 600;">${user.name}</td>
+                        <td>${present}</td>
+                        <td>${leave}</td>
+                        <td>${sick}</td>
+                        <td>${absent}</td>
+                    </tr>
+                `;
+            });
+
+            recapTableBody.innerHTML = html;
+            
+            if (document.getElementById('valRecapPresent')) document.getElementById('valRecapPresent').textContent = totalPresent;
+            if (document.getElementById('valRecapLeave')) document.getElementById('valRecapLeave').textContent = totalLeave;
+            if (document.getElementById('valRecapSick')) document.getElementById('valRecapSick').textContent = totalSick;
+            if (document.getElementById('valRecapAbsent')) document.getElementById('valRecapAbsent').textContent = totalAbsent;
+        }
+
+        renderRecap();
+
+        if (btnFilterRecap) {
+            btnFilterRecap.addEventListener('click', renderRecap);
+        }
+
+        if (btnExportCSV) {
+            btnExportCSV.addEventListener('click', () => {
+                let csvContent = "data:text/csv;charset=utf-8,";
+                csvContent += "No,Nama Karyawan,Hadir,Cuti,Sakit,Alpa\n";
+                
+                const rows = recapTableBody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const cols = row.querySelectorAll('td');
+                    if (cols.length > 0) {
+                        const rowData = Array.from(cols).map(col => col.textContent).join(",");
+                        csvContent += rowData + "\n";
+                    }
+                });
+
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `Recap_${filterYear.value}_${filterMonth.value}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        }
     }
 });

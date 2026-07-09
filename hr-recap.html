@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard HR & Absensi – FoodSync</title>
+  <title>Monthly Attendance Recap – FoodSync</title>
   
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -124,7 +124,7 @@
       </div>
       <p class="menu-label">MENU</p>
       <nav class="sidebar-nav">
-        <a href="dashboardhr.html" class="nav-item active">
+        <a href="dashboardhr.html" class="nav-item">
           <i class='bx bx-home'></i> Dashboard HR
         </a>
         <a href="hr-staff.html" class="nav-item">
@@ -133,7 +133,7 @@
         <a href="hr-attendance.html" class="nav-item">
           <i class='bx bx-time-five'></i> Employee Attendance
         </a>
-        <a href="hr-recap.html" class="nav-item">
+        <a href="hr-recap.html" class="nav-item active">
           <i class='bx bx-bar-chart-alt-2'></i> Monthly Recap
         </a>
       </nav>
@@ -214,62 +214,94 @@
 
       <div>
         <h1 class="page-title" id="greetingText">Selamat Datang</h1>
-        <p class="page-subtitle"><span id="currentDate">Senin, 10 Juni 2026</span> | <span id="dashboardTitle">HR & Staff Management Dashboard</span></p>
+        <p class="page-subtitle"><span id="currentDate">Senin, 10 Juni 2026</span> | <span id="dashboardTitle">Monthly Attendance Recap</span></p>
+      </div>
+      
+      <!-- Filters -->
+      <div style="display: flex; gap: 16px; margin-bottom: 24px; align-items: center;">
+        <select id="filterMonth" style="padding: 10px; border: 1px solid #E5E7EB; border-radius: 8px; outline: none; font-size: 14px; font-weight: 600; color: #4B5563;">
+          <option value="01">Januari</option>
+          <option value="02">Februari</option>
+          <option value="03">Maret</option>
+          <option value="04">April</option>
+          <option value="05">Mei</option>
+          <option value="06">Juni</option>
+          <option value="07">Juli</option>
+          <option value="08">Agustus</option>
+          <option value="09">September</option>
+          <option value="10">Oktober</option>
+          <option value="11">November</option>
+          <option value="12">Desember</option>
+        </select>
+        <select id="filterYear" style="padding: 10px; border: 1px solid #E5E7EB; border-radius: 8px; outline: none; font-size: 14px; font-weight: 600; color: #4B5563;">
+          <!-- Diisi oleh JS -->
+        </select>
+        <button id="btnFilterRecap" class="btn-tambah" style="margin: 0;"><i class='bx bx-filter-alt'></i> Tampilkan</button>
       </div>
 
-      <div class="stats-grid">
+      <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
         <div class="stat-card">
-          <div class="stat-icon bg-blue"><i class='bx bx-group'></i></div>
+          <div class="stat-icon bg-blue"><i class='bx bx-user-check'></i></div>
           <div class="stat-info">
-            <p>Total Karyawan</p>
-            <h2 id="valTotalStaff">0</h2>
-            <p>Orang</p>
+            <p>Total Hadir</p>
+            <h2 id="valRecapPresent">0</h2>
+            <p>Hari</p>
           </div>
         </div>
         
         <div class="stat-card">
-          <div class="stat-icon bg-green"><i class='bx bx-user-check'></i></div>
+          <div class="stat-icon" style="background: #F59E0B;"><i class='bx bx-time-five'></i></div>
           <div class="stat-info">
-            <p>Hadir Hari Ini</p>
-            <h2 id="valHadir">0</h2>
-            <p>Karyawan</p>
+            <p>Total Cuti</p>
+            <h2 id="valRecapLeave">0</h2>
+            <p>Hari</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #A855F7;"><i class='bx bx-plus-medical'></i></div>
+          <div class="stat-info">
+            <p>Total Sakit</p>
+            <h2 id="valRecapSick">0</h2>
+            <p>Hari</p>
           </div>
         </div>
         
         <div class="stat-card">
           <div class="stat-icon bg-red"><i class='bx bx-user-x'></i></div>
           <div class="stat-info">
-            <p>Belum Hadir / Cuti</p>
-            <h2 id="valBelumHadir">0</h2>
-            <p>Karyawan</p>
+            <p>Total Alpa</p>
+            <h2 id="valRecapAbsent">0</h2>
+            <p>Hari</p>
           </div>
         </div>
       </div>
 
-      <div class="charts-container">
-        <!-- Chart 1: Departemen -->
-        <div class="chart-card">
+      <div class="charts-container" style="margin-top: 24px;">
+        <div class="chart-card" style="flex: 1;">
           <div class="chart-header">
             <div>
-              <h3>Sebaran Karyawan per Departemen</h3>
-              <p>Distribusi jumlah karyawan di tiap modul / departemen</p>
+              <h3>Rekapitulasi Absensi Bulanan</h3>
+              <p>Rincian kehadiran karyawan per bulan</p>
             </div>
+            <button class="btn-tambah" id="btnExportCSV" style="background: #10B981;"><i class='bx bx-export'></i> Export CSV</button>
           </div>
-          <div style="height: 300px; display: flex; align-items: center; justify-content: center; width: 100%;">
-            <canvas id="deptChart"></canvas>
-          </div>
-        </div>
-        
-        <!-- Chart 2: Gender -->
-        <div class="chart-card" style="flex: 0.6;">
-          <div class="chart-header">
-            <div>
-              <h3>Distribusi Gender</h3>
-              <p>Rasio Karyawan Laki-laki vs Perempuan</p>
-            </div>
-          </div>
-          <div style="height: 300px; display: flex; align-items: center; justify-content: center;">
-            <canvas id="genderChart"></canvas>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama Karyawan</th>
+                  <th>Hadir</th>
+                  <th>Cuti</th>
+                  <th>Sakit</th>
+                  <th>Alpa</th>
+                </tr>
+              </thead>
+              <tbody id="recapTableBody">
+                <!-- Data diisi oleh JS -->
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
