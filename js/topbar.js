@@ -248,7 +248,7 @@ const divisions = [
     { id: 'hr', name: 'HR Manager', badge: 'HR', color: '#FBBF24' }
 ];
 
-let currentUserRole = localStorage.getItem('user_role') || 'sales';
+let currentUserRole = sessionStorage.getItem('user_role') || localStorage.getItem('user_role') || 'sales';
 let currentActiveChatId = null;
 
 // OVERRIDE BTN CHAT TOGGLE (From topbar)
