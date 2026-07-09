@@ -294,7 +294,7 @@ function renderChatList() {
     list.innerHTML = '';
     
     divisions.forEach(div => {
-        if (div.id === currentUserRole) return; // Jangan chat diri sendiri (kecuali superadmin)
+        // if (div.id === currentUserRole) return; // Allow chatting with own department as notes
         
         const msgs = getMessages();
         const unreadForThis = msgs.filter(m => m.type === 'dm' && m.from === div.id && m.to === currentUserRole && m.read === false).length;
@@ -398,6 +398,12 @@ document.getElementById('sendChatMessageBtn').addEventListener('click', () => {
     saveMessages(msgs);
     input.value = '';
     renderMessages();
+});
+
+document.getElementById('chatMessageInput').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        document.getElementById('sendChatMessageBtn').click();
+    }
 });
 
 document.getElementById('chatMessageInput').addEventListener('keypress', (e) => {
